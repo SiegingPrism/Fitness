@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export interface SetLog {
   setNumber: number;
-  weightLbs: number;
+  weightKg: number;
   reps: number;
   completed: boolean;
 }
@@ -23,7 +23,7 @@ interface WorkoutState {
   addRestSeconds: (seconds: number) => void;
   skipRest: () => void;
   completeSet: (index: number) => void;
-  updateSet: (index: number, weightLbs: number, reps: number) => void;
+  updateSet: (index: number, weightKg: number, reps: number) => void;
   finishWorkout: () => void;
 }
 
@@ -34,10 +34,10 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
   restSeconds: 72,
   isResting: true,
   sets: [
-    { setNumber: 1, weightLbs: 185, reps: 8, completed: true },
-    { setNumber: 2, weightLbs: 195, reps: 6, completed: true },
-    { setNumber: 3, weightLbs: 205, reps: 5, completed: false },
-    { setNumber: 4, weightLbs: 205, reps: 4, completed: false }
+    { setNumber: 1, weightKg: 80, reps: 8, completed: true },
+    { setNumber: 2, weightKg: 85, reps: 6, completed: true },
+    { setNumber: 3, weightKg: 90, reps: 5, completed: false },
+    { setNumber: 4, weightKg: 92.5, reps: 4, completed: false }
   ],
   completedSetsCount: 2,
 
@@ -49,10 +49,10 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
     isResting: false,
     completedSetsCount: 0,
     sets: [
-      { setNumber: 1, weightLbs: 185, reps: 8, completed: false },
-      { setNumber: 2, weightLbs: 195, reps: 6, completed: false },
-      { setNumber: 3, weightLbs: 205, reps: 5, completed: false },
-      { setNumber: 4, weightLbs: 205, reps: 4, completed: false }
+      { setNumber: 1, weightKg: 80, reps: 8, completed: false },
+      { setNumber: 2, weightKg: 85, reps: 6, completed: false },
+      { setNumber: 3, weightKg: 90, reps: 5, completed: false },
+      { setNumber: 4, weightKg: 92.5, reps: 4, completed: false }
     ]
   }),
 
@@ -89,9 +89,9 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
     };
   }),
 
-  updateSet: (index, weightLbs, reps) => set((state) => {
+  updateSet: (index, weightKg, reps) => set((state) => {
     const updatedSets = [...state.sets];
-    updatedSets[index] = { ...updatedSets[index], weightLbs, reps };
+    updatedSets[index] = { ...updatedSets[index], weightKg, reps };
     return { sets: updatedSets };
   }),
 

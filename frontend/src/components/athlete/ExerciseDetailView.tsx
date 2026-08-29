@@ -39,7 +39,7 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
   if (loading || !exercise) {
     return (
-      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#8d9882' }}>
+      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b', fontFamily: 'Inter, sans-serif' }}>
         <p>Loading exercise breakdown...</p>
       </div>
     );
@@ -54,32 +54,37 @@ export const ExerciseDetailView: React.FC<Props> = ({
   };
 
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', paddingBottom: '160px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ maxWidth: '440px', margin: '0 auto', paddingBottom: '160px', fontFamily: 'Inter, sans-serif' }}>
       {/* Top Bar with Back Button */}
-      <div style={{ padding: '16px 20px 8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ padding: '16px 16px 8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
           type="button"
           onClick={onBack}
           style={{
-            backgroundColor: '#151b2d',
-            border: '1px solid #2e3447',
-            borderRadius: '10px',
+            backgroundColor: '#111b2b',
+            border: '1px solid #1e2d44',
+            borderRadius: '12px',
             color: '#ffffff',
             padding: '8px 12px',
             cursor: 'pointer',
-            fontSize: '14px'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
           aria-label="Back to exercises"
         >
-          ←
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
         </button>
-        <span style={{ fontSize: '12px', color: '#8d9882', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '11px', color: '#06b6d4', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
           Exercise Breakdown
         </span>
       </div>
 
       {/* Hero Media Banner */}
-      <div style={{ position: 'relative', height: '220px', backgroundColor: '#0a0e1a', overflow: 'hidden', margin: '0 16px', borderRadius: '16px' }}>
+      <div style={{ position: 'relative', height: '220px', backgroundColor: '#0b121f', overflow: 'hidden', margin: '0 16px', borderRadius: '22px', border: '1px solid #1e2d44' }}>
         <img
           src={exercise.media?.thumbnail || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'}
           alt={exercise.name}
@@ -87,29 +92,30 @@ export const ExerciseDetailView: React.FC<Props> = ({
         />
         <div style={{
           position: 'absolute',
-          bottom: '12px',
-          left: '12px',
+          bottom: '14px',
+          left: '14px',
           display: 'flex',
           gap: '8px'
         }}>
           <span style={{
             fontSize: '11px',
             backgroundColor: '#bef264',
-            color: '#0d150b',
+            color: '#0c1324',
             padding: '4px 10px',
-            borderRadius: '6px',
-            fontWeight: '800'
+            borderRadius: '8px',
+            fontWeight: '900'
           }}>
             {exercise.difficulty || 'INTERMEDIATE'}
           </span>
           <span style={{
             fontSize: '11px',
-            backgroundColor: 'rgba(21, 27, 45, 0.85)',
-            color: '#38bdf8',
+            backgroundColor: 'rgba(11, 18, 31, 0.85)',
+            color: '#22d3ee',
             padding: '4px 10px',
-            borderRadius: '6px',
-            fontWeight: '700',
-            backdropFilter: 'blur(4px)'
+            borderRadius: '8px',
+            fontWeight: '800',
+            border: '1px solid #1e2d44',
+            backdropFilter: 'blur(6px)'
           }}>
             {exercise.movementPattern?.replace('_', ' ') || 'HORIZONTAL PUSH'}
           </span>
@@ -117,19 +123,20 @@ export const ExerciseDetailView: React.FC<Props> = ({
       </div>
 
       {/* Title & Description */}
-      <div style={{ padding: '16px 20px 8px' }}>
-        <h1 className="font-headline" style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>
+      <div style={{ padding: '16px 16px 8px' }}>
+        <h1 className="font-headline" style={{ fontSize: '22px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.3px', margin: 0 }}>
           {exercise.name}
         </h1>
-        <p style={{ fontSize: '13px', color: '#8d9882', margin: '6px 0 12px 0', lineHeight: '1.4' }}>
+        <p style={{ fontSize: '13px', color: '#94a3b8', margin: '6px 0 14px 0', lineHeight: '1.4' }}>
           {exercise.description}
         </p>
 
         {/* Tab Navigation: Overview | History | Alternatives */}
         <div style={{
           display: 'flex',
-          backgroundColor: '#151b2d',
-          borderRadius: '12px',
+          backgroundColor: '#111b2b',
+          border: '1px solid #1e2d44',
+          borderRadius: '14px',
           padding: '4px',
           gap: '4px',
           marginBottom: '16px'
@@ -148,13 +155,14 @@ export const ExerciseDetailView: React.FC<Props> = ({
                 style={{
                   flex: 1,
                   padding: '8px 0',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   border: 'none',
-                  backgroundColor: isActive ? '#bef264' : 'transparent',
-                  color: isActive ? '#0d150b' : '#8d9882',
-                  fontWeight: isActive ? '800' : '600',
+                  backgroundColor: isActive ? '#06b6d4' : 'transparent',
+                  color: isActive ? '#0c1324' : '#94a3b8',
+                  fontWeight: '800',
                   fontSize: '12px',
                   cursor: 'pointer',
+                  boxShadow: isActive ? '0 0 12px rgba(6, 182, 212, 0.4)' : 'none',
                   transition: 'all 0.15s ease'
                 }}
               >
@@ -167,31 +175,31 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Muscle & Equipment Card */}
           <div style={{
-            backgroundColor: '#151b2d',
-            border: '1px solid #2e3447',
-            borderRadius: '14px',
-            padding: '14px 16px',
+            backgroundColor: '#111b2b',
+            border: '1px solid #1e2d44',
+            borderRadius: '18px',
+            padding: '16px',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '12px'
           }}>
             <div>
-              <span style={{ fontSize: '11px', color: '#8d9882', fontWeight: '700', textTransform: 'uppercase' }}>Primary Muscle</span>
-              <p style={{ fontSize: '13px', color: '#bef264', fontWeight: 'bold', margin: '2px 0 0 0' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Primary Muscle</span>
+              <p style={{ fontSize: '14px', color: '#22d3ee', fontWeight: '800', margin: '2px 0 0 0' }}>
                 {exercise.primaryMuscles?.join(', ') || 'CHEST'}
               </p>
               {exercise.secondaryMuscles && exercise.secondaryMuscles.length > 0 && (
-                <p style={{ fontSize: '11px', color: '#8d9882', margin: '4px 0 0 0' }}>
+                <p style={{ fontSize: '11px', color: '#64748b', margin: '4px 0 0 0' }}>
                   Secondary: {exercise.secondaryMuscles.join(', ')}
                 </p>
               )}
             </div>
             <div>
-              <span style={{ fontSize: '11px', color: '#8d9882', fontWeight: '700', textTransform: 'uppercase' }}>Equipment</span>
-              <p style={{ fontSize: '13px', color: '#ffffff', fontWeight: 'bold', margin: '2px 0 0 0' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equipment</span>
+              <p style={{ fontSize: '14px', color: '#ffffff', fontWeight: '800', margin: '2px 0 0 0' }}>
                 {exercise.equipment?.join(', ') || 'BARBELL, BENCH'}
               </p>
             </div>
@@ -199,25 +207,25 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
           {/* Programming Defaults */}
           <div>
-            <h4 style={{ fontSize: '12px', color: '#8d9882', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '700', letterSpacing: '0.05em' }}>
+            <h4 style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px', fontWeight: '800', letterSpacing: '0.5px' }}>
               Recommended Programming Defaults
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-              <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', color: '#8d9882', fontWeight: '700' }}>SETS & REPS</span>
-                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#bef264', margin: '4px 0 0 0' }}>
+              <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '14px', padding: '12px 8px', textAlign: 'center' }}>
+                <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '800' }}>SETS & REPS</span>
+                <p style={{ fontSize: '13px', fontWeight: '800', color: '#bef264', margin: '4px 0 0 0' }}>
                   {exercise.programming?.recommendedSets || '3-4 sets'} • {exercise.programming?.recommendedRepRange ? `${exercise.programming.recommendedRepRange.min}-${exercise.programming.recommendedRepRange.max}` : '8-12'}
                 </p>
               </div>
-              <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', color: '#8d9882', fontWeight: '700' }}>REST INTERVAL</span>
-                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#38bdf8', margin: '4px 0 0 0' }}>
+              <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '14px', padding: '12px 8px', textAlign: 'center' }}>
+                <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '800' }}>REST INTERVAL</span>
+                <p style={{ fontSize: '13px', fontWeight: '800', color: '#22d3ee', margin: '4px 0 0 0' }}>
                   {exercise.programming?.recommendedRestSeconds || 120}s
                 </p>
               </div>
-              <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', color: '#8d9882', fontWeight: '700' }}>INTENSITY (RPE)</span>
-                <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#f59e0b', margin: '4px 0 0 0' }}>
+              <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '14px', padding: '12px 8px', textAlign: 'center' }}>
+                <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '800' }}>INTENSITY</span>
+                <p style={{ fontSize: '13px', fontWeight: '800', color: '#f59e0b', margin: '4px 0 0 0' }}>
                   RPE {exercise.programming?.recommendedRPE || 8}
                 </p>
               </div>
@@ -227,23 +235,23 @@ export const ExerciseDetailView: React.FC<Props> = ({
           {/* Setup & Breathing Guide */}
           {(exercise.setupInstructions || exercise.breathingInstructions) && (
             <div style={{
-              backgroundColor: '#121824',
-              border: '1px solid #233044',
-              borderRadius: '14px',
-              padding: '12px 16px',
+              backgroundColor: '#111b2b',
+              border: '1px solid #1e2d44',
+              borderRadius: '16px',
+              padding: '14px 16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '8px'
             }}>
               {exercise.setupInstructions && (
                 <div>
-                  <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: '700' }}>🔧 Setup: </span>
+                  <span style={{ fontSize: '11px', color: '#22d3ee', fontWeight: '800' }}>Setup: </span>
                   <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{exercise.setupInstructions}</span>
                 </div>
               )}
               {exercise.breathingInstructions && (
                 <div>
-                  <span style={{ fontSize: '11px', color: '#bef264', fontWeight: '700' }}>💨 Breathing: </span>
+                  <span style={{ fontSize: '11px', color: '#bef264', fontWeight: '800' }}>Breathing: </span>
                   <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{exercise.breathingInstructions}</span>
                 </div>
               )}
@@ -252,28 +260,29 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
           {/* Step-by-Step Instructions */}
           <div style={{
-            backgroundColor: '#151b2d',
-            border: '1px solid #2e3447',
-            borderRadius: '14px',
-            padding: '16px'
+            backgroundColor: '#111b2b',
+            border: '1px solid #1e2d44',
+            borderRadius: '18px',
+            padding: '18px'
           }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff', margin: '0 0 12px 0' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#ffffff', margin: '0 0 12px 0' }}>
               Step-by-Step Execution
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {exercise.instructions?.map((step: string, idx: number) => (
                 <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <span style={{
-                    width: '20px',
-                    height: '20px',
+                    width: '22px',
+                    height: '22px',
                     borderRadius: '50%',
-                    backgroundColor: '#1e293b',
-                    color: '#38bdf8',
+                    backgroundColor: '#0b121f',
+                    border: '1px solid #1e2d44',
+                    color: '#22d3ee',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '11px',
-                    fontWeight: 'bold',
+                    fontWeight: '800',
                     flexShrink: 0
                   }}>
                     {idx + 1}
@@ -287,8 +296,8 @@ export const ExerciseDetailView: React.FC<Props> = ({
           {/* Coaching Cues & Common Mistakes */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {/* Cues */}
-            <div style={{ backgroundColor: '#131e14', border: '1px solid #284221', borderRadius: '12px', padding: '12px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#bef264' }}>💡 Coaching Cues</span>
+            <div style={{ backgroundColor: '#111b2b', border: '1px solid #2f4023', borderRadius: '16px', padding: '14px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: '#bef264' }}>Coaching Cues</span>
               <ul style={{ margin: '6px 0 0 0', paddingLeft: '16px', fontSize: '12px', color: '#cbd5e1' }}>
                 {exercise.coachingCues?.map((cue: string, idx: number) => (
                   <li key={idx} style={{ marginBottom: '4px' }}>{cue}</li>
@@ -297,8 +306,8 @@ export const ExerciseDetailView: React.FC<Props> = ({
             </div>
 
             {/* Mistakes */}
-            <div style={{ backgroundColor: '#1e1414', border: '1px solid #4a1d1d', borderRadius: '12px', padding: '12px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ffb4ab' }}>⚠️ Avoid Mistakes</span>
+            <div style={{ backgroundColor: '#111b2b', border: '1px solid #4a1d1d', borderRadius: '16px', padding: '14px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: '#f87171' }}>Avoid Mistakes</span>
               <ul style={{ margin: '6px 0 0 0', paddingLeft: '16px', fontSize: '12px', color: '#cbd5e1' }}>
                 {exercise.commonMistakes?.map((mistake: string, idx: number) => (
                   <li key={idx} style={{ marginBottom: '4px' }}>{mistake}</li>
@@ -311,49 +320,53 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
       {/* TAB 2: HISTORY */}
       {activeTab === 'history' && (
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* PR Trophy Shelf */}
           <div style={{
-            backgroundColor: '#192212',
-            border: '1px solid #364d26',
-            borderRadius: '16px',
+            backgroundColor: '#111b2b',
+            border: '1px solid #1e2d44',
+            borderRadius: '18px',
             padding: '16px',
             display: 'flex',
             alignItems: 'center',
             gap: '14px'
           }}>
-            <span style={{ fontSize: '32px' }}>🏆</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#0b121f', border: '1.5px solid #06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06b6d4' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
             <div>
-              <span style={{ fontSize: '11px', color: '#bef264', fontWeight: '800', textTransform: 'uppercase' }}>ALL-TIME BEST</span>
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff', margin: '2px 0 0 0' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ALL-TIME BEST</span>
+              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#bef264', margin: '2px 0 0 0' }}>
                 {pb.weightKg} kg × {pb.reps} reps
               </h3>
-              <p style={{ fontSize: '11px', color: '#8d9882', margin: '2px 0 0 0' }}>Achieved {pb.lastPerformed}</p>
+              <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0 0' }}>Achieved {pb.lastPerformed}</p>
             </div>
           </div>
 
           {/* Stats Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '14px', padding: '14px' }}>
-              <span style={{ fontSize: '11px', color: '#8d9882', fontWeight: '700' }}>ESTIMATED 1RM</span>
-              <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#bef264', margin: '4px 0 0 0' }}>
+            <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '16px', padding: '14px' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>ESTIMATED 1RM</span>
+              <p style={{ fontSize: '18px', fontWeight: '800', color: '#22d3ee', margin: '4px 0 0 0' }}>
                 {pb.estimated1RM} kg
               </p>
-              <span style={{ fontSize: '11px', color: '#38bdf8' }}>+4.5% vs last month</span>
+              <span style={{ fontSize: '11px', color: '#bef264', fontWeight: '700' }}>+4.5% vs last month</span>
             </div>
 
-            <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '14px', padding: '14px' }}>
-              <span style={{ fontSize: '11px', color: '#8d9882', fontWeight: '700' }}>TOTAL LIFETIME VOLUME</span>
-              <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff', margin: '4px 0 0 0' }}>
+            <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '16px', padding: '14px' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>LIFETIME VOLUME</span>
+              <p style={{ fontSize: '18px', fontWeight: '800', color: '#ffffff', margin: '4px 0 0 0' }}>
                 {pb.totalVolumeKg?.toLocaleString()} kg
               </p>
-              <span style={{ fontSize: '11px', color: '#8d9882' }}>Over 32 sessions</span>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>Over 32 sessions</span>
             </div>
           </div>
 
           {/* Mini Progression Trend */}
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '14px', padding: '16px' }}>
-            <h4 style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff', margin: '0 0 12px 0' }}>
+          <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '18px', padding: '18px' }}>
+            <h4 style={{ fontSize: '13px', fontWeight: '800', color: '#ffffff', margin: '0 0 12px 0' }}>
               Estimated 1RM Trend (Last 6 Weeks)
             </h4>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '80px', paddingTop: '10px' }}>
@@ -364,10 +377,11 @@ export const ExerciseDetailView: React.FC<Props> = ({
                     <div style={{
                       width: '100%',
                       height: `${Math.max(20, heightPercent)}%`,
-                      backgroundColor: i === 5 ? '#bef264' : '#1e293b',
-                      borderRadius: '4px'
+                      backgroundColor: i === 5 ? '#06b6d4' : '#162236',
+                      borderRadius: '6px',
+                      boxShadow: i === 5 ? '0 0 10px rgba(6, 182, 212, 0.4)' : 'none'
                     }} />
-                    <span style={{ fontSize: '9px', color: '#8d9882' }}>W{i + 1}</span>
+                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>W{i + 1}</span>
                   </div>
                 );
               })}
@@ -378,17 +392,16 @@ export const ExerciseDetailView: React.FC<Props> = ({
 
       {/* TAB 3: ALTERNATIVES */}
       {activeTab === 'alternatives' && (
-        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: '12px', color: '#8d9882', margin: '0 0 4px 0' }}>
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 0 4px 0' }}>
             Intelligent biomechanical alternatives based on movement pattern, targeted muscle load, and equipment availability.
           </p>
 
           {alternatives.length === 0 && (
-            <p style={{ fontSize: '13px', color: '#8d9882' }}>No alternatives configured.</p>
+            <p style={{ fontSize: '13px', color: '#64748b' }}>No alternatives configured.</p>
           )}
 
           {alternatives.map((alt: any, index: number) => {
-            const stars = alt.similarityScore >= 90 ? '★★★★★' : '★★★★☆';
             return (
               <div
                 key={alt.exerciseId || index}
@@ -396,9 +409,9 @@ export const ExerciseDetailView: React.FC<Props> = ({
                   if (onSelectAlternative) onSelectAlternative(alt.exerciseId);
                 }}
                 style={{
-                  backgroundColor: '#151b2d',
-                  border: '1px solid #2e3447',
-                  borderRadius: '14px',
+                  backgroundColor: '#111b2b',
+                  border: '1px solid #1e2d44',
+                  borderRadius: '16px',
                   padding: '14px',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -408,16 +421,15 @@ export const ExerciseDetailView: React.FC<Props> = ({
               >
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff', margin: 0 }}>
                       {alt.name}
                     </h4>
-                    <span style={{ fontSize: '11px', color: '#fde047' }}>{stars}</span>
                   </div>
-                  <p style={{ fontSize: '11px', color: '#bef264', margin: '3px 0 0 0' }}>
+                  <p style={{ fontSize: '11px', color: '#22d3ee', margin: '3px 0 0 0', fontWeight: '700' }}>
                     Requires: {alt.equipment || 'DUMBBELL'}
                   </p>
                   {alt.matchReason && (
-                    <p style={{ fontSize: '11px', color: '#8d9882', margin: '4px 0 0 0', lineHeight: '1.3' }}>
+                    <p style={{ fontSize: '11px', color: '#64748b', margin: '4px 0 0 0', lineHeight: '1.3' }}>
                       {alt.matchReason}
                     </p>
                   )}
@@ -425,13 +437,13 @@ export const ExerciseDetailView: React.FC<Props> = ({
                 <button
                   type="button"
                   style={{
-                    backgroundColor: '#1f293d',
-                    border: '1px solid #334155',
-                    color: '#38bdf8',
-                    borderRadius: '8px',
+                    backgroundColor: '#162236',
+                    border: '1px solid #24324a',
+                    color: '#22d3ee',
+                    borderRadius: '10px',
                     padding: '6px 12px',
                     fontSize: '11px',
-                    fontWeight: '700',
+                    fontWeight: '800',
                     cursor: 'pointer'
                   }}
                 >
@@ -495,13 +507,13 @@ export const ExerciseDetailView: React.FC<Props> = ({
             onClick={() => onAddToWorkout(exercise)}
             style={{
               width: '100%',
-              backgroundColor: '#162236',
-              color: '#38bdf8',
-              border: '1px solid #24324a',
+              backgroundColor: '#111b2b',
+              color: '#06b6d4',
+              border: '1px solid #1e2d44',
               borderRadius: '12px',
               padding: '10px',
               fontSize: '12px',
-              fontWeight: '700',
+              fontWeight: '800',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',

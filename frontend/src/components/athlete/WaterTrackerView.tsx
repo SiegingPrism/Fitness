@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const WaterTrackerView: React.FC<Props> = ({ onBack }) => {
-  const [waterLiters, setWaterLiters] = useState(1.5);
+  const [waterLiters, setWaterLiters] = useState(1.75);
   const targetLiters = 3.0;
 
   const addWater = (amountMl: number) => {
@@ -20,127 +20,134 @@ export const WaterTrackerView: React.FC<Props> = ({ onBack }) => {
       {/* 1. Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={onBack} style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
+          <button
+            type="button"
+            onClick={onBack}
+            style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#111b2b', border: '1px solid #1e2d44', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
           </button>
-          <h1 className="font-headline" style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff' }}>Water Tracker</h1>
+          <div>
+            <div style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#06b6d4', letterSpacing: '0.6px' }}>HYDRATION TRACKER</div>
+            <h1 className="font-headline" style={{ fontSize: '20px', fontWeight: '800', color: '#ffffff', margin: 0 }}>Log Water</h1>
+          </div>
         </div>
-        <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#3cddc7', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
-        </button>
       </div>
 
       {/* 2. Circular Progress Gauge */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', margin: '10px 0' }}>
         <div style={{ position: 'relative', width: '210px', height: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="210" height="210" viewBox="0 0 210 210" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="105" cy="105" r="88" stroke="#191f31" strokeWidth="14" fill="none" />
+            <circle cx="105" cy="105" r="88" stroke="#0b121f" strokeWidth="14" fill="none" />
             <circle
               cx="105"
               cy="105"
               r="88"
-              stroke="#3cddc7"
+              stroke="#06b6d4"
               strokeWidth="14"
               strokeDasharray="553"
               strokeDashoffset={553 - (553 * (waterLiters / targetLiters))}
               strokeLinecap="round"
               fill="none"
-              style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+              style={{ filter: 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.6))', transition: 'stroke-dashoffset 0.8s ease' }}
             />
           </svg>
           <div style={{ position: 'absolute', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span className="material-symbols-outlined" style={{ color: '#3cddc7', fontSize: '32px', marginBottom: '4px' }}>water_drop</span>
-            <div className="font-headline" style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff' }}>{waterLiters}L</div>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#8d9882', textTransform: 'uppercase', letterSpacing: '0.5px' }}>GOAL: {targetLiters}L</div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '4px' }}>
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
+            <div className="font-headline" style={{ fontSize: '26px', fontWeight: '800', color: '#ffffff' }}>{waterLiters}L</div>
+            <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>GOAL: {targetLiters}L</div>
           </div>
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <div className="font-headline" style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>
-            {percentage >= 100 ? "Goal Completed! 🎉" : "You're halfway there!"}
+          <div className="font-headline" style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>
+            {percentage >= 100 ? "Goal Completed!" : `${percentage}% of Daily Goal Reached`}
           </div>
-          <p style={{ fontSize: '13px', color: '#8d9882', marginTop: '4px' }}>Keep it up, your body will thank you.</p>
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px', margin: 0 }}>Optimal hydration boosts recovery & muscle growth.</p>
         </div>
       </div>
 
       {/* 3. Quick Increment Buttons */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
         <button
+          type="button"
           onClick={() => addWater(250)}
-          style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
-          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#3cddc7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>local_drink</span>
+          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#0b121f', border: '1px solid #1e2d44', color: '#22d3ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+              <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
+              <line x1="6" y1="2" x2="6" y2="4"></line>
+              <line x1="10" y1="2" x2="10" y2="4"></line>
+              <line x1="14" y1="2" x2="14" y2="4"></line>
+            </svg>
           </div>
-          <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff' }}>250ml</span>
+          <span style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>250ml</span>
         </button>
 
         <button
+          type="button"
           onClick={() => addWater(500)}
-          style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
         >
-          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#3cddc7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>local_drink</span>
+          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#0b121f', border: '1px solid #1e2d44', color: '#22d3ee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
           </div>
-          <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff' }}>500ml</span>
+          <span style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>500ml</span>
         </button>
 
         <button
+          type="button"
           onClick={() => addWater(1000)}
-          style={{ backgroundColor: '#151b2d', border: '1px solid #3cddc7', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          style={{ backgroundColor: '#111b2b', border: '1.5px solid #06b6d4', borderRadius: '18px', padding: '16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 0 14px rgba(6, 182, 212, 0.25)' }}
         >
-          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#3cddc7', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px', fontWeight: 'bold' }}>water_drop</span>
+          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#06b6d4', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
           </div>
-          <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff' }}>1L</span>
+          <span style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>1L Bottle</span>
         </button>
       </div>
 
       {/* 4. Weekly History Chart */}
-      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '22px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 className="font-headline" style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>Weekly History</h2>
-          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#3cddc7', cursor: 'pointer' }}>View Trends</span>
-        </div>
-
-        {/* Days Grid */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '80px', paddingTop: '10px' }}>
-          {[
-            { day: 'MON', active: false },
-            { day: 'TUE', active: false },
-            { day: 'WED', active: false },
-            { day: 'THU', active: false },
-            { day: 'FRI', active: true },
-            { day: 'SAT', active: false },
-            { day: 'SUN', active: false }
-          ].map((bar, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
-              <span style={{ fontSize: '10px', fontWeight: 'bold', color: bar.active ? '#3cddc7' : '#8d9882' }}>{bar.day}</span>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #2e3447', paddingTop: '12px', fontSize: '13px' }}>
-          <span style={{ color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3cddc7' }}></span>
-            Average: <strong>2.1L</strong>
-          </span>
-          <span style={{ color: '#ffffff' }}>Best: <strong>2.8L</strong></span>
-        </div>
-      </div>
-
-      {/* 5. Pro Tip Card */}
-      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <img
-          src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=200&q=80"
-          alt="Pro Tip"
-          style={{ width: '56px', height: '56px', borderRadius: '14px', objectFit: 'cover' }}
-        />
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff' }}>Pro Tip</div>
-          <div style={{ fontSize: '12px', color: '#8d9882', marginTop: '2px', fontStyle: 'italic' }}>
-            "Drink a glass of water immediately post-workout to enhance muscle recovery."
+          <div>
+            <h3 className="font-headline" style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>Weekly History</h3>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>Past 7 Days Consistency</div>
           </div>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#06b6d4' }}>Avg: 2.6L/day</span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '100px', paddingTop: '10px' }}>
+          {[
+            { day: 'Mon', liters: 2.8, target: 3.0 },
+            { day: 'Tue', liters: 3.0, target: 3.0 },
+            { day: 'Wed', liters: 2.5, target: 3.0 },
+            { day: 'Thu', liters: 3.2, target: 3.0 },
+            { day: 'Fri', liters: 2.7, target: 3.0 },
+            { day: 'Sat', liters: 3.0, target: 3.0 },
+            { day: 'Sun', liters: 1.75, target: 3.0, current: true }
+          ].map((item, idx) => {
+            const h = Math.min(100, Math.round((item.liters / item.target) * 100));
+            return (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flex: 1 }}>
+                <div style={{ width: '16px', height: '70px', backgroundColor: '#0b121f', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+                  <div style={{ width: '100%', height: `${h}%`, backgroundColor: item.current ? '#06b6d4' : '#22d3ee', borderRadius: '8px', boxShadow: item.current ? '0 0 8px #06b6d4' : 'none' }}></div>
+                </div>
+                <span style={{ fontSize: '10px', color: item.current ? '#00f2fe' : '#64748b', fontWeight: item.current ? '800' : '600' }}>{item.day}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
