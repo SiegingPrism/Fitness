@@ -74,24 +74,7 @@ export const RootNavigator: React.FC = () => {
         </div>
       )}
 
-      {/* Top Header Hub Launcher */}
-      <div style={{ backgroundColor: '#151b2d', borderBottom: '1px solid #2e3447', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="font-headline" style={{ fontWeight: 'bold', color: '#bef264' }}>KINETIC OBSIDIAN</span>
-          <button onClick={() => setCurrentScreen('hub')} style={{ background: '#191f31', border: '1px solid #2e3447', color: '#bef264', padding: '4px 10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-            ⚡ Screen Hub
-          </button>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            onClick={() => setCurrentScreen('subscription')}
-            style={{ backgroundColor: '#bef264', color: '#0c1324', border: 'none', padding: '3px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '900', cursor: 'pointer' }}
-          >
-            PRO
-          </button>
-          <span style={{ color: '#c3c9b2' }}>Role: <strong style={{ color: '#fff' }}>{role}</strong></span>
-        </div>
-      </div>
+
 
       {/* Unauthenticated Stack */}
       {!isAuthenticated && currentScreen !== 'hub' && (

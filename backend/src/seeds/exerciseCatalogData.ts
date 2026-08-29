@@ -104,7 +104,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.279Z"
     }
   },
   {
@@ -209,7 +209,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -313,7 +313,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -417,7 +417,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -521,7 +521,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -625,7 +625,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -729,7 +729,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -832,7 +832,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -935,7 +935,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1039,7 +1039,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1143,7 +1143,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1246,7 +1246,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1350,7 +1350,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1455,7 +1455,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1559,7 +1559,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1662,7 +1662,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1765,7 +1765,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1867,7 +1867,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -1969,7 +1969,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2070,7 +2070,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2171,7 +2171,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2273,7 +2273,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2375,7 +2375,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2477,7 +2477,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2581,7 +2581,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2685,7 +2685,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.280Z"
     }
   },
   {
@@ -2789,7 +2789,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -2891,7 +2891,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -2995,7 +2995,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3100,7 +3100,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3163,9 +3163,9 @@ export const EXERCISE_CATALOG_317 = [
       "glutes"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3208,7 +3208,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3269,9 +3269,9 @@ export const EXERCISE_CATALOG_317 = [
       "hamstrings"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3314,7 +3314,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3375,9 +3375,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3420,7 +3420,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3479,9 +3479,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3524,7 +3524,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3583,9 +3583,9 @@ export const EXERCISE_CATALOG_317 = [
       "biceps"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3628,7 +3628,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3690,9 +3690,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3735,7 +3735,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3796,9 +3796,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3841,7 +3841,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -3900,9 +3900,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -3945,7 +3945,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4004,9 +4004,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4049,7 +4049,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4106,9 +4106,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4151,7 +4151,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.755Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4211,9 +4211,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4256,7 +4256,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4315,9 +4315,9 @@ export const EXERCISE_CATALOG_317 = [
       "rear_delts"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4360,7 +4360,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4417,9 +4417,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4462,7 +4462,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4520,9 +4520,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4565,7 +4565,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4624,9 +4624,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4669,7 +4669,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4728,9 +4728,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4773,7 +4773,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4835,9 +4835,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4880,7 +4880,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -4940,9 +4940,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -4985,7 +4985,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5045,9 +5045,9 @@ export const EXERCISE_CATALOG_317 = [
       "biceps"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5090,7 +5090,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5150,9 +5150,9 @@ export const EXERCISE_CATALOG_317 = [
       "biceps"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5195,7 +5195,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5253,9 +5253,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5298,7 +5298,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5355,9 +5355,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5400,7 +5400,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5457,9 +5457,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5502,7 +5502,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5558,9 +5558,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5603,7 +5603,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5660,9 +5660,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5705,7 +5705,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5763,9 +5763,9 @@ export const EXERCISE_CATALOG_317 = [
       "biceps"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5808,7 +5808,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5864,9 +5864,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5909,7 +5909,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -5967,9 +5967,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -5990,7 +5990,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6047,9 +6047,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6092,7 +6092,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6148,9 +6148,9 @@ export const EXERCISE_CATALOG_317 = [
       "lats"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6193,7 +6193,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6252,9 +6252,9 @@ export const EXERCISE_CATALOG_317 = [
       "lower_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6297,7 +6297,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6357,9 +6357,9 @@ export const EXERCISE_CATALOG_317 = [
       "glutes"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6402,7 +6402,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6462,9 +6462,9 @@ export const EXERCISE_CATALOG_317 = [
       "lower_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6507,7 +6507,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6567,9 +6567,9 @@ export const EXERCISE_CATALOG_317 = [
       "glutes"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6612,7 +6612,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6672,9 +6672,9 @@ export const EXERCISE_CATALOG_317 = [
       "glutes"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6717,7 +6717,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6779,9 +6779,9 @@ export const EXERCISE_CATALOG_317 = [
       "hamstrings"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6824,7 +6824,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6884,9 +6884,9 @@ export const EXERCISE_CATALOG_317 = [
       "glutes"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -6929,7 +6929,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -6985,9 +6985,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -7030,7 +7030,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7086,9 +7086,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -7131,7 +7131,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7187,9 +7187,9 @@ export const EXERCISE_CATALOG_317 = [
       "upper_back"
     ],
     "media": {
-      "thumbnail": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
+      "thumbnail": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80",
       "images": [
-        "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80"
       ]
     },
     "programming": {
@@ -7232,7 +7232,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7337,7 +7337,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7441,7 +7441,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7544,7 +7544,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7648,7 +7648,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7750,7 +7750,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7855,7 +7855,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -7957,7 +7957,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8058,7 +8058,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8160,7 +8160,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8262,7 +8262,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8365,7 +8365,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8464,7 +8464,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8563,7 +8563,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8662,7 +8662,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8758,7 +8758,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8854,7 +8854,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -8950,7 +8950,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9042,7 +9042,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9134,7 +9134,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9226,7 +9226,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9327,7 +9327,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9430,7 +9430,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9532,7 +9532,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9636,7 +9636,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9737,7 +9737,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9838,7 +9838,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -9938,7 +9938,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10038,7 +10038,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10138,7 +10138,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10238,7 +10238,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10338,7 +10338,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10440,7 +10440,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10541,7 +10541,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10641,7 +10641,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10743,7 +10743,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10846,7 +10846,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -10948,7 +10948,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11046,7 +11046,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11148,7 +11148,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11248,7 +11248,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11348,7 +11348,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11446,7 +11446,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11544,7 +11544,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11644,7 +11644,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11744,7 +11744,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11843,7 +11843,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -11941,7 +11941,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12039,7 +12039,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12137,7 +12137,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12237,7 +12237,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12335,7 +12335,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12433,7 +12433,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12534,7 +12534,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12634,7 +12634,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12734,7 +12734,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12835,7 +12835,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -12935,7 +12935,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13033,7 +13033,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13136,7 +13136,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13232,7 +13232,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13328,7 +13328,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13423,7 +13423,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13521,7 +13521,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13621,7 +13621,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13719,7 +13719,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13825,7 +13825,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.281Z"
     }
   },
   {
@@ -13928,7 +13928,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14033,7 +14033,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14134,7 +14134,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14239,7 +14239,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14342,7 +14342,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14449,7 +14449,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14552,7 +14552,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14654,7 +14654,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14756,7 +14756,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14858,7 +14858,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -14960,7 +14960,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15064,7 +15064,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15165,7 +15165,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15266,7 +15266,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15372,7 +15372,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15477,7 +15477,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15580,7 +15580,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15683,7 +15683,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15786,7 +15786,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15889,7 +15889,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -15990,7 +15990,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16093,7 +16093,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16186,7 +16186,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16280,7 +16280,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16383,7 +16383,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16485,7 +16485,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16589,7 +16589,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16692,7 +16692,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16793,7 +16793,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16895,7 +16895,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -16995,7 +16995,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17094,7 +17094,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17197,7 +17197,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17304,7 +17304,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17407,7 +17407,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17510,7 +17510,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17611,7 +17611,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17715,7 +17715,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17818,7 +17818,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -17919,7 +17919,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18018,7 +18018,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18119,7 +18119,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18220,7 +18220,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18321,7 +18321,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18426,7 +18426,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18529,7 +18529,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18632,7 +18632,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18733,7 +18733,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18834,7 +18834,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -18936,7 +18936,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19039,7 +19039,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19139,7 +19139,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19238,7 +19238,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19338,7 +19338,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19442,7 +19442,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19543,7 +19543,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19648,7 +19648,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19751,7 +19751,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19850,7 +19850,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -19949,7 +19949,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20049,7 +20049,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20152,7 +20152,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20253,7 +20253,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20352,7 +20352,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20451,7 +20451,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20549,7 +20549,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20647,7 +20647,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20746,7 +20746,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20845,7 +20845,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -20943,7 +20943,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21041,7 +21041,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21141,7 +21141,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21239,7 +21239,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21338,7 +21338,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21436,7 +21436,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21534,7 +21534,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21637,7 +21637,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21738,7 +21738,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21841,7 +21841,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -21943,7 +21943,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22042,7 +22042,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22143,7 +22143,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22245,7 +22245,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22349,7 +22349,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22452,7 +22452,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22553,7 +22553,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22653,7 +22653,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22752,7 +22752,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22853,7 +22853,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -22952,7 +22952,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23051,7 +23051,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23150,7 +23150,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23249,7 +23249,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23350,7 +23350,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23449,7 +23449,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23550,7 +23550,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23651,7 +23651,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23752,7 +23752,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23853,7 +23853,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -23956,7 +23956,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24059,7 +24059,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24164,7 +24164,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24269,7 +24269,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24373,7 +24373,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24479,7 +24479,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24584,7 +24584,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24690,7 +24690,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24794,7 +24794,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -24901,7 +24901,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25006,7 +25006,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25112,7 +25112,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25217,7 +25217,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25323,7 +25323,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25430,7 +25430,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25527,7 +25527,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25634,7 +25634,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25737,7 +25737,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25843,7 +25843,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -25947,7 +25947,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26052,7 +26052,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26155,7 +26155,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26260,7 +26260,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26363,7 +26363,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26468,7 +26468,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26571,7 +26571,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26669,7 +26669,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26777,7 +26777,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26881,7 +26881,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -26986,7 +26986,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27088,7 +27088,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27190,7 +27190,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27295,7 +27295,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27401,7 +27401,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27503,7 +27503,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27603,7 +27603,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27707,7 +27707,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27811,7 +27811,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -27916,7 +27916,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28022,7 +28022,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28126,7 +28126,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28231,7 +28231,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28334,7 +28334,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28436,7 +28436,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.283Z"
     }
   },
   {
@@ -28541,7 +28541,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -28626,7 +28626,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -28730,7 +28730,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -28830,7 +28830,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -28928,7 +28928,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29028,7 +29028,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29126,7 +29126,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29219,7 +29219,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29312,7 +29312,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29412,7 +29412,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29514,7 +29514,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29616,7 +29616,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29721,7 +29721,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29819,7 +29819,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -29917,7 +29917,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30017,7 +30017,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30121,7 +30121,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30219,7 +30219,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30323,7 +30323,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30426,7 +30426,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30529,7 +30529,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30634,7 +30634,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30740,7 +30740,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30845,7 +30845,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -30950,7 +30950,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31049,7 +31049,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31147,7 +31147,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31250,7 +31250,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31356,7 +31356,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31457,7 +31457,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31558,7 +31558,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31662,7 +31662,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31761,7 +31761,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31860,7 +31860,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -31961,7 +31961,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -32062,7 +32062,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 53,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -32161,7 +32161,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   },
   {
@@ -32267,7 +32267,7 @@ export const EXERCISE_CATALOG_317 = [
       "reps": 10,
       "estimated1RM": 0,
       "totalVolumeKg": 12000,
-      "achievedAt": "2026-08-29T14:36:44.756Z"
+      "achievedAt": "2026-08-29T15:06:51.284Z"
     }
   }
 ];

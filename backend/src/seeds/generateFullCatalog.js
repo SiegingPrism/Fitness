@@ -390,7 +390,7 @@ const extraResistanceExercises = [
 
 const allRawGroups = [
   { list: chestExercises, cat: ['STRENGTH', 'HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80' },
-  { list: backExercises, cat: ['STRENGTH', 'HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80' },
+  { list: backExercises, cat: ['STRENGTH', 'HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80' },
   { list: shoulderExercises, cat: ['STRENGTH', 'HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80' },
   { list: bicepExercises, cat: ['HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80' },
   { list: tricepExercises, cat: ['HYPERTROPHY'], defaultImg: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80' },

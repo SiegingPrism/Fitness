@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   fetchExercises,
-  fetchPopularExercises,
-  fetchFavoriteExercises,
-  fetchRecentExercises,
   toggleFavoriteExerciseApi,
   type ExerciseFilter
 } from '../../services/api';
@@ -21,6 +18,19 @@ const EQUIPMENT_OPTIONS = ['BARBELL', 'DUMBBELL', 'CABLE', 'MACHINE', 'BODYWEIGH
 const DIFFICULTY_OPTIONS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 const MOVEMENT_OPTIONS = ['HORIZONTAL_PUSH', 'VERTICAL_PUSH', 'HORIZONTAL_PULL', 'VERTICAL_PULL', 'SQUAT', 'HINGE', 'LUNGE', 'CARRY', 'ROTATION', 'ANTI_ROTATION', 'FLEXION', 'EXTENSION', 'ISOLATION'];
 
+const CLASSIFICATION_TABS = [
+  { id: 'ALL', label: 'All' },
+  { id: 'CHEST', label: 'Chest', muscles: ['CHEST'] },
+  { id: 'BACK', label: 'Back', muscles: ['LATS', 'UPPER_BACK', 'LOWER_BACK'] },
+  { id: 'SHOULDERS', label: 'Shoulders', muscles: ['FRONT_DELTS', 'SIDE_DELTS', 'REAR_DELTS'] },
+  { id: 'ARMS', label: 'Arms', muscles: ['BICEPS', 'TRICEPS', 'FOREARMS'] },
+  { id: 'LEGS', label: 'Legs', muscles: ['QUADS', 'HAMSTRINGS', 'GLUTES', 'CALVES'] },
+  { id: 'CORE', label: 'Core', muscles: ['ABS'] },
+  { id: 'FULL_BODY', label: 'Full Body', category: 'CONDITIONING' },
+  { id: 'CONDITIONING', label: 'Conditioning', category: 'CONDITIONING' },
+  { id: 'MOBILITY', label: 'Mobility', category: 'MOBILITY' }
+];
+
 export const WorkoutLibraryView: React.FC<Props> = ({
   onSelectExercise,
   mode = 'BROWSE',
@@ -33,8 +43,8 @@ export const WorkoutLibraryView: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null);
   const [totalMovements, setTotalMovements] = useState(0);
 
-  // Tab: 'all' | 'popular' | 'recent' | 'favorites'
-  const [activeTab, setActiveTab] = useState<'all' | 'popular' | 'recent' | 'favorites'>('all');
+  // Active Classification Tab (Chest, Back, Shoulders, Arms, Legs, Core, etc.)
+  const [activeClassification, setActiveClassification] = useState<string>('ALL');
 
   // Search state with debounce
   const [searchInput, setSearchInput] = useState('');
@@ -72,40 +82,23 @@ export const WorkoutLibraryView: React.FC<Props> = ({
     const currentSeq = ++requestSeq.current;
 
     try {
-      if (activeTab === 'popular') {
-        const res = await fetchPopularExercises();
-        if (currentSeq === requestSeq.current) {
+      const activeConfig = CLASSIFICATION_TABS.find((t) => t.id === activeClassification);
+      const filter: ExerciseFilter = {
+        search: debouncedSearch.trim() || undefined,
+        category: activeConfig?.category,
+        muscles: activeConfig?.muscles || (selectedMuscles.length > 0 ? selectedMuscles : undefined),
+        equipment: selectedEquipment.length > 0 ? selectedEquipment : undefined,
+        difficulty: selectedDifficulties.length > 0 ? selectedDifficulties : undefined,
+        movementPatterns: selectedMovements.length > 0 ? selectedMovements : undefined
+      };
+
+      const res = await fetchExercises(filter);
+      if (currentSeq === requestSeq.current) {
+        if (res.success) {
           setExercises(res.data || []);
-          setTotalMovements(res.data?.length || 0);
-        }
-      } else if (activeTab === 'favorites') {
-        const res = await fetchFavoriteExercises();
-        if (currentSeq === requestSeq.current) {
-          setExercises(res.data || []);
-          setTotalMovements(res.data?.length || 0);
-        }
-      } else if (activeTab === 'recent') {
-        const res = await fetchRecentExercises();
-        if (currentSeq === requestSeq.current) {
-          setExercises(res.data || []);
-          setTotalMovements(res.data?.length || 0);
-        }
-      } else {
-        const filter: ExerciseFilter = {
-          search: debouncedSearch.trim() || undefined,
-          muscles: selectedMuscles.length > 0 ? selectedMuscles : undefined,
-          equipment: selectedEquipment.length > 0 ? selectedEquipment : undefined,
-          difficulty: selectedDifficulties.length > 0 ? selectedDifficulties : undefined,
-          movementPatterns: selectedMovements.length > 0 ? selectedMovements : undefined
-        };
-        const res = await fetchExercises(filter);
-        if (currentSeq === requestSeq.current) {
-          if (res.success) {
-            setExercises(res.data || []);
-            setTotalMovements(res.total || res.data?.length || 0);
-          } else {
-            setError('Failed to load exercises');
-          }
+          setTotalMovements(res.total || res.data?.length || 0);
+        } else {
+          setError('Failed to load exercises');
         }
       }
     } catch (err) {
@@ -117,7 +110,7 @@ export const WorkoutLibraryView: React.FC<Props> = ({
         setLoading(false);
       }
     }
-  }, [activeTab, debouncedSearch, selectedMuscles, selectedEquipment, selectedDifficulties, selectedMovements]);
+  }, [activeClassification, debouncedSearch, selectedMuscles, selectedEquipment, selectedDifficulties, selectedMovements]);
 
   useEffect(() => {
     loadData();
@@ -272,20 +265,15 @@ export const WorkoutLibraryView: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* Discovery Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
-        {[
-          { id: 'all', label: 'All Catalog' },
-          { id: 'popular', label: '🔥 Popular' },
-          { id: 'recent', label: '⏱️ Recent' },
-          { id: 'favorites', label: '❤️ Favorites' }
-        ].map((tab) => {
-          const isActive = activeTab === tab.id;
+      {/* Muscle & Category Classification Pills */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+        {CLASSIFICATION_TABS.map((tab) => {
+          const isActive = activeClassification === tab.id;
           return (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveClassification(tab.id)}
               style={{
                 padding: '7px 14px',
                 borderRadius: '20px',
@@ -295,7 +283,8 @@ export const WorkoutLibraryView: React.FC<Props> = ({
                 fontWeight: isActive ? '800' : '600',
                 fontSize: '12px',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease'
               }}
             >
               {tab.label}
@@ -481,7 +470,9 @@ export const WorkoutLibraryView: React.FC<Props> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {exercises.map((exercise) => {
             const isFav = favoriteIds.has(exercise._id) || favoriteIds.has(exercise.slug);
-            const thumb = exercise.media?.thumbnail || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80';
+            const thumb = (exercise.media?.thumbnail && exercise.media.thumbnail.startsWith('http'))
+              ? exercise.media.thumbnail
+              : 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80';
 
             return (
               <div
@@ -513,11 +504,18 @@ export const WorkoutLibraryView: React.FC<Props> = ({
                   borderRadius: '10px',
                   overflow: 'hidden',
                   flexShrink: 0,
-                  backgroundColor: '#0a0e1a'
+                  backgroundColor: '#161e2e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #233044'
                 }}>
                   <img
                     src={thumb}
                     alt={exercise.name}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80';
+                    }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
