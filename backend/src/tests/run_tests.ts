@@ -11,7 +11,7 @@ const startTestServer = () => {
 };
 
 async function runTests() {
-  console.log('🧪 Starting Phase 6A.2 Automated Test Suite...\n');
+  console.log('🧪 Starting Phase 6A.2 & 6A.3 Automated Test Suite...\n');
   const server = await startTestServer();
   const address = server.address() as any;
   const baseUrl = `http://localhost:${address.port}/api/v1`;
@@ -103,7 +103,42 @@ async function runTests() {
     assert.ok(json.data.exercises.some((e: any) => e.name.includes('Bench')));
   });
 
-  // Test 6: Non-destructive Archiving
+  // Test 6: Popular Exercises
+  await test('Retrieves popular foundational exercises', async () => {
+    const res = await fetch(`${baseUrl}/exercises/popular`);
+    const json: any = await res.json();
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(json.success, true);
+    assert.ok(Array.isArray(json.data));
+    assert.ok(json.data.length >= 5);
+  });
+
+  // Test 7: Favorite Exercises & Toggle
+  await test('Toggles favorite status for an exercise', async () => {
+    const toggleRes = await fetch(`${baseUrl}/exercises/ex_1/favorite`, { method: 'POST' });
+    const toggleJson: any = await toggleRes.json();
+    assert.strictEqual(toggleRes.status, 200);
+    assert.strictEqual(toggleJson.success, true);
+    assert.ok('isFavorite' in toggleJson.data);
+
+    const favRes = await fetch(`${baseUrl}/exercises/favorites`);
+    const favJson: any = await favRes.json();
+    assert.strictEqual(favRes.status, 200);
+    assert.strictEqual(favJson.success, true);
+    assert.ok(Array.isArray(favJson.data));
+  });
+
+  // Test 8: Recent Exercises
+  await test('Retrieves recently used workout exercises', async () => {
+    const res = await fetch(`${baseUrl}/exercises/recent`);
+    const json: any = await res.json();
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(json.success, true);
+    assert.ok(Array.isArray(json.data));
+    assert.ok(json.data.length > 0);
+  });
+
+  // Test 9: Non-destructive Archiving
   await test('Archives exercise without deleting historical entity', async () => {
     const res = await fetch(`${baseUrl}/admin/exercises/${createdExerciseId}`, {
       method: 'DELETE',
@@ -117,7 +152,7 @@ async function runTests() {
     assert.strictEqual(json.data.status, 'ARCHIVED');
   });
 
-  // Test 7: Historical workout compatibility
+  // Test 10: Historical workout compatibility
   await test('Workout session successfully records with archived exercise references', async () => {
     const res = await fetch(`${baseUrl}/workouts/sessions`, {
       method: 'POST',

@@ -152,6 +152,7 @@ export const RootNavigator: React.FC = () => {
         <ExerciseDetailView
           exerciseId={selectedExerciseId}
           onBack={() => setCurrentScreen('workout_library')}
+          onSelectAlternative={(altId) => setSelectedExerciseId(altId)}
         />
       )}
       {currentScreen === 'ai_trainer' && <AITrainerView />}

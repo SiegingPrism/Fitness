@@ -2980,3 +2980,1391 @@ I. Recommended next implementation step
 Do not silently change unrelated features.
 
 Once that implementation passes, **the next task is 6A.3 — Exercise Discovery UI + advanced search/filtering**, followed by the full exercise catalog.
+# Phase 6A.3 — Exercise Discovery & Search
+
+Now that the **Exercise data layer, API, migration, and initial seed data are complete**, we can improve how users actually find exercises.
+
+The target experience is:
+
+```text
+Exercises
+   │
+   ├── Search
+   ├── Muscle filters
+   ├── Equipment filters
+   ├── Movement filters
+   ├── Difficulty filters
+   ├── Category filters
+   ├── Sort
+   └── Recent/Favorites
+          │
+          ▼
+     Exercise Detail
+          │
+          ├── Add to Workout
+          ├── View History
+          └── Find Alternatives
+```
+
+The important thing here is **not to turn the screen into a giant filter form**. The user should be able to find an exercise in seconds.
+
+---
+
+## 1. New Exercise Discovery Screen
+
+The main screen should look conceptually like:
+
+```text
+┌──────────────────────────────────┐
+│ Exercises                        │
+│                                  │
+│ 🔍 Search exercises...            │
+│                                  │
+│ [Chest] [Back] [Legs] [Arms]     │
+│                                  │
+│ Popular                          │
+│ ──────────────────────────────── │
+│                                  │
+│ Bench Press                      │
+│ Chest • Barbell                  │
+│                                  │
+│ Lat Pulldown                     │
+│ Back • Cable                     │
+│                                  │
+│ Squat                            │
+│ Quads • Barbell                  │
+└──────────────────────────────────┘
+```
+
+Don't expose every possible filter immediately.
+
+---
+
+# 2. Search First
+
+Search is the primary interaction.
+
+Users should be able to search:
+
+```text
+bench
+```
+
+```text
+incline dumbbell
+```
+
+```text
+RDL
+```
+
+```text
+chest press
+```
+
+```text
+pull
+```
+
+The backend already supports search, so the mobile app should consume that rather than maintaining its own exercise database.
+
+---
+
+# 3. Debounced Search
+
+Don't make an API request for every keystroke.
+
+Bad:
+
+```text
+b
+be
+ben
+benc
+bench
+```
+
+= 5 API calls.
+
+Instead:
+
+```text
+User typing
+     ↓
+300–400ms debounce
+     ↓
+API request
+```
+
+The exact debounce can be tuned, but roughly 300 ms is a good starting point.
+
+---
+
+# 4. Search Results
+
+Each result should show enough information to distinguish exercises:
+
+```text
+Barbell Bench Press
+Chest • Horizontal Push
+Barbell
+
+Dumbbell Bench Press
+Chest • Horizontal Push
+Dumbbell
+
+Incline Bench Press
+Upper Chest • Horizontal Push
+Barbell
+```
+
+Don't display every metadata field in the list.
+
+---
+
+# 5. Search Result Card
+
+Recommended:
+
+```text
+┌────────────────────────────────┐
+│ [thumbnail]                    │
+│                                │
+│ Barbell Bench Press            │
+│ Chest                          │
+│ Barbell • Intermediate         │
+│                         [+]    │
+└────────────────────────────────┘
+```
+
+The `+` should mean:
+
+```text
+Add to current workout
+```
+
+when the screen was opened from the workout builder.
+
+---
+
+# 6. Context-Aware Exercise Picker
+
+This is important.
+
+The same exercise screen can be used in different contexts.
+
+### From Explore
+
+```text
+Exercise
+ ↓
+View details
+```
+
+### From Workout Builder
+
+```text
+Add Exercise
+ ↓
+Exercise picker
+ ↓
+Select
+ ↓
+Added to workout
+```
+
+### From Exercise Replacement
+
+```text
+Replace exercise
+ ↓
+Exercise picker
+ ↓
+Filtered alternatives
+ ↓
+Select replacement
+```
+
+Don't create three separate exercise systems.
+
+Use one reusable discovery component with different modes.
+
+---
+
+# 7. Filter Button
+
+Add:
+
+```text
+[ Filters ]
+```
+
+Opening it:
+
+```text
+FILTERS
+
+Muscle
+────────────────
+☐ Chest
+☐ Back
+☐ Shoulders
+☐ Biceps
+☐ Triceps
+☐ Quads
+☐ Hamstrings
+☐ Glutes
+☐ Core
+
+Equipment
+────────────────
+☐ Barbell
+☐ Dumbbell
+☐ Cable
+☐ Machine
+☐ Bodyweight
+
+Difficulty
+────────────────
+☐ Beginner
+☐ Intermediate
+☐ Advanced
+
+[ Clear ]       [ Apply ]
+```
+
+---
+
+# 8. Use Bottom Sheet
+
+On mobile, filters should preferably appear as a bottom sheet rather than navigating to another full screen.
+
+```text
+Exercises
+     ↓
+[ Filters ]
+     ↓
+┌──────────────────────────────┐
+│ Filters                      │
+│                              │
+│ Muscle                       │
+│ [Chest] [Back] [Legs]        │
+│                              │
+│ Equipment                    │
+│ [Dumbbell] [Barbell]         │
+│                              │
+│ Difficulty                   │
+│ [Beginner] [Intermediate]    │
+│                              │
+│ [Clear]          [Apply]     │
+└──────────────────────────────┘
+```
+
+---
+
+# 9. Filter Chips
+
+After applying filters:
+
+```text
+[ Chest × ] [ Dumbbell × ] [ Beginner × ]
+```
+
+This makes the current state obvious.
+
+Users should be able to remove an individual filter without opening the filter sheet again.
+
+---
+
+# 10. Multiple Filters
+
+Support combinations.
+
+Example:
+
+```text
+Chest
++
+Dumbbell
++
+Beginner
+```
+
+means:
+
+> Show beginner chest exercises requiring dumbbells.
+
+Don't implement this as separate hard-coded combinations.
+
+Build a generic query object.
+
+---
+
+# 11. Query State
+
+Conceptually:
+
+```ts
+interface ExerciseFilters {
+  search?: string;
+  muscles?: string[];
+  equipment?: string[];
+  movementPatterns?: string[];
+  difficulty?: string[];
+  categories?: string[];
+}
+```
+
+Then:
+
+```text
+Filters
+ ↓
+API query
+ ↓
+Results
+```
+
+---
+
+# 12. Clear Filters
+
+Provide:
+
+```text
+Clear all
+```
+
+and individual:
+
+```text
+Chest ×
+```
+
+Don't force users to reset everything just to remove one filter.
+
+---
+
+# 13. Popular Exercises
+
+When no search/filter is active:
+
+```text
+POPULAR
+
+Bench Press
+Squat
+Deadlift
+Lat Pulldown
+Shoulder Press
+Romanian Deadlift
+```
+
+This can initially be static/ranked seed data.
+
+Later it can become usage-driven.
+
+---
+
+# 14. Recently Used
+
+Add:
+
+```text
+RECENTLY USED
+```
+
+For example:
+
+```text
+Bench Press
+Cable Fly
+Lat Pulldown
+Leg Press
+```
+
+This is particularly useful when logging workouts.
+
+The user shouldn't search for the same exercise every time.
+
+---
+
+# 15. Favorites
+
+Allow:
+
+```text
+♡
+```
+
+to become:
+
+```text
+♥
+```
+
+for favorite exercises.
+
+Example:
+
+```text
+MY FAVORITES
+
+Bench Press
+Cable Fly
+Lateral Raise
+RDL
+```
+
+This requires a small user-exercise relationship rather than modifying the master Exercise document.
+
+---
+
+# 16. User Exercise Preference Model
+
+Use something like:
+
+```text
+UserExercisePreference
+│
+├── userId
+├── exerciseId
+├── favorite
+├── disliked
+├── lastUsedAt
+└── createdAt
+```
+
+Potentially later:
+
+```text
+preference
+```
+
+instead of multiple booleans.
+
+---
+
+# 17. Recent Exercises
+
+Update:
+
+```text
+lastUsedAt
+```
+
+when an exercise is actually used in a workout.
+
+Don't update it merely because the user opened the exercise page.
+
+This distinction matters.
+
+---
+
+# 18. Sorting
+
+Initial options:
+
+```text
+Sort by
+
+Relevance
+Name
+Recently Used
+Popular
+```
+
+Don't add 15 sorting methods.
+
+Default:
+
+```text
+Relevance
+```
+
+for search.
+
+---
+
+# 19. Infinite Scrolling
+
+Don't load:
+
+```text
+300 exercises
+```
+
+at once.
+
+Use:
+
+```text
+20–30 results
+ ↓
+scroll
+ ↓
+next page
+```
+
+Your API already supports pagination, so wire that into the mobile screen.
+
+---
+
+# 20. Loading State
+
+Don't leave a blank screen.
+
+Use skeleton cards:
+
+```text
+████████████████
+████████
+██████
+
+████████████████
+████████
+██████
+```
+
+This makes the application feel substantially faster.
+
+---
+
+# 21. Empty State
+
+Search:
+
+```text
+"xyzabc"
+```
+
+should produce:
+
+```text
+No exercises found
+
+Try:
+• checking your spelling
+• removing a filter
+• searching by muscle or movement
+
+[ Clear Filters ]
+```
+
+Not:
+
+```text
+No data
+```
+
+---
+
+# 22. No Network State
+
+If the API is unavailable:
+
+```text
+Couldn't load exercises.
+
+Check your connection and try again.
+
+[ Retry ]
+```
+
+Don't show an empty exercise library and make the user think their data disappeared.
+
+---
+
+# 23. Exercise Detail
+
+Clicking an exercise should open the upgraded detail page.
+
+Structure:
+
+```text
+┌─────────────────────────────────┐
+│                                 │
+│          VIDEO / IMAGE          │
+│                                 │
+└─────────────────────────────────┘
+
+Barbell Bench Press
+
+Chest
+Horizontal Push
+Intermediate
+
+PRIMARY MUSCLE
+Chest
+
+SECONDARY
+Triceps • Front Delts
+
+EQUIPMENT
+Barbell • Bench
+```
+
+Then:
+
+```text
+HOW TO
+1. ...
+2. ...
+3. ...
+```
+
+---
+
+# 24. Detail Tabs
+
+Rather than making one enormous page:
+
+```text
+Overview
+History
+Alternatives
+```
+
+Example:
+
+```text
+[ Overview ] [ History ] [ Alternatives ]
+```
+
+This will become especially useful later.
+
+---
+
+# 25. Your History
+
+The History tab:
+
+```text
+YOUR HISTORY
+
+Best
+100 kg × 5
+
+Estimated 1RM
+116 kg
+
+Total Volume
+42,380 kg
+
+Last Session
+80 kg × 8
+```
+
+Then:
+
+```text
+Progress
+───────────────
+
+chart
+```
+
+If your existing progress infrastructure already provides this data, consume that API rather than duplicating calculations in the exercise module.
+
+---
+
+# 26. Alternatives
+
+The Alternatives tab:
+
+```text
+REPLACE WITH
+
+HIGH MATCH
+
+Dumbbell Bench Press
+Same movement • Similar muscles
+
+Smith Machine Bench Press
+Same movement • Similar muscles
+
+MEDIUM MATCH
+
+Machine Chest Press
+Similar muscles
+```
+
+Each alternative should explain **why** it was suggested.
+
+---
+
+# 27. Add to Workout
+
+At the bottom:
+
+```text
+[ + ADD TO WORKOUT ]
+```
+
+When used from a workout builder:
+
+```text
+Exercise
+ ↓
+Configure
+ ↓
+Add
+```
+
+Example:
+
+```text
+Barbell Bench Press
+
+Sets
+[-] 3 [+]
+
+Reps
+8
+
+Rest
+120 sec
+
+RPE
+8
+
+[ ADD ]
+```
+
+This is the beginning of the more advanced workout builder we'll improve in 6B.
+
+---
+
+# 28. Exercise Replacement
+
+When replacing:
+
+```text
+Bench Press
+```
+
+show:
+
+```text
+REPLACE EXERCISE
+
+Recommended alternatives
+
+Dumbbell Bench Press
+★★★★★
+
+Smith Machine Bench Press
+★★★★☆
+
+Machine Chest Press
+★★★★☆
+```
+
+If equipment is known:
+
+```text
+Your equipment:
+Dumbbells ✓
+Barbell ✕
+Cable ✓
+```
+
+then rank accordingly.
+
+---
+
+# 29. Equipment Filter Architecture
+
+The user should eventually be able to set:
+
+```text
+MY EQUIPMENT
+
+✓ Dumbbells
+✓ Bench
+✓ Resistance Bands
+✕ Barbell
+✕ Machines
+```
+
+Then exercise discovery can default to:
+
+```text
+Available equipment
+```
+
+This should be stored as a user/gym preference rather than manually selected every time.
+
+---
+
+# 30. Search Aliases
+
+Make sure the frontend doesn't need to know aliases.
+
+User enters:
+
+```text
+RDL
+```
+
+Backend finds:
+
+```text
+Romanian Deadlift
+```
+
+Same for common abbreviations.
+
+---
+
+# 31. Search Performance
+
+As the catalog grows from:
+
+```text
+30
+ ↓
+100
+ ↓
+300
+ ↓
+1,000+
+```
+
+search performance must remain predictable.
+
+Don't use:
+
+```text
+fetch everything
+filter in JavaScript
+```
+
+Use MongoDB queries/search indexes appropriate to your actual search implementation.
+
+---
+
+# 32. Mobile Caching
+
+Exercise metadata doesn't change frequently.
+
+Cache recently fetched pages locally.
+
+For example:
+
+```text
+Exercises
+ ↓
+API
+ ↓
+Local cache
+```
+
+Then:
+
+```text
+Open exercise screen
+ ↓
+Show cached data immediately
+ ↓
+Refresh in background
+```
+
+This gives the UI a much faster feel.
+
+---
+
+# 33. Don't Cache User-Specific Data With Master Data
+
+Separate:
+
+```text
+Exercise definition
+```
+
+from:
+
+```text
+Your exercise history
+```
+
+The first is relatively stable.
+
+The second changes frequently.
+
+---
+
+# 34. Accessibility
+
+Make sure:
+
+```text
+Search field
+Filter controls
+Favorite buttons
+Add buttons
+Video controls
+```
+
+have proper accessibility labels and touch targets.
+
+Don't make icons the only way to understand an action.
+
+---
+
+# 35. Analytics Events
+
+Add product analytics events:
+
+```text
+exercise_search
+exercise_filter_applied
+exercise_opened
+exercise_favorited
+exercise_added_to_workout
+exercise_replaced
+exercise_alternative_opened
+```
+
+This will tell us what users actually do.
+
+---
+
+# 36. Important Metric
+
+One particularly useful metric:
+
+```text
+Exercise search
+      ↓
+Result opened
+      ↓
+Added to workout
+```
+
+If users search frequently but rarely add an exercise, discovery isn't working well.
+
+---
+
+# 37. Admin Preview
+
+The admin exercise manager should use the same detail component where possible.
+
+That way:
+
+```text
+Admin
+ ↓
+Preview
+```
+
+looks close to:
+
+```text
+Athlete
+ ↓
+Exercise detail
+```
+
+but with editing controls.
+
+---
+
+# 38. Don't Build the Full Catalog Yet
+
+Again, don't immediately jump from 30 → 300.
+
+First test:
+
+```text
+30 exercises
+ ↓
+Search
+ ↓
+Filters
+ ↓
+Favorites
+ ↓
+Recent
+ ↓
+Detail
+ ↓
+History
+ ↓
+Alternatives
+ ↓
+Add to workout
+```
+
+Once this works smoothly, then bulk-import the full catalog.
+
+---
+
+# 39. 6A.3 Definition of Done
+
+```text
+□ Exercise discovery screen
+□ Search
+□ Debounced search
+□ Search aliases
+□ Filter bottom sheet
+□ Muscle filtering
+□ Equipment filtering
+□ Movement filtering
+□ Difficulty filtering
+□ Category filtering
+□ Filter chips
+□ Clear filters
+□ Pagination/infinite scroll
+□ Loading states
+□ Empty states
+□ Error states
+□ Popular exercises
+□ Recently used
+□ Favorites
+□ Exercise detail
+□ Exercise history
+□ Alternatives
+□ Add to workout
+□ Replace exercise
+□ Equipment-aware results
+□ Local caching
+□ Analytics events
+□ Accessibility
+```
+
+---
+
+# Implementation Prompt
+
+Give this to your coding agent:
+
+Implement Phase 6A.3: Exercise Discovery & Search.
+
+The existing Phase 6A.2 implementation is complete. Extend the existing exercise system. Do NOT create a duplicate exercise data layer, API, model, or navigation system.
+
+GOAL:
+
+Create a polished, fast mobile exercise discovery experience that allows users to find, filter, inspect, favorite, and add/replace exercises.
+
+1. EXERCISE DISCOVERY
+
+Upgrade the existing exercise list screen to support:
+
+* Search
+* Popular exercises
+* Recently used exercises
+* Favorite exercises
+* Filter button
+* Pagination/infinite scrolling
+* Loading skeletons
+* Empty states
+* Network/error states
+* Pull-to-refresh where appropriate
+
+Do not load the entire exercise database into the client.
+
+2. SEARCH
+
+Use the existing backend exercise search API.
+
+Implement:
+
+* debounced search around 300–400ms
+* search-as-you-type
+* aliases handled by backend
+* relevance ordering
+* cancellation/stale-request protection so old responses cannot overwrite newer search results
+
+Do not implement client-side filtering over the entire exercise catalog.
+
+3. FILTERS
+
+Create a mobile-friendly filter bottom sheet.
+
+Filters:
+
+* muscles
+* equipment
+* movement patterns
+* difficulty
+* categories
+
+Support:
+
+* multiple simultaneous filters
+* individual filter removal
+* clear all
+* apply
+* persistent filter state while browsing
+* filter chips on the main screen
+
+Use the existing API query parameters.
+
+4. PAGINATION
+
+Use the existing backend pagination/cursor mechanism.
+
+Load a reasonable page size and fetch additional results as the user approaches the bottom.
+
+Prevent:
+
+* duplicate requests
+* duplicate exercises
+* race conditions
+* infinite loading loops
+
+5. EXERCISE RESULT CARD
+
+Show concise information:
+
+* thumbnail if available
+* exercise name
+* primary muscle
+* movement pattern
+* equipment
+* difficulty
+* favorite state
+* add button when used as a workout picker
+
+Do not overload the card with every metadata field.
+
+6. CONTEXT-AWARE EXERCISE PICKER
+
+The exercise discovery component must support these contexts:
+
+A. Normal exploration:
+Exercise → Detail
+
+B. Workout builder:
+Add Exercise → Exercise Picker → Select → Add
+
+C. Exercise replacement:
+Replace Exercise → Exercise Picker → Select → Replace
+
+Do not create three separate implementations. Create a reusable exercise discovery/picker component with context-specific behavior.
+
+7. FAVORITES
+
+Implement a user-specific exercise preference relationship using the existing backend architecture.
+
+Support:
+
+* favorite/unfavorite
+* favorites list
+
+Do not modify the global Exercise document with user-specific favorite state.
+
+8. RECENTLY USED
+
+Use the existing workout/session data where possible.
+
+An exercise should count as recently used only after it has actually been used in a workout/session, not merely opened.
+
+Show a recently-used section when relevant.
+
+9. EXERCISE DETAIL
+
+Upgrade the existing exercise detail screen to display:
+
+* media
+* name
+* description
+* difficulty
+* primary muscles
+* secondary muscles
+* equipment
+* movement pattern
+* instructions
+* setup instructions
+* breathing instructions
+* coaching cues
+* common mistakes
+* programming defaults
+
+Use tabs or clearly separated sections for:
+
+* Overview
+* History
+* Alternatives
+
+Do not redesign unrelated parts of the application.
+
+10. EXERCISE HISTORY
+
+Connect the detail page to the existing workout/progress APIs.
+
+Show where available:
+
+* last performed
+* best weight
+* best reps
+* estimated 1RM
+* total volume
+* progress chart
+
+Do NOT duplicate existing progress calculations if they already exist elsewhere.
+
+11. ALTERNATIVES
+
+Connect to the existing/new exercise alternative architecture.
+
+Display:
+
+* high-match alternatives
+* medium-match alternatives
+* relevant matching metadata
+* why the alternative was recommended
+
+When the exercise picker is opened for replacement, prioritize compatible alternatives.
+
+12. EQUIPMENT AWARENESS
+
+If the existing user profile already stores available equipment, use it.
+
+Do not create a duplicate equipment preference system.
+
+Where appropriate, rank exercises/alternatives that match available equipment higher.
+
+13. ADD TO WORKOUT
+
+From the workout builder:
+
+* select exercise
+* open a minimal configuration step if required by the existing workout architecture
+* add exercise
+* return to workout builder
+
+Do not redesign the complete workout builder yet. That is Phase 6B.
+
+14. REPLACE EXERCISE
+
+From an existing workout:
+
+* select Replace
+* open exercise picker
+* prioritize compatible alternatives
+* select replacement
+* preserve relevant programming configuration where appropriate
+* do not corrupt existing workout/session references
+
+15. CACHING
+
+Use the existing client caching architecture if one exists.
+
+Cache relatively stable exercise metadata appropriately.
+
+Do not mix master exercise metadata with user-specific history/favorites in a way that causes stale personalized data.
+
+16. ANALYTICS
+
+Add events using the existing analytics system:
+
+* exercise_search
+* exercise_filter_applied
+* exercise_opened
+* exercise_favorited
+* exercise_unfavorited
+* exercise_added_to_workout
+* exercise_replaced
+* exercise_alternative_opened
+
+Do not create a second analytics implementation.
+
+17. ACCESSIBILITY
+
+Ensure:
+
+* search has an accessible label
+* filter controls have accessible labels
+* favorite buttons have accessible labels
+* add/replace actions have accessible labels
+* adequate touch targets
+* media controls are accessible
+
+18. PERFORMANCE
+
+Test:
+
+* fast typing
+* slow network
+* no network
+* empty search
+* multiple filters
+* rapid filter changes
+* repeated scrolling
+* opening/closing detail
+* switching between search contexts
+* stale API responses
+
+19. TESTS
+
+Add/extend tests for:
+
+* search
+* debounce behavior
+* filter combinations
+* pagination
+* favorites
+* recently used
+* empty state
+* error state
+* exercise detail
+* exercise history
+* alternatives
+* add to workout
+* replace exercise
+* authorization
+* stale request handling
+
+20. RUN
+
+Run:
+
+* type checking
+* linting
+* unit tests
+* integration tests
+* existing tests
+* mobile build
+
+Do not expand the exercise catalog yet.
+
+At the end report:
+
+A. Files changed
+B. API changes
+C. Mobile changes
+D. Database changes
+E. Tests passed
+F. Performance considerations
+G. Remaining issues
+H. Recommended next step
+
+Do not modify unrelated modules.
+
+### After this
+
+Once 6A.3 is completed and tested, **6A.4 should be the full Exercise Catalog Expansion**.
+
+That is where we go from the initial ~30 exercises to a properly curated **250–300+ exercise library**, including:
+
+```text
+Chest
+Back
+Shoulders
+Biceps
+Triceps
+Quads
+Hamstrings
+Glutes
+Calves
+Core
+Full Body
+Conditioning
+Mobility
+```
+
+with alternatives, aliases, equipment mappings, movement patterns, instructions, cues, and media metadata.
+
+**After the catalog is stable, we move into Phase 6B — Workout Experience 2.0**, where the actual workout execution becomes significantly more powerful.
