@@ -1,0 +1,3293 @@
+Phase 1 — Product & System Architecture
+We should treat this as the foundation of the entire gym platform. The goal of Phase 1 is to decide exactly what we're building, who uses it, how the pieces interact, and what data the system needs.
+Given your earlier coach/athlete dashboard work, I recommend building this as a Coach + Athlete + AI fitness platform rather than a simple gym tracker.
+
+1. Product Vision
+Working concept
+A fitness platform where coaches manage athletes, athletes execute their programs, and an AI layer continuously analyzes performance and helps personalize training.
+The important distinction is:
+Most fitness apps:
+ 
+Plan → User follows → Track
+ 
+Our app:
+ 
+Plan
+  ↓
+Execute
+  ↓
+Track
+  ↓
+Analyze
+  ↓
+AI/Coach evaluates
+  ↓
+Adapt plan
+  ↓
+Execute again
+So the app becomes a continuous training system, not just a database of workouts.
+
+2. User Types
+We should initially have three roles.
+Athlete
+The person actually training.
+Athlete
+│
+├── Dashboard
+├── Today's Workout
+├── Workout History
+├── Progress
+├── Goals
+├── Nutrition
+├── Measurements
+├── AI Trainer
+├── Notifications
+└── Profile
+
+Coach
+The person designing and monitoring training.
+Coach
+│
+├── Dashboard
+├── Athletes
+├── Programs
+├── Workout Builder
+├── Athlete Progress
+├── Analytics
+├── Feedback
+├── Messages
+└── Profile
+
+Admin
+Controls the overall platform.
+Admin
+│
+├── Users
+├── Coaches
+├── Athletes
+├── Gyms
+├── Exercise Library
+├── Reports
+├── Subscriptions
+└── System Settings
+We don't need to build the Admin interface immediately, but the architecture should support it.
+
+3. Core Architecture
+I'd structure the application into these major systems:
+                         ┌─────────────────────┐
+                         │      MOBILE APP     │
+                         │                     │
+                         │ Athlete + Coach UI  │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │      API LAYER      │
+                         └──────────┬──────────┘
+                                    │
+             ┌──────────────────────┼──────────────────────┐
+             │                      │                      │
+             ▼                      ▼                      ▼
+      ┌────────────┐        ┌────────────┐        ┌────────────┐
+      │   USERS    │        │  TRAINING  │        │ PROGRESS   │
+      │   SYSTEM   │        │   ENGINE   │        │  ENGINE    │
+      └────────────┘        └────────────┘        └────────────┘
+             │                      │                      │
+             └──────────────────────┼──────────────────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │    AI ENGINE        │
+                         │                     │
+                         │ Analysis            │
+                         │ Recommendations     │
+                         │ Personalization     │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │      DATABASE       │
+                         └─────────────────────┘
+
+4. Main Modules
+We should divide the backend into logical modules.
+A. Authentication
+Handles:
+Sign up
+Login
+Logout
+Password reset
+Email/phone verification
+Social login
+Role assignment
+Roles:
+ATHLETE
+COACH
+ADMIN
+
+B. User Profile
+Basic information:
+User
+├── ID
+├── Name
+├── Email
+├── Profile Photo
+├── Date of Birth
+├── Gender
+├── Height
+├── Weight
+├── Experience Level
+├── Goals
+└── Preferences
+Don't hard-code everything into the user table. Fitness-specific information should have separate entities.
+
+5. Athlete System
+The athlete is the primary execution layer.
+Athlete Dashboard
+Should answer four questions immediately:
+What do I need to do?
+How am I progressing?
+What should I improve?
+What is coming next?
+Dashboard could contain:
+Good Morning, Alex
+ 
+Today's Workout
+━━━━━━━━━━━━━━━━━━
+Push Day
+6 Exercises
+52 min
+[ START WORKOUT ]
+ 
+Progress
+━━━━━━━━━━━━━━━━━━
+Bench Press     ↑ 7.5%
+Body Weight     ↑ 2.1 kg
+Consistency     87%
+ 
+Coach Feedback
+━━━━━━━━━━━━━━━━━━
+"Increase your bench weight next week."
+ 
+AI Insight
+━━━━━━━━━━━━━━━━━━
+"You've improved consistently for 3 weeks."
+
+6. Workout Engine
+This is one of the most important systems.
+We should NOT model a workout simply as:
+Workout → Exercise
+Instead:
+Program
+   │
+   └── Workout Day
+          │
+          ├── Exercise
+          │      ├── Sets
+          │      ├── Reps
+          │      ├── Weight
+          │      ├── Rest
+          │      └── Tempo
+          │
+          ├── Exercise
+          └── Exercise
+Example:
+Program
+└── Push/Pull/Legs
+    │
+    ├── Monday — Push
+    │   ├── Bench Press
+    │   │   ├── 60kg × 10
+    │   │   ├── 60kg × 10
+    │   │   └── 60kg × 8
+    │   │
+    │   ├── Shoulder Press
+    │   └── Cable Fly
+    │
+    ├── Wednesday — Pull
+    └── Friday — Legs
+This gives us enough flexibility later for advanced programs.
+
+7. Planned vs Actual Data
+This is critical for the AI.
+We need to preserve both.
+Planned
+Bench Press
+ 
+Set 1 → 60kg × 10
+Set 2 → 60kg × 10
+Set 3 → 60kg × 10
+Actual
+Bench Press
+ 
+Set 1 → 60kg × 10
+Set 2 → 60kg × 8
+Set 3 → 55kg × 8
+Then:
+PLANNED
+       ↓
+ACTUAL
+       ↓
+COMPARISON
+       ↓
+PERFORMANCE DATA
+       ↓
+AI ANALYSIS
+This becomes the foundation for intelligent recommendations.
+
+8. Progress Engine
+The system should calculate more than just body weight.
+Strength
+1RM
+Volume
+Weight progression
+Rep progression
+Exercise PRs
+Body
+Weight
+Body measurements
+Body-fat % (if available)
+Progress photos
+Performance
+Workout completion
+Exercise completion
+Volume
+Intensity
+Consistency
+Personal records
+Behavioral
+Workout frequency
+Missed workouts
+Training streak
+Average session duration
+Program adherence
+
+9. Coach System
+The coach shouldn't simply see a list of athletes.
+The dashboard should function as a control center.
+Example:
+COACH DASHBOARD
+ 
+Athletes                    42
+Active Programs             37
+Needs Attention              6
+Average Compliance          84%
+ 
+──────────────────────────────
+ 
+NEEDS ATTENTION
+ 
+Rahul
+↓ Performance
+3 missed workouts
+ 
+Sarah
+↑ Excellent progress
+Ready for progression
+ 
+Mike
+⚠ Recovery concern
+High training volume
+The coach should be able to click an athlete and see:
+Athlete
+│
+├── Overview
+├── Current Program
+├── Workout History
+├── Strength Progress
+├── Body Progress
+├── Compliance
+├── Goals
+├── Notes
+└── Feedback
+
+10. Coach → Athlete Relationship
+We need a proper relationship model.
+Coach
+  │
+  ├── Athlete 1
+  ├── Athlete 2
+  ├── Athlete 3
+  └── Athlete 4
+But an athlete could eventually have:
+Athlete
+├── Primary Coach
+├── Previous Coaches
+└── Organization/Gym
+This gives us flexibility later.
+
+11. AI Architecture
+This should not be one giant AI prompt.
+Instead:
+                 AI SYSTEM
+                    │
+       ┌────────────┼────────────┐
+       │            │            │
+       ▼            ▼            ▼
+   Workout AI   Progress AI   Assistant AI
+       │            │            │
+       ▼            ▼            ▼
+ Programming    Analysis      Chat
+Workout AI
+Creates/adapts programs.
+Example:
+"Create a 5-day hypertrophy program."
+
+Progress AI
+Analyzes actual performance.
+Example:
+"Bench press has plateaued for 4 weeks."
+
+Assistant AI
+Conversational interface.
+Example:
+"Why am I not progressing on squats?"
+The assistant should have access to the user's structured fitness data, rather than blindly relying on conversation history.
+
+12. AI Should Not Directly Control Everything
+A safer architecture is:
+                    AI
+                     │
+             Recommendation
+                     │
+                     ▼
+              Validation Layer
+                     │
+             ┌───────┴───────┐
+             │               │
+          Coach          Athlete
+             │               │
+             └───────┬───────┘
+                     ▼
+                  Applied
+For coached athletes:
+Coach remains the final authority.
+For independent athletes:
+AI recommendations can be applied within predefined safety/product constraints.
+
+13. Notifications
+The notification system should eventually support events such as:
+Workout reminder
+Workout missed
+Workout completed
+New coach feedback
+New program
+Personal record
+Progress milestone
+AI insight
+Coach message
+Goal deadline
+And eventually intelligent timing:
+User normally trains at 7 PM
+ 
+       ↓
+ 
+7 PM approaches
+ 
+       ↓
+ 
+No workout started
+ 
+       ↓
+ 
+Notification
+"Your Push workout is waiting."
+
+14. Database Architecture
+A simplified relational model:
+USERS
+ │
+ ├───────────────┐
+ │               │
+ ▼               ▼
+ATHLETES       COACHES
+ │               │
+ │               │
+ └───────┬───────┘
+         │
+         ▼
+   COACH_RELATIONSHIPS
+         │
+         ▼
+      PROGRAMS
+         │
+         ▼
+    WORKOUT_DAYS
+         │
+         ▼
+  WORKOUT_EXERCISES
+         │
+         ▼
+   PLANNED_SETS
+         │
+         ▼
+   ACTUAL_SETS
+         │
+         ▼
+ PERFORMANCE_DATA
+Additional systems:
+GOALS
+MEASUREMENTS
+PROGRESS_PHOTOS
+EXERCISES
+NUTRITION
+MESSAGES
+NOTIFICATIONS
+AI_INSIGHTS
+
+15. Important Database Entities
+Our initial schema should probably contain:
+Entity
+Purpose
+users
+Authentication/basic identity
+athlete_profiles
+Fitness-specific athlete data
+coach_profiles
+Coach-specific data
+coach_athletes
+Coach-athlete relationships
+exercises
+Exercise library
+programs
+Training programs
+program_days
+Individual workout days
+workout_exercises
+Exercises inside workouts
+planned_sets
+Prescribed sets
+workout_sessions
+Actual completed workouts
+actual_sets
+Actual performance
+goals
+Athlete goals
+measurements
+Body measurements
+progress_photos
+Visual progress
+coach_notes
+Coach observations
+coach_feedback
+Feedback to athletes
+ai_insights
+AI-generated observations
+notifications
+Notification records
+messages
+Coach/athlete communication
+
+16. Data Flow
+Here's the most important overall flow:
+              ATHLETE
+                 │
+                 ▼
+          Starts Workout
+                 │
+                 ▼
+          Records Sets
+                 │
+                 ▼
+             DATABASE
+                 │
+                 ▼
+        PERFORMANCE ENGINE
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+      COACH              AI
+        │                 │
+        │                 ▼
+        │          AI Recommendation
+        │                 │
+        └────────┬────────┘
+                 ▼
+           NEXT PROGRAM
+                 │
+                 ▼
+              ATHLETE
+This creates a closed feedback loop.
+That is the core architecture I would build around.
+
+17. Recommended Tech Architecture
+Since you're a Computer Engineering student and you've already worked with React Native, I'd keep the stack practical.
+Mobile
+React Native + TypeScript
+One codebase for:
+iOS
+Android
+Backend
+I'd use:
+Node.js + TypeScript
+with a structured API layer.
+Database
+PostgreSQL
+It's a much better fit than trying to force the entire fitness model into a document database.
+Authentication
+Use a managed authentication system rather than implementing password/security infrastructure yourself.
+Storage
+Object storage for:
+Profile pictures
+Progress photos
+Exercise videos
+Other media
+AI
+Use an LLM API behind your own backend.
+Never put AI API keys directly inside the mobile app.
+Architecture:
+React Native
+     │
+     ▼
+Your Backend
+     │
+     ├── Database
+     ├── AI API
+     ├── Storage
+     └── Notifications
+
+18. Monorepo Structure
+I'd also establish this early:
+gym-app/
+│
+├── apps/
+│   ├── mobile/
+│   ├── web/
+│   └── admin/
+│
+├── backend/
+│
+├── packages/
+│   ├── types/
+│   ├── validation/
+│   ├── ui/
+│   └── config/
+│
+├── database/
+│   ├── migrations/
+│   └── seed/
+│
+└── docs/
+We don't necessarily need to build every directory immediately.
+But designing around this structure prevents the project from becoming a giant React Native codebase.
+
+19. MVP vs Future
+We should not build everything at once.
+MVP
+The first usable version should contain:
+Authentication
+      ↓
+Athlete Profile
+      ↓
+Exercise Library
+      ↓
+Workout Programs
+      ↓
+Workout Execution
+      ↓
+Set/Rep/Weight Tracking
+      ↓
+Workout History
+      ↓
+Basic Progress
+      ↓
+Coach Dashboard
+      ↓
+Coach → Athlete Assignment
+Then:
+V2
+AI Assistant
+AI Progress Analysis
+Adaptive Programs
+Advanced Analytics
+Notifications
+Coach Feedback
+Messaging
+Then:
+V3
+Wearables
+Heart Rate
+Sleep
+Recovery
+Nutrition
+Computer Vision
+Exercise Form Analysis
+Advanced AI Coach
+Gym Management
+Subscriptions
+
+20. One Critical Product Decision
+I recommend we do not make the AI the product.
+Instead:
+The training platform is the product. AI is the intelligence layer.
+That distinction matters.
+If the AI provider changes tomorrow, your application should still work.
+                 GYM PLATFORM
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+     Training       Tracking        Coaching
+        │              │              │
+        └──────────────┼──────────────┘
+                       │
+                       ▼
+                      AI
+The AI makes the existing system smarter rather than becoming a fragile dependency.
+
+Phase 1 Deliverables
+Before moving to Phase 2, we should finalize these six artifacts:
+Complete feature specification
+User roles & permissions matrix
+Database ER diagram
+System architecture diagram
+API/module architecture
+MVP → V2 → V3 roadmap
+Once those are locked, Phase 2 can be the actual UI/UX architecture—screen-by-screen for Athlete, Coach, and Admin, including navigation and dashboard layouts.
+I would make the database/ER architecture the next step, because almost every later decision—workouts, progress tracking, AI, coach dashboards, analytics—depends on getting that model right.
+Yes. MongoDB can work well here, especially because workout structures, exercise metadata, AI insights, and evolving fitness profiles can be highly flexible.
+I would not simply convert the relational schema I proposed into MongoDB collections one-for-one. We should design around MongoDB's document model.
+Phase 1A — MongoDB Architecture
+1. High-level database
+                    MongoDB
+                       │
+       ┌───────────────┼────────────────┐
+       │               │                │
+     Users          Training          Tracking
+       │               │                │
+       ▼               ▼                ▼
+   profiles        programs         sessions
+   coaches         workouts         sets
+   athletes        exercises        progress
+                                    measurements
+                                    goals
+ 
+                       │
+                       ▼
+                      AI
+                       │
+                 ┌─────┴─────┐
+                 ▼           ▼
+             insights    conversations
+
+2. Collections
+I recommend starting with these:
+users
+athleteProfiles
+coachProfiles
+exercises
+programs
+workoutSessions
+goals
+measurements
+progressPhotos
+coachNotes
+coachFeedback
+aiInsights
+conversations
+messages
+notifications
+We can add nutrition, subscriptions, gyms, etc. later.
+
+3. users
+This is the central identity document.
+{
+  _id: ObjectId,
+ 
+  email: "user@example.com",
+ 
+  role: "athlete",
+ 
+  firstName: "Alex",
+  lastName: "Sharma",
+ 
+  profileImage: "...",
+ 
+  isActive: true,
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+Role
+Initially:
+athlete
+coach
+admin
+Don't create separate authentication systems for each role.
+One user → one account → role determines access.
+
+4. athleteProfiles
+Keep fitness-specific information separate from users.
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,
+ 
+  dateOfBirth: ISODate(),
+ 
+  height: {
+    value: 178,
+    unit: "cm"
+  },
+ 
+  currentWeight: {
+    value: 74,
+    unit: "kg"
+  },
+ 
+  experienceLevel: "intermediate",
+ 
+  goals: [
+    "muscle_gain",
+    "strength"
+  ],
+ 
+  trainingDaysPerWeek: 5,
+ 
+  preferredWorkoutDuration: 60,
+ 
+  equipmentAccess: [
+    "barbell",
+    "dumbbell",
+    "cable",
+    "machines"
+  ],
+ 
+  injuries: [],
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+The advantage is that we can expand this without bloating the user document.
+
+5. coachProfiles
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,
+ 
+  specialization: [
+    "hypertrophy",
+    "strength"
+  ],
+ 
+  experienceYears: 5,
+ 
+  certifications: [],
+ 
+  bio: "...",
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+
+6. Coach ↔ Athlete Relationship
+Instead of putting giant arrays inside the coach document:
+coachProfiles {
+  athletes: [...]
+}
+I'd create a separate collection:
+coachAthletes
+{
+  _id: ObjectId,
+ 
+  coachId: ObjectId,
+  athleteId: ObjectId,
+ 
+  status: "active",
+ 
+  assignedAt: ISODate(),
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+This becomes useful when we eventually support:
+Multiple coaches
+Assistant coaches
+Previous coaches
+Organizations
+Coach transfers
+
+7. Exercise Library
+exercises
+{
+  _id: ObjectId,
+ 
+  name: "Barbell Bench Press",
+ 
+  category: "chest",
+ 
+  muscleGroups: [
+    "pectorals",
+    "triceps",
+    "anterior_deltoid"
+  ],
+ 
+  equipment: [
+    "barbell",
+    "bench"
+  ],
+ 
+  difficulty: "intermediate",
+ 
+  instructions: [
+    "Lie flat on the bench",
+    "Grip the bar slightly wider than shoulder width",
+    "Lower the bar toward your chest",
+    "Press the bar upward"
+  ],
+ 
+  media: {
+    thumbnail: "...",
+    video: "..."
+  },
+ 
+  isActive: true,
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+Later we can add:
+form cues
+common mistakes
+alternative exercises
+target muscles
+secondary muscles
+movement pattern
+exercise variations
+
+8. Programs
+This is where MongoDB becomes particularly useful.
+A program can naturally contain its workout structure.
+{
+  _id: ObjectId,
+ 
+  name: "5 Day Hypertrophy",
+ 
+  description: "...",
+ 
+  createdBy: ObjectId,
+ 
+  createdByRole: "coach",
+ 
+  assignedTo: ObjectId,
+ 
+  durationWeeks: 12,
+ 
+  days: [
+ 
+    {
+      dayNumber: 1,
+ 
+      name: "Push",
+ 
+      exercises: [
+        {
+          exerciseId: ObjectId,
+ 
+          order: 1,
+ 
+          sets: 3,
+ 
+          targetReps: {
+            min: 8,
+            max: 12
+          },
+ 
+          targetWeight: null,
+ 
+          restSeconds: 120,
+ 
+          tempo: "3-1-1"
+        }
+      ]
+    }
+ 
+  ],
+ 
+  status: "active",
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+This gives us an important distinction:
+Program = prescription
+Workout Session = execution
+Never mix those.
+
+9. Workout Sessions
+When the athlete actually trains, we create a separate document.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  programId: ObjectId,
+ 
+  programDayId: 1,
+ 
+  startedAt: ISODate(),
+ 
+  completedAt: ISODate(),
+ 
+  status: "completed",
+ 
+  exercises: [
+    {
+      exerciseId: ObjectId,
+ 
+      sets: [
+        {
+          setNumber: 1,
+ 
+          weight: 60,
+ 
+          reps: 10,
+ 
+          rir: 2,
+ 
+          completed: true
+        },
+        {
+          setNumber: 2,
+ 
+          weight: 60,
+ 
+          reps: 8,
+ 
+          rir: 1,
+ 
+          completed: true
+        }
+      ]
+    }
+  ],
+ 
+  totalVolume: 1080,
+ 
+  durationSeconds: 3120,
+ 
+  notes: "Felt strong today.",
+ 
+  createdAt: ISODate()
+}
+This is one of the most important documents in the entire system.
+Because now we have:
+PROGRAM
+   ↓
+What should happen
+ 
+WORKOUT SESSION
+   ↓
+What actually happened
+
+10. Why rir Matters
+I'd include RIR — Reps In Reserve from the beginning.
+For example:
+Bench
+60kg × 10
+RIR = 2
+means the athlete estimates they could have performed roughly two more reps.
+This gives the future AI much richer information than simply:
+60kg × 10
+It can eventually reason about:
+Weight
+Reps
+RIR
+Volume
+Frequency
+Performance trend
+rather than blindly increasing weight.
+
+11. Goals
+goals
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  type: "strength",
+ 
+  title: "Bench Press 100kg",
+ 
+  target: {
+    value: 100,
+    unit: "kg"
+  },
+ 
+  current: {
+    value: 80,
+    unit: "kg"
+  },
+ 
+  deadline: ISODate(),
+ 
+  status: "active",
+ 
+  createdAt: ISODate(),
+  updatedAt: ISODate()
+}
+Possible goal types:
+strength
+muscle_gain
+fat_loss
+body_weight
+consistency
+endurance
+custom
+
+12. Measurements
+Don't overwrite historical measurements.
+Every measurement should be a new document.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  recordedAt: ISODate(),
+ 
+  weight: 74,
+ 
+  bodyFatPercentage: 15,
+ 
+  measurements: {
+    chest: 102,
+    waist: 82,
+    arms: 36,
+    thighs: 58
+  }
+}
+Then we can generate:
+Weight over time
+Waist over time
+Chest over time
+Body-fat trend
+
+13. Progress Photos
+Don't store actual image data in MongoDB.
+Store the file in object storage and keep the reference:
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  imageUrl: "...",
+ 
+  type: "front",
+ 
+  takenAt: ISODate(),
+ 
+  notes: ""
+}
+Later:
+front
+back
+left
+right
+custom
+
+14. Coach Feedback
+{
+  _id: ObjectId,
+ 
+  coachId: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  workoutSessionId: ObjectId,
+ 
+  message: "Your bench technique looked much better this week.",
+ 
+  createdAt: ISODate(),
+ 
+  isRead: false
+}
+
+15. AI Insights
+This collection is going to become extremely valuable.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  type: "performance",
+ 
+  title: "Bench Press Progress",
+ 
+  insight:
+    "Your bench press volume increased consistently over the last 3 weeks.",
+ 
+  evidence: {
+    exerciseId: ObjectId,
+ 
+    previousVolume: 3200,
+ 
+    currentVolume: 3600,
+ 
+    percentageChange: 12.5
+  },
+ 
+  priority: "normal",
+ 
+  createdAt: ISODate(),
+ 
+  expiresAt: null
+}
+Important:
+AI output should be stored as data, not only displayed in chat.
+That lets us build an actual AI-driven dashboard.
+
+16. AI Conversations
+For the AI trainer:
+conversations
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  title: "Training Discussion",
+ 
+  createdAt: ISODate(),
+ 
+  updatedAt: ISODate()
+}
+messages
+{
+  _id: ObjectId,
+ 
+  conversationId: ObjectId,
+ 
+  role: "user",
+ 
+  content: "Why am I not progressing on squats?",
+ 
+  createdAt: ISODate()
+}
+AI response:
+{
+  conversationId: ObjectId,
+ 
+  role: "assistant",
+ 
+  content: "...",
+ 
+  metadata: {
+    referencedExercises: [],
+    referencedSessions: [],
+    generatedInsight: true
+  },
+ 
+  createdAt: ISODate()
+}
+This gives the AI memory + structured fitness context.
+
+17. Notifications
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,
+ 
+  type: "workout_reminder",
+ 
+  title: "Workout Time",
+ 
+  message: "Your Pull workout is scheduled for today.",
+ 
+  data: {
+    programId: ObjectId
+  },
+ 
+  read: false,
+ 
+  scheduledFor: ISODate(),
+ 
+  createdAt: ISODate()
+}
+
+18. The Full Relationship
+Our MongoDB architecture now looks like:
+                         USERS
+                           │
+             ┌─────────────┴─────────────┐
+             ▼                           ▼
+        ATHLETE PROFILE             COACH PROFILE
+             │                           │
+             │                           │
+             └───────────┬───────────────┘
+                         ▼
+                 COACH-ATHLETES
+                         │
+                         ▼
+                     PROGRAM
+                         │
+                         ▼
+                    WORKOUT
+                         │
+                         ▼
+                WORKOUT SESSION
+                         │
+                         ▼
+                    ACTUAL SETS
+                         │
+             ┌───────────┼───────────┐
+             ▼           ▼           ▼
+          PROGRESS      GOALS       AI
+             │                       │
+             │                       ▼
+      MEASUREMENTS               INSIGHTS
+      PHOTOS                     CHAT
+
+19. Indexes
+We should design indexes now rather than later.
+Important ones:
+users
+  email → unique
+ 
+athleteProfiles
+  userId → unique
+ 
+coachProfiles
+  userId → unique
+ 
+coachAthletes
+  coachId + athleteId → unique
+  athleteId
+  coachId
+ 
+programs
+  assignedTo
+  createdBy
+  status
+ 
+workoutSessions
+  athleteId + startedAt
+  programId
+ 
+goals
+  athleteId + status
+ 
+measurements
+  athleteId + recordedAt
+ 
+aiInsights
+  athleteId + createdAt
+ 
+messages
+  conversationId + createdAt
+This will matter once an athlete has hundreds of workout sessions.
+
+20. One Change I'd Make From the Earlier Architecture
+I would not create a separate plannedSets collection.
+The planned workout belongs naturally inside the program document.
+Program
+ └── Day
+      └── Exercise
+           └── prescription
+The actual execution belongs in:
+WorkoutSession
+ └── Exercise
+      └── Sets
+That's a much cleaner MongoDB design.
+
+21. Recommended Backend Structure
+I'd pair MongoDB with:
+React Native
+     │
+     ▼
+Node.js + TypeScript
+     │
+     ▼
+API
+     │
+ ┌───┼─────────────┐
+ ▼   ▼             ▼
+Auth Training      AI
+     │             │
+     ▼             ▼
+   MongoDB       AI API
+And structure the backend roughly like:
+backend/
+│
+├── src/
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── athletes/
+│   │   ├── coaches/
+│   │   ├── exercises/
+│   │   ├── programs/
+│   │   ├── workouts/
+│   │   ├── progress/
+│   │   ├── goals/
+│   │   ├── ai/
+│   │   ├── messages/
+│   │   └── notifications/
+│   │
+│   ├── middleware/
+│   ├── config/
+│   ├── database/
+│   └── server.ts
+│
+└── package.json
+The next concrete step
+Before designing screens, I'd now lock the actual MongoDB schema:
+Collections → fields → data types → required/optional fields → enums → indexes → relationships → validation rules.
+That becomes our database specification, and then we can build the backend directly from it without repeatedly changing the data model later.
+Phase 1B — Final MongoDB Schema Specification
+We’ll lock the MVP database contract first. The schema should be flexible enough for AI and future features without overengineering V1.
+1. Collections
+users
+athleteProfiles
+coachProfiles
+coachAthletes
+exercises
+programs
+workoutSessions
+goals
+measurements
+progressPhotos
+coachNotes
+coachFeedback
+aiInsights
+conversations
+messages
+notifications
+
+2. users
+The authentication/identity record.
+{
+  _id: ObjectId,
+ 
+  email: String,          // required, unique
+  passwordHash: String,   // required unless OAuth
+ 
+  role: String,           // athlete | coach | admin
+ 
+  firstName: String,
+  lastName: String,
+ 
+  profileImageUrl: String,
+ 
+  isActive: Boolean,
+ 
+  lastLoginAt: Date,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Rules
+email       → required + unique
+role        → required
+isActive    → default true
+We should never store a plaintext password.
+
+3. athleteProfiles
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,       // unique → users._id
+ 
+  dateOfBirth: Date,
+ 
+  height: {
+    value: Number,
+    unit: "cm"
+  },
+ 
+  currentWeight: {
+    value: Number,
+    unit: "kg"
+  },
+ 
+  experienceLevel: String,
+  // beginner | intermediate | advanced
+ 
+  primaryGoal: String,
+  // muscle_gain | fat_loss | strength |
+  // endurance | general_fitness
+ 
+  goals: [String],
+ 
+  trainingDaysPerWeek: Number,
+ 
+  preferredWorkoutDurationMinutes: Number,
+ 
+  equipmentAccess: [String],
+ 
+  preferredTrainingTime: String,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Index
+userId → unique
+
+4. coachProfiles
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,
+ 
+  bio: String,
+ 
+  specialization: [String],
+ 
+  experienceYears: Number,
+ 
+  certifications: [
+    {
+      name: String,
+      issuer: String,
+      year: Number
+    }
+  ],
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Index
+userId → unique
+
+5. coachAthletes
+This handles the relationship.
+{
+  _id: ObjectId,
+ 
+  coachId: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  status: String,
+  // pending | active | paused | removed
+ 
+  assignedAt: Date,
+ 
+  endedAt: Date,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Indexes
+coachId + athleteId → unique
+ 
+coachId
+athleteId
+status
+
+6. exercises
+The global exercise library.
+{
+  _id: ObjectId,
+ 
+  name: String,
+ 
+  slug: String,
+ 
+  category: String,
+ 
+  movementPattern: String,
+ 
+  muscleGroups: {
+    primary: [String],
+    secondary: [String]
+  },
+ 
+  equipment: [String],
+ 
+  difficulty: String,
+ 
+  instructions: [String],
+ 
+  tips: [String],
+ 
+  commonMistakes: [String],
+ 
+  media: {
+    thumbnailUrl: String,
+    videoUrl: String
+  },
+ 
+  alternatives: [ObjectId],
+ 
+  isActive: Boolean,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Example:
+{
+  name: "Barbell Bench Press",
+  category: "chest",
+  movementPattern: "horizontal_push",
+ 
+  muscleGroups: {
+    primary: ["pectorals"],
+    secondary: ["triceps", "anterior_deltoid"]
+  },
+ 
+  equipment: ["barbell", "bench"],
+ 
+  difficulty: "intermediate"
+}
+
+7. programs
+This is the training prescription.
+{
+  _id: ObjectId,
+ 
+  name: String,
+ 
+  description: String,
+ 
+  createdBy: ObjectId,
+ 
+  assignedTo: ObjectId,
+ 
+  durationWeeks: Number,
+ 
+  daysPerWeek: Number,
+ 
+  days: [
+    {
+      dayNumber: Number,
+ 
+      name: String,
+ 
+      focus: String,
+ 
+      exercises: [
+        {
+          exerciseId: ObjectId,
+ 
+          order: Number,
+ 
+          sets: Number,
+ 
+          reps: {
+            min: Number,
+            max: Number
+          },
+ 
+          weight: {
+            value: Number,
+            unit: String
+          },
+ 
+          weightType: String,
+          // fixed | percentage_1rm | rpe | rir | auto
+ 
+          targetRIR: Number,
+ 
+          targetRPE: Number,
+ 
+          restSeconds: Number,
+ 
+          tempo: String,
+ 
+          notes: String
+        }
+      ]
+    }
+  ],
+ 
+  status: String,
+  // draft | active | completed | archived
+ 
+  startDate: Date,
+ 
+  endDate: Date,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+This is deliberately flexible.
+For example, the same exercise could prescribe:
+60 kg × 10
+or:
+70% 1RM × 8
+or:
+8–10 reps @ RIR 2
+That becomes extremely useful later for AI-generated programs.
+
+8. workoutSessions
+This records what actually happened.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  programId: ObjectId,
+ 
+  dayNumber: Number,
+ 
+  scheduledDate: Date,
+ 
+  startedAt: Date,
+ 
+  completedAt: Date,
+ 
+  status: String,
+  // not_started | in_progress | completed | abandoned
+ 
+  exercises: [
+    {
+      exerciseId: ObjectId,
+ 
+      order: Number,
+ 
+      sets: [
+        {
+          setNumber: Number,
+ 
+          weight: {
+            value: Number,
+            unit: String
+          },
+ 
+          reps: Number,
+ 
+          rir: Number,
+ 
+          rpe: Number,
+ 
+          completed: Boolean,
+ 
+          notes: String
+        }
+      ],
+ 
+      notes: String
+    }
+  ],
+ 
+  totalVolume: Number,
+ 
+  durationSeconds: Number,
+ 
+  athleteNotes: String,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Example
+Bench Press
+ 
+Set 1
+60kg × 10
+RIR 2
+ 
+Set 2
+60kg × 8
+RIR 1
+ 
+Set 3
+55kg × 8
+RIR 1
+Now our AI can compare prescription vs reality.
+
+9. goals
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  type: String,
+ 
+  title: String,
+ 
+  target: {
+    value: Number,
+    unit: String
+  },
+ 
+  current: {
+    value: Number,
+    unit: String
+  },
+ 
+  startValue: {
+    value: Number,
+    unit: String
+  },
+ 
+  deadline: Date,
+ 
+  status: String,
+  // active | achieved | abandoned | expired
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Example:
+Goal:
+Bench Press 100kg
+ 
+Start: 70kg
+Current: 82.5kg
+Target: 100kg
+
+10. measurements
+Historical body data.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  recordedAt: Date,
+ 
+  weight: {
+    value: Number,
+    unit: String
+  },
+ 
+  bodyFatPercentage: Number,
+ 
+  measurements: {
+    chest: Number,
+    waist: Number,
+    hips: Number,
+    leftArm: Number,
+    rightArm: Number,
+    leftThigh: Number,
+    rightThigh: Number
+  },
+ 
+  notes: String,
+ 
+  createdAt: Date
+}
+Every measurement creates a new document.
+Never overwrite history.
+
+11. progressPhotos
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  imageUrl: String,
+ 
+  type: String,
+  // front | back | left | right | custom
+ 
+  takenAt: Date,
+ 
+  notes: String,
+ 
+  createdAt: Date
+}
+Images themselves live in object storage.
+MongoDB only stores the reference.
+
+12. coachNotes
+Private notes for coaches.
+{
+  _id: ObjectId,
+ 
+  coachId: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  category: String,
+ 
+  content: String,
+ 
+  isPrivate: Boolean,
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+Example:
+"Increase volume next mesocycle."
+
+13. coachFeedback
+Feedback visible to the athlete.
+{
+  _id: ObjectId,
+ 
+  coachId: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  workoutSessionId: ObjectId,
+ 
+  content: String,
+ 
+  attachments: [],
+ 
+  isRead: Boolean,
+ 
+  createdAt: Date
+}
+
+14. aiInsights
+This is where the AI becomes part of the actual product.
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  type: String,
+ 
+  title: String,
+ 
+  content: String,
+ 
+  priority: String,
+ 
+  evidence: [
+    {
+      type: String,
+ 
+      referenceId: ObjectId,
+ 
+      metric: String,
+ 
+      value: Number
+    }
+  ],
+ 
+  recommendation: String,
+ 
+  status: String,
+  // new | viewed | accepted | dismissed
+ 
+  generatedBy: String,
+ 
+  createdAt: Date,
+ 
+  expiresAt: Date
+}
+Example:
+Insight:
+"Bench press volume has increased 14% over
+the last three weeks."
+ 
+Recommendation:
+"Consider a 2.5kg progression next session."
+
+15. conversations
+{
+  _id: ObjectId,
+ 
+  athleteId: ObjectId,
+ 
+  title: String,
+ 
+  type: String,
+  // ai_trainer | coach_chat
+ 
+  createdAt: Date,
+  updatedAt: Date
+}
+
+16. messages
+{
+  _id: ObjectId,
+ 
+  conversationId: ObjectId,
+ 
+  senderType: String,
+  // user | assistant | coach
+ 
+  senderId: ObjectId,
+ 
+  content: String,
+ 
+  metadata: {
+    referencedExercises: [ObjectId],
+    referencedWorkouts: [ObjectId],
+    referencedInsights: [ObjectId]
+  },
+ 
+  createdAt: Date
+}
+This gives us the ability to say:
+"Based on your last four squat sessions..."
+and actually know which sessions the AI used.
+
+17. notifications
+{
+  _id: ObjectId,
+ 
+  userId: ObjectId,
+ 
+  type: String,
+ 
+  title: String,
+ 
+  body: String,
+ 
+  data: {},
+ 
+  isRead: Boolean,
+ 
+  scheduledFor: Date,
+ 
+  sentAt: Date,
+ 
+  createdAt: Date
+}
+
+18. Index Strategy
+This is the initial index plan.
+Collection
+Index
+users
+email UNIQUE
+athleteProfiles
+userId UNIQUE
+coachProfiles
+userId UNIQUE
+coachAthletes
+coachId + athleteId UNIQUE
+coachAthletes
+athleteId + status
+coachAthletes
+coachId + status
+exercises
+slug UNIQUE
+exercises
+category
+programs
+assignedTo + status
+programs
+createdBy
+workoutSessions
+athleteId + startedAt
+workoutSessions
+programId + scheduledDate
+goals
+athleteId + status
+measurements
+athleteId + recordedAt
+progressPhotos
+athleteId + takenAt
+aiInsights
+athleteId + createdAt
+conversations
+athleteId + updatedAt
+messages
+conversationId + createdAt
+notifications
+userId + isRead
+
+19. Important MongoDB Rule
+We'll use references for large/independent entities and embedding for data that belongs tightly to its parent.
+Reference
+User
+  ↓
+Athlete Profile
+ 
+Program
+  ↓
+Athlete
+ 
+Workout Session
+  ↓
+Athlete
+Embed
+Program
+ └── Days
+      └── Exercises
+           └── Prescription
+and:
+Workout Session
+ └── Exercises
+      └── Sets
+That's the MongoDB-specific design decision I want to lock in.
+
+20. Data Ownership
+This is important for security.
+ATHLETE
+ ├── Own profile
+ ├── Own workouts
+ ├── Own measurements
+ ├── Own goals
+ ├── Own progress photos
+ └── Own AI conversations
+ 
+COACH
+ ├── Assigned athletes
+ ├── Their programs
+ ├── Their workout data
+ ├── Coach notes
+ └── Coach feedback
+ 
+ADMIN
+ └── Platform-wide management
+A coach should not automatically have access to every athlete in MongoDB.
+Every backend request must validate the relationship.
+
+21. Example Complete Flow
+Suppose a coach assigns Rahul a program.
+Step 1
+users
+Rahul → athlete
+Coach → coach
+Step 2
+coachAthletes
+ 
+Coach A
+   ↓
+Rahul
+Step 3
+Coach creates:
+programs
+ 
+"12 Week Hypertrophy"
+Step 4
+Program contains:
+Monday
+ ├── Bench Press
+ ├── Incline DB Press
+ ├── Shoulder Press
+ └── Triceps Pushdown
+Step 5
+Rahul performs the workout.
+A workoutSessions document is created.
+Step 6
+The system calculates:
+Volume
+Reps
+Weight
+RIR
+RPE
+Completion
+Duration
+Step 7
+AI analyzes the data.
+aiInsights
+gets:
+"Bench press performance improved 8%
+over the last three sessions."
+Step 8
+Coach sees that insight.
+Step 9
+Coach modifies the next program.
+That gives us the complete feedback loop:
+PLAN
+ ↓
+EXECUTE
+ ↓
+TRACK
+ ↓
+ANALYZE
+ ↓
+COACH + AI
+ ↓
+ADAPT
+ ↓
+PLAN
+
+22. What We Should NOT Add Yet
+Avoid adding these to the MVP database:
+Wearables
+Sleep tracking
+Supplements
+Payments
+Gym memberships
+Social feeds
+Leaderboards
+Marketplace
+Computer vision
+Advanced nutrition
+They're good future features, but they'll distract from the core training engine.
+
+23. Phase 1 Architecture Is Now
+                  ┌─────────────┐
+                  │    USERS    │
+                  └──────┬──────┘
+                         │
+             ┌───────────┴───────────┐
+             ▼                       ▼
+       ATHLETE PROFILE         COACH PROFILE
+             │                       │
+             └───────────┬───────────┘
+                         ▼
+                 COACH-ATHLETES
+                         │
+                         ▼
+                     PROGRAMS
+                         │
+                         ▼
+                 WORKOUT SESSIONS
+                         │
+             ┌───────────┼────────────┐
+             ▼           ▼            ▼
+        MEASUREMENTS    GOALS      PERFORMANCE
+             │                        │
+             └───────────┬────────────┘
+                         ▼
+                         AI
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+           INSIGHTS  CONVERSATIONS  ADAPTATION
+This is the database foundation I would use.
+The next logical part of Phase 1 is 1C: API architecture—we'll define every backend endpoint (auth, athletes, coaches, programs, workouts, progress, AI, etc.), what request it accepts, what it returns, and which role is allowed to call it. That will give us a direct blueprint for building the Node/TypeScript backend.
+Phase 1C — API Architecture
+Now we turn the MongoDB design into the backend contract.
+I recommend REST + TypeScript for V1. It is simpler to build, debug, document, and consume from React Native than introducing GraphQL immediately.
+React Native
+     │
+     │ HTTPS / JSON
+     ▼
+┌─────────────────────────┐
+│      API SERVER         │
+│ Node.js + TypeScript    │
+└────────────┬────────────┘
+             │
+     ┌───────┼────────┐
+     ▼       ▼        ▼
+  MongoDB    AI     Storage
+
+1. API Base
+All endpoints should start with:
+/api/v1
+Example:
+POST /api/v1/auth/login
+GET  /api/v1/athletes/me
+GET  /api/v1/workouts/today
+The /v1 matters because eventually we may need:
+/api/v1
+/api/v2
+without breaking the existing mobile application.
+
+2. Authentication
+POST /auth/register
+Create an account.
+{
+  "email": "alex@example.com",
+  "password": "********",
+  "firstName": "Alex",
+  "lastName": "Sharma",
+  "role": "athlete"
+}
+Response:
+{
+  "user": {
+    "id": "...",
+    "email": "alex@example.com",
+    "role": "athlete"
+  },
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+
+POST /auth/login
+{
+  "email": "alex@example.com",
+  "password": "********"
+}
+
+POST /auth/refresh
+Refresh an expired access token.
+
+POST /auth/logout
+Invalidate the session/refresh token.
+
+POST /auth/forgot-password
+
+POST /auth/reset-password
+
+3. User API
+GET    /users/me
+PATCH  /users/me
+DELETE /users/me
+GET /users/me
+Returns:
+{
+  "id": "...",
+  "firstName": "Alex",
+  "lastName": "Sharma",
+  "email": "alex@example.com",
+  "role": "athlete",
+  "profileImageUrl": "..."
+}
+
+4. Athlete API
+GET   /athletes/me
+PATCH /athletes/me
+ 
+GET   /athletes/me/dashboard
+ 
+GET   /athletes/me/stats
+ 
+GET   /athletes/me/programs
+ 
+GET   /athletes/me/goals
+ 
+POST  /athletes/me/goals
+ 
+PATCH /athletes/me/goals/:goalId
+ 
+GET   /athletes/me/measurements
+ 
+POST  /athletes/me/measurements
+ 
+GET   /athletes/me/progress-photos
+ 
+POST  /athletes/me/progress-photos
+
+5. Athlete Dashboard
+GET /athletes/me/dashboard
+This should be a single aggregated endpoint.
+Instead of the mobile app making 15 requests:
+GET /program
+GET /workout
+GET /goals
+GET /stats
+GET /insights
+GET /feedback
+...
+the backend returns the dashboard data together.
+{
+  "todayWorkout": {},
+  "currentProgram": {},
+  "progress": {},
+  "goals": [],
+  "recentInsights": [],
+  "coachFeedback": [],
+  "streak": 12
+}
+This will make the mobile dashboard significantly faster.
+
+6. Coach API
+GET   /coaches/me
+PATCH /coaches/me
+ 
+GET   /coaches/me/dashboard
+ 
+GET   /coaches/me/athletes
+ 
+GET   /coaches/me/athletes/:athleteId
+ 
+POST  /coaches/me/athletes/:athleteId/assign
+ 
+DELETE /coaches/me/athletes/:athleteId
+
+7. Coach Dashboard
+GET /coaches/me/dashboard
+Response could contain:
+{
+  "totalAthletes": 42,
+  "activePrograms": 37,
+  "needsAttention": 6,
+  "averageCompliance": 84,
+  "recentActivity": [],
+  "athletesNeedingAttention": []
+}
+Again, one request rather than many.
+
+8. Exercise API
+Exercises are mostly shared/global data.
+GET /exercises
+ 
+GET /exercises/:exerciseId
+ 
+GET /exercises/search?q=bench
+ 
+GET /exercises?muscle=chest
+ 
+GET /exercises?equipment=barbell
+ 
+GET /exercises?difficulty=beginner
+For coaches/admins:
+POST   /exercises
+PATCH  /exercises/:exerciseId
+DELETE /exercises/:exerciseId
+
+9. Program API
+This is one of the most important APIs.
+Athlete
+GET /programs/current
+GET /programs
+GET /programs/:programId
+Coach
+POST   /programs
+GET    /programs/:programId
+PATCH  /programs/:programId
+DELETE /programs/:programId
+ 
+POST /programs/:programId/assign
+POST /programs/:programId/duplicate
+
+10. Program Creation
+Coach sends:
+{
+  "name": "12 Week Hypertrophy",
+  "durationWeeks": 12,
+  "daysPerWeek": 5,
+ 
+  "days": [
+    {
+      "dayNumber": 1,
+      "name": "Push",
+      "focus": "Chest / Shoulders / Triceps",
+ 
+      "exercises": [
+        {
+          "exerciseId": "...",
+          "order": 1,
+          "sets": 3,
+          "reps": {
+            "min": 8,
+            "max": 12
+          },
+          "restSeconds": 120,
+          "targetRIR": 2
+        }
+      ]
+    }
+  ]
+}
+The backend validates it before saving.
+
+11. Workout API
+Today's workout
+GET /workouts/today
+Start
+POST /workouts/sessions
+Get active session
+GET /workouts/sessions/:sessionId
+Update session
+PATCH /workouts/sessions/:sessionId
+Complete
+POST /workouts/sessions/:sessionId/complete
+Abandon
+POST /workouts/sessions/:sessionId/abandon
+History
+GET /workouts/history
+
+12. Recording Sets
+While the athlete is working out:
+POST /workouts/sessions/:sessionId/sets
+Request:
+{
+  "exerciseId": "...",
+  "setNumber": 2,
+  "weight": 60,
+  "unit": "kg",
+  "reps": 8,
+  "rir": 1,
+  "rpe": 9
+}
+Response:
+{
+  "success": true,
+  "set": {
+    "setNumber": 2,
+    "weight": 60,
+    "reps": 8,
+    "rir": 1,
+    "rpe": 9
+  }
+}
+This endpoint needs to be fast because it can be called repeatedly during a workout.
+
+13. Progress API
+GET /progress/overview
+ 
+GET /progress/strength
+ 
+GET /progress/volume
+ 
+GET /progress/body
+ 
+GET /progress/consistency
+ 
+GET /progress/exercises/:exerciseId
+Example:
+GET /progress/exercises/bench-press
+could return:
+{
+  "exercise": "Bench Press",
+ 
+  "current": {
+    "weight": 82.5,
+    "reps": 8
+  },
+ 
+  "personalBest": {
+    "weight": 90,
+    "reps": 5
+  },
+ 
+  "history": []
+}
+
+14. Goals API
+GET    /goals
+POST   /goals
+GET    /goals/:goalId
+PATCH  /goals/:goalId
+DELETE /goals/:goalId
+
+15. Measurements API
+GET  /measurements
+POST /measurements
+ 
+GET  /measurements/latest
+
+16. Coach Feedback API
+GET  /feedback
+POST /feedback
+ 
+PATCH /feedback/:feedbackId/read
+Coach creates:
+{
+  "athleteId": "...",
+  "workoutSessionId": "...",
+  "content": "Good session. Increase bench by 2.5kg next week."
+}
+
+17. Coach Notes API
+GET    /coach-notes/:athleteId
+POST   /coach-notes/:athleteId
+PATCH  /coach-notes/:noteId
+DELETE /coach-notes/:noteId
+These are private to the coach.
+The athlete must never receive them.
+
+18. AI API
+This deserves its own module.
+POST /ai/chat
+ 
+GET  /ai/conversations
+ 
+POST /ai/conversations
+ 
+GET  /ai/conversations/:conversationId
+ 
+GET  /ai/conversations/:conversationId/messages
+ 
+POST /ai/conversations/:conversationId/messages
+ 
+GET /ai/insights
+ 
+POST /ai/analyze-workout
+
+19. AI Chat Flow
+User:
+Why was my bench weaker today?
+Mobile:
+POST /ai/conversations/:id/messages
+Backend:
+        User question
+              ↓
+        Retrieve context
+              ↓
+     ┌────────┼─────────┐
+     ▼        ▼         ▼
+ Workout   Progress   Program
+ History    Data      Data
+     │        │         │
+     └────────┼─────────┘
+              ▼
+             AI
+              ▼
+        Response
+The LLM doesn't need the entire database.
+The backend retrieves relevant structured context and sends that to the model.
+
+20. AI Workout Analysis
+After workout completion:
+POST /ai/analyze-workout
+The backend can analyze:
+Previous workouts
+Current workout
+Program prescription
+Actual performance
+RIR/RPE
+Volume
+Progression
+Then create:
+aiInsights
+This can happen asynchronously so the athlete doesn't sit waiting for AI generation.
+
+21. Notifications API
+GET   /notifications
+ 
+PATCH /notifications/:id/read
+ 
+POST /notifications/:id/read
+ 
+POST /notifications/read-all
+Scheduling itself should eventually be handled by a background job system rather than the mobile client.
+
+22. Messaging API
+For coach ↔ athlete communication:
+GET  /conversations
+ 
+POST /conversations
+ 
+GET  /conversations/:id/messages
+ 
+POST /conversations/:id/messages
+AI conversations should remain logically separated from coach conversations even if they eventually use the same underlying infrastructure.
+
+23. Authorization Matrix
+This is critical.
+API
+Athlete
+Coach
+Admin
+Own profile
+✓
+✓
+✓
+Own workouts
+✓
+—
+✓
+Own progress
+✓
+—
+✓
+Own AI
+✓
+—
+✓
+View assigned athlete
+—
+✓
+✓
+Create programs
+—
+✓
+✓
+Assign programs
+—
+✓
+✓
+Coach notes
+—
+✓
+✓
+Coach feedback
+Read
+Write
+✓
+Exercise library
+Read
+Read
+✓
+Manage exercises
+—
+—
+✓
+Platform users
+—
+—
+✓
+But there is one additional layer:
+Ownership.
+A coach can only access:
+athlete ∈ coach's assigned athletes
+not:
+GET /athletes/:randomAthleteId
+and automatically see their data.
+
+24. Backend Request Pipeline
+Every protected request should go through:
+Request
+  ↓
+Rate Limiter
+  ↓
+Authentication
+  ↓
+Authorization
+  ↓
+Validation
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Repository
+  ↓
+MongoDB
+For AI:
+Controller
+   ↓
+AI Service
+   ↓
+Context Retrieval
+   ↓
+Prompt Construction
+   ↓
+LLM
+   ↓
+Validation
+   ↓
+Database
+   ↓
+Response
+
+25. Backend Folder Structure
+I'd now lock this:
+backend/
+│
+├── src/
+│
+│   ├── config/
+│   │   ├── env.ts
+│   │   └── database.ts
+│   │
+│   ├── middleware/
+│   │   ├── auth.ts
+│   │   ├── authorization.ts
+│   │   ├── validation.ts
+│   │   └── errorHandler.ts
+│   │
+│   ├── modules/
+│   │
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── athletes/
+│   │   ├── coaches/
+│   │   ├── exercises/
+│   │   ├── programs/
+│   │   ├── workouts/
+│   │   ├── progress/
+│   │   ├── goals/
+│   │   ├── measurements/
+│   │   ├── feedback/
+│   │   ├── notes/
+│   │   ├── ai/
+│   │   ├── conversations/
+│   │   └── notifications/
+│   │
+│   ├── utils/
+│   ├── types/
+│   ├── routes/
+│   └── server.ts
+│
+├── tests/
+│
+├── package.json
+└── tsconfig.json
+Inside each module:
+workouts/
+├── workout.model.ts
+├── workout.schema.ts
+├── workout.service.ts
+├── workout.controller.ts
+├── workout.routes.ts
+└── workout.types.ts
+This keeps the codebase maintainable as the app grows.
+
+26. API Response Standard
+Don't have every endpoint return a different structure.
+Use:
+{
+  "success": true,
+  "data": {},
+  "message": null,
+  "error": null
+}
+Error:
+{
+  "success": false,
+  "data": null,
+  "message": "Invalid workout session",
+  "error": {
+    "code": "WORKOUT_SESSION_INVALID"
+  }
+}
+This makes React Native error handling much cleaner.
+
+27. Validation
+Every incoming request should be validated.
+For example:
+weight → positive number
+reps → positive integer
+RIR → 0–10
+RPE → 1–10
+role → known enum
+status → known enum
+ObjectId → valid ID
+Never trust the mobile application to enforce these rules.
+The backend is the source of truth.
+
+28. The Complete API Architecture
+/api/v1
+│
+├── /auth
+│
+├── /users
+│
+├── /athletes
+│
+├── /coaches
+│
+├── /exercises
+│
+├── /programs
+│
+├── /workouts
+│
+├── /progress
+│
+├── /goals
+│
+├── /measurements
+│
+├── /feedback
+│
+├── /coach-notes
+│
+├── /ai
+│
+├── /conversations
+│
+└── /notifications
+And the core data flow is:
+                 React Native
+                      │
+                      ▼
+                 REST API
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       MongoDB       AI        Storage
+          │           │
+          │           ▼
+          │      AI Insights
+          │
+          ▼
+     Training Data
+          │
+          ▼
+       Analytics
+          │
+          ▼
+      Athlete + Coach
+Phase 1 status
+We now have:
+1A — Product architecture ✓
+1B — MongoDB data architecture ✓
+1C — API architecture ✓
+The remaining major Phase 1 piece is 1D — Authentication, security, roles & permissions architecture. After that, Phase 1 is effectively locked and we can move to Phase 2: UI/UX architecture, where we'll map every screen and navigation flow for the Athlete and Coach apps.
+Phase 1D — Authentication, Security & Permissions
+This is the final major part of Phase 1. We should lock it before designing the UI because authentication and role-based access will affect the entire app.
+1. Authentication Architecture
+Use:
+React Native
+      │
+      ▼
+Authentication API
+      │
+      ├── Access Token
+      └── Refresh Token
+              │
+              ▼
+           Backend
+              │
+              ▼
+           MongoDB
+For V1, use email + password first.
+Later:
+Google
+Apple
+Phone OTP
+can be added without redesigning the user system.
+
+2. Registration Flow
+Athlete
+Create Account
+      ↓
+Email + Password
+      ↓
+Basic Information
+      ↓
+Fitness Profile
+      ↓
+Goals
+      ↓
+Equipment
+      ↓
+Athlete Dashboard
+Coach
+Create Account
+      ↓
+Email + Password
+      ↓
+Basic Information
+      ↓
+Coach Profile
+      ↓
+Specialization
+      ↓
+Certification / Experience
+      ↓
+Coach Dashboard
+The important point is that authentication and onboarding are separate.
+A user can authenticate successfully while their profile is still incomplete.
+
+3. Token Strategy
+We'll use:
+Access Token
+Short-lived.
+~15 minutes
+Used for API requests:
+Authorization: Bearer <access_token>
+Refresh Token
+Long-lived.
+Used to obtain a new access token.
+Access Token
+      ↓
+expires
+      ↓
+Refresh Token
+      ↓
+New Access Token
+Do not make access tokens extremely long-lived.
+
+4. Mobile Token Storage
+Do not store tokens in ordinary AsyncStorage.
+Use the platform's secure storage:
+iOS
+→ Keychain
+ 
+Android
+→ Keystore / encrypted secure storage
+The React Native application should interact with this through a secure-storage library.
+
+5. Password Security
+The backend should:
+User password
+      ↓
+Strong password hashing
+      ↓
+passwordHash
+      ↓
+MongoDB
+Never store:
+password: "mypassword123"
+Only something like:
+passwordHash: "$2b$..."
+The hashing algorithm should be a modern password hashing scheme such as Argon2id or bcrypt with an appropriate work factor.
+
+6. Role-Based Access Control
+Every authenticated user receives a role:
+ATHLETE
+COACH
+ADMIN
+But role alone isn't enough.
+We need:
+Role + Ownership
+For example:
+Coach A
+   │
+   ├── Athlete 1 ✓
+   ├── Athlete 2 ✓
+   └── Athlete 3 ✓
+ 
+Athlete 999 ✗
+Even though Coach A is a coach, they cannot access Athlete 999 unless the relationship exists.
+
+7. Permission Layers
+I recommend three levels.
+Level 1 — Authentication
+Is the user logged in?
+Level 2 — Role
+Is the user an athlete/coach/admin?
+Level 3 — Resource ownership
+Does this coach actually have access
+to this athlete?
+So:
+Request
+   ↓
+Authenticated?
+   ↓ yes
+Correct role?
+   ↓ yes
+Resource belongs/is assigned?
+   ↓ yes
+Allow
+
+8. Example
+Suppose:
+Coach ID: C001
+Athlete ID: A001
+and:
+coachAthletes
+ 
+C001 → A001
+Coach requests:
+GET /api/v1/athletes/A001
+Backend:
+Authenticate C001
+       ↓
+Role = coach ✓
+       ↓
+Check coachAthletes
+       ↓
+C001 → A001 ✓
+       ↓
+Return data
+But:
+GET /api/v1/athletes/A999
+Backend:
+Authenticate C001
+       ↓
+Role = coach ✓
+       ↓
+Check relationship
+       ↓
+C001 → A999 ✗
+       ↓
+403 Forbidden
+
+9. Sensitive Data Separation
+There are three important categories.
+Athlete-private
+AI conversations
+Personal goals
+Measurements
+Progress photos
+Personal notes
+Coach-private
+Coach notes
+Internal observations
+Planning notes
+Shared
+Assigned programs
+Workout performance
+Coach feedback
+Relevant progress
+This distinction should exist at the API/service level.
+
+10. AI Privacy
+The AI system should not automatically receive the user's entire database.
+Bad:
+MongoDB
+   ↓
+Everything
+   ↓
+AI
+Instead:
+User question
+      ↓
+Determine required context
+      ↓
+Retrieve relevant data
+      ↓
+Minimize data
+      ↓
+AI
+For example:
+"Why did my bench press decrease?"
+The AI might receive:
+Current workout
+Previous 5 bench sessions
+Current program prescription
+Recent volume
+Recent RIR/RPE
+It doesn't need:
+Progress photos
+Email
+Coach private notes
+Unrelated exercises
+
+11. Progress Photo Security
+Progress photos are particularly sensitive.
+They should:
+Never be publicly accessible
+Use private object storage
+Use signed/temporary URLs
+Require authorization before retrieval
+Not be indexed by search engines
+Architecture:
+Mobile
+  ↓
+Backend authorization
+  ↓
+Signed URL
+  ↓
+Private Storage
+Not:
+MongoDB → public image URL
+
+12. Rate Limiting
+We should protect:
+Login
+Register
+Password reset
+AI requests
+Messaging
+File uploads
+For example, AI endpoints should have stricter limits than normal read APIs because they can become expensive.
+Normal API
+→ standard rate limit
+ 
+Authentication
+→ strict rate limit
+ 
+AI
+→ user quota + rate limit
+
+13. Input Validation
+Every request gets validated server-side.
+Example:
+POST /workouts/sessions/:id/sets
+Validate:
+exerciseId → valid ObjectId
+weight → >= 0
+reps → integer >= 0
+RIR → 0–10
+RPE → 1–10
+If invalid:
+{
+  "success": false,
+  "message": "Invalid set data",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}
+
+14. API Security Headers
+The backend should implement standard protections such as:
+HTTPS
+Security headers
+CORS restrictions
+Request validation
+Rate limiting
+Secure cookies where applicable
+Error sanitization
+And production credentials should live in environment/secret management, not Git.
+
+15. Environment Architecture
+We'll have separate environments:
+Development
+     │
+     ▼
+Staging
+     │
+     ▼
+Production
+Each gets separate:
+MongoDB
+API credentials
+AI credentials
+Storage
+Push notification credentials
+Never use the production database while developing locally.
+
+16. Environment Variables
+Something like:
+NODE_ENV=
+PORT=
+ 
+MONGODB_URI=
+ 
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+ 
+AI_API_KEY=
+ 
+STORAGE_BUCKET=
+STORAGE_ACCESS_KEY=
+STORAGE_SECRET_KEY=
+And:
+.env
+must be in .gitignore.
+
+17. Error Handling
+The client should not receive internal errors like:
+MongoServerError:
+E11000 duplicate key error collection...
+Instead:
+{
+  "success": false,
+  "message": "An account with this email already exists.",
+  "error": {
+    "code": "EMAIL_ALREADY_EXISTS"
+  }
+}
+Internally, the server logs the actual error.
+
+18. Logging
+We'll eventually have structured logs:
+timestamp
+requestId
+userId
+route
+method
+statusCode
+responseTime
+errorCode
+But never log:
+passwords
+access tokens
+refresh tokens
+private AI data unnecessarily
+
+19. Audit Trail
+For important actions, we should eventually have an audit system.
+For example:
+Coach modified program
+Coach assigned athlete
+Coach removed athlete
+Admin modified user
+Athlete deleted account
+Potential collection:
+auditLogs
+Example:
+{
+  actorId: ObjectId,
+  action: "PROGRAM_UPDATED",
+  resourceType: "program",
+  resourceId: ObjectId,
+  metadata: {},
+  createdAt: Date
+}
+I wouldn't build every audit feature in the first sprint, but the architecture should leave room for it.
+
+20. Account Deletion
+We should support:
+DELETE /api/v1/users/me
+But deletion isn't necessarily a simple MongoDB delete.
+Because the user may have:
+Workout history
+Goals
+Measurements
+AI conversations
+Coach relationships
+So eventually we'll implement a proper account-deletion workflow.
+For V1, the important architectural rule is:
+User deletion must not accidentally destroy unrelated users' data.
+
+21. Authentication State in React Native
+The mobile app should have:
+                    App
+                     │
+                     ▼
+              Auth Provider
+                     │
+            ┌────────┴────────┐
+            ▼                 ▼
+       Authenticated      Unauthenticated
+            │                 │
+            ▼                 ▼
+       Role Router        Auth Screens
+            │
+       ┌────┴────┐
+       ▼         ▼
+    Athlete     Coach
+       │         │
+       ▼         ▼
+  Athlete App  Coach App
+This is better than having completely separate applications.
+
+22. Onboarding State
+Add a field such as:
+{
+  onboarding: {
+    completed: Boolean,
+    currentStep: Number
+  }
+}
+Then:
+Login
+ ↓
+onboarding.completed?
+ ↓
+NO
+ ↓
+Continue onboarding
+or:
+YES
+ ↓
+Dashboard
+This is important because users can close the app halfway through onboarding.
+
+23. Final Security Architecture
+                  MOBILE APP
+                      │
+                   HTTPS
+                      │
+                      ▼
+                RATE LIMITER
+                      │
+                      ▼
+             AUTHENTICATION
+                      │
+                      ▼
+               ROLE CHECK
+                      │
+                      ▼
+            OWNERSHIP CHECK
+                      │
+                      ▼
+              INPUT VALIDATION
+                      │
+                      ▼
+                 SERVICE
+                /   |    \
+               /    |     \
+              ▼     ▼      ▼
+          MongoDB   AI    Storage
+This should be our standard request pipeline.
+
+Phase 1 — COMPLETE
+We now have the core architecture:
+Product
+Coach + Athlete + AI Fitness Platform
+Database
+MongoDB
+Backend
+Node.js + TypeScript
+REST API
+Mobile
+React Native + TypeScript
+Core systems
+Authentication
+Athletes
+Coaches
+Exercises
+Programs
+Workouts
+Progress
+Goals
+AI
+Messaging
+Notifications
+Security
+JWT/session architecture
+RBAC
+Resource ownership
+Validation
+Rate limiting
+Private storage
+AI data minimization
+Core product loop
+             ┌───────────────┐
+             │    PROGRAM    │
+             └───────┬───────┘
+                     ↓
+             ┌───────────────┐
+             │    WORKOUT    │
+             └───────┬───────┘
+                     ↓
+             ┌───────────────┐
+             │   TRACK DATA  │
+             └───────┬───────┘
+                     ↓
+             ┌───────────────┐
+             │    ANALYZE    │
+             └───────┬───────┘
+                     ↓
+              ┌──────┴──────┐
+              ↓             ↓
+            COACH           AI
+              │             │
+              └──────┬──────┘
+                     ↓
+             ┌───────────────┐
+             │ ADAPT PROGRAM │
+             └───────┬───────┘
+                     │
+                     └──────────→ repeat
+
+ 

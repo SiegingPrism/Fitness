@@ -1,0 +1,5708 @@
+Phase 2 — UI/UX Architecture
+We’ll now design the actual application experience. The key rule from Phase 1 carries forward:
+Athlete and Coach are two different products inside the same platform.
+They should share the design system and backend, but their navigation, priorities, dashboards, and workflows should be distinctly different.
+
+2.1 Overall App Structure
+After authentication:
+                         LOGIN
+                           │
+                           ▼
+                     ROLE ROUTER
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+         ATHLETE APP               COACH APP
+              │                         │
+       ┌──────┼──────┐           ┌──────┼──────┐
+       ▼      ▼      ▼           ▼      ▼      ▼
+    Home   Workout Progress    Home  Athletes Programs
+We should not have one dashboard that changes a few labels depending on the role.
+
+2.2 Design Philosophy
+The Athlete UI should answer:
+"What should I do today?"
+The Coach UI should answer:
+"Who needs my attention, and what should I do about them?"
+That gives us two different information architectures.
+Athlete
+Action → Progress → Motivation → Guidance
+Coach
+Overview → Problems → Athletes → Programs → Analysis
+
+2.3 Athlete Navigation
+I recommend a 5-tab bottom navigation:
+┌──────────────────────────────────────────────┐
+│                                              │
+│                 APP CONTENT                  │
+│                                              │
+├────────┬────────┬────────┬─────────┬─────────┤
+│  Home  │Workout │Progress│   AI    │ Profile │
+└────────┴────────┴────────┴─────────┴─────────┘
+Tabs
+Home
+Daily overview
+Today's workout
+Progress snapshot
+Goals
+Coach feedback
+AI insights
+Workout
+Today's workout
+Active workout
+Workout history
+Progress
+Strength
+Body
+Consistency
+Exercise PRs
+Measurements
+Photos
+AI
+AI Trainer
+Insights
+Recommendations
+Profile
+Personal information
+Fitness profile
+Settings
+Notifications
+
+2.4 Athlete Home
+This is the most important screen.
+┌──────────────────────────────┐
+│ Good morning, Alex           │
+│ Ready to train?              │
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ TODAY'S WORKOUT          │ │
+│ │ Push                     │ │
+│ │ 6 exercises • 52 min     │ │
+│ │                          │ │
+│ │ [ START WORKOUT ]        │ │
+│ └──────────────────────────┘ │
+│                              │
+│ YOUR PROGRESS                │
+│ ┌────────┐ ┌────────┐       │
+│ │ Bench  │ │ Streak │       │
+│ │ +8.2%  │ │ 12 days│       │
+│ └────────┘ └────────┘       │
+│                              │
+│ AI INSIGHT                  │
+│ "Your pressing strength has  │
+│ improved for 3 weeks."       │
+│                              │
+│ COACH FEEDBACK              │
+│ "Increase bench next week." │
+│                              │
+├──────────────────────────────┤
+│ Home Workout Progress AI Me │
+└──────────────────────────────┘
+The user should be able to open the app and immediately start training.
+
+2.5 Workout Experience
+This deserves special attention.
+The workout screen should feel like a gym tool, not a generic form.
+Workout Overview
+┌──────────────────────────────┐
+│ ← Push Day            ⋮      │
+│                              │
+│ 6 Exercises                  │
+│ Estimated 52 min             │
+│                              │
+│ Progress                     │
+│ ███████░░░ 70%               │
+│                              │
+│ 1  Bench Press               │
+│ 2  Incline DB Press          │
+│ 3  Shoulder Press            │
+│ 4  Cable Fly                 │
+│ 5  Lateral Raise             │
+│ 6  Triceps Pushdown          │
+│                              │
+│ [ CONTINUE WORKOUT ]         │
+└──────────────────────────────┘
+
+2.6 Exercise Execution
+This is where the app should become genuinely useful.
+┌──────────────────────────────┐
+│ Bench Press                  │
+│                              │
+│ Previous: 57.5kg × 10       │
+│                              │
+│ SET     KG       REPS       │
+│                              │
+│  1     60        10     ✓   │
+│  2     60         8     ✓   │
+│  3     55         8     ✓   │
+│                              │
+│ RIR       RPE               │
+│ [ 2 ]     [ 8 ]              │
+│                              │
+│ Rest                         │
+│             01:32            │
+│                              │
+│ [ COMPLETE SET ]             │
+└──────────────────────────────┘
+After completing a set:
+Complete Set
+      ↓
+Rest Timer
+      ↓
+Next Set
+The rest timer should automatically appear rather than making the user manually navigate to it.
+
+2.7 Workout Completion
+After the final exercise:
+┌──────────────────────────────┐
+│       WORKOUT COMPLETE       │
+│                              │
+│          ✓                   │
+│                              │
+│ Push Day                     │
+│ 52 minutes                   │
+│                              │
+│ Volume                       │
+│ 8,420 kg                     │
+│                              │
+│ Exercises                    │
+│ 6 / 6                        │
+│                              │
+│ New PR                       │
+│ Bench Press                  │
+│                              │
+│ [ VIEW SUMMARY ]             │
+└──────────────────────────────┘
+Then:
+Workout Complete
+       ↓
+Performance Analysis
+       ↓
+AI Insight generated
+       ↓
+Dashboard updated
+
+2.8 Progress Architecture
+Progress should not be one giant chart.
+PROGRESS
+│
+├── Overview
+├── Strength
+│   ├── Exercise Progress
+│   ├── PRs
+│   └── Estimated 1RM
+│
+├── Body
+│   ├── Weight
+│   ├── Measurements
+│   └── Photos
+│
+└── Consistency
+    ├── Workout Frequency
+    ├── Completion
+    └── Streak
+Progress Overview
+┌──────────────────────────────┐
+│ Your Progress                │
+│                              │
+│ 12 WEEK OVERVIEW             │
+│                              │
+│ Strength       ↑ 12%         │
+│ Body Weight    ↑ 2.1 kg      │
+│ Consistency    87%           │
+│                              │
+│ ───────────────────────────  │
+│                              │
+│ STRENGTH                     │
+│                              │
+│ Bench Press                  │
+│ 70 ──────────────── 82.5kg  │
+│                              │
+│ [ VIEW DETAILS ]             │
+└──────────────────────────────┘
+
+2.9 AI Trainer
+This should not look like a generic ChatGPT clone.
+The AI should understand the user's actual training data.
+┌──────────────────────────────┐
+│ AI TRAINER                   │
+│                              │
+│ Your training assistant      │
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ What can I help with?    │ │
+│ └──────────────────────────┘ │
+│                              │
+│ Suggested                   │
+│                              │
+│ Why did my bench decrease?  │
+│                              │
+│ Should I increase weight?   │
+│                              │
+│ Am I recovering properly?   │
+│                              │
+│ How is my progress?         │
+│                              │
+└──────────────────────────────┘
+And responses can reference actual data:
+"Your bench was down today, but your total pressing volume is still up 6% compared with last week."
+That's much more valuable than a generic fitness chatbot.
+
+2.10 Coach Navigation
+Coach needs a fundamentally different navigation model.
+┌──────────────────────────────────────────────┐
+│                                              │
+│                 APP CONTENT                  │
+│                                              │
+├──────────┬───────────┬──────────┬────────────┤
+│Dashboard │ Athletes  │ Programs │ Analytics  │
+└──────────┴───────────┴──────────┴────────────┘
+Then a fifth section:
+More
+├── Messages
+├── Feedback
+├── Exercise Library
+├── Settings
+└── Profile
+
+2.11 Coach Dashboard
+The coach's home screen should be a command center.
+┌──────────────────────────────────┐
+│ Coach Dashboard                  │
+│                                  │
+│ Good morning                     │
+│                                  │
+│ ┌────────┐ ┌────────┐ ┌────────┐│
+│ │   42   │ │   37   │ │   6    ││
+│ │Athletes│ │Programs│ │Attention││
+│ └────────┘ └────────┘ └────────┘│
+│                                  │
+│ NEEDS ATTENTION                  │
+│                                  │
+│ Rahul                            │
+│ ↓ Performance • 3 missed        │
+│                                  │
+│ Sarah                            │
+│ ↑ Ready for progression         │
+│                                  │
+│ Mike                             │
+│ ⚠ High training volume          │
+│                                  │
+│ RECENT ACTIVITY                  │
+│                                  │
+│ Rahul completed Push            │
+│ Sarah hit Bench PR              │
+└──────────────────────────────────┘
+This is where the separation from the athlete experience becomes obvious.
+
+2.12 Coach → Athlete View
+Clicking an athlete opens:
+ATHLETE PROFILE
+│
+├── Overview
+├── Current Program
+├── Workouts
+├── Progress
+├── Goals
+├── Measurements
+├── AI Insights
+├── Feedback
+└── Notes
+Overview
+┌──────────────────────────────────┐
+│ ← Rahul                          │
+│                                  │
+│ Active • 12 weeks                │
+│                                  │
+│ Compliance          87%          │
+│ Current Streak      8 days       │
+│                                  │
+│ PERFORMANCE                     │
+│                                  │
+│ Bench Press        ↑ 8%         │
+│ Squat              ↑ 5%         │
+│ Deadlift           → 0%         │
+│                                  │
+│ ⚠ NEEDS ATTENTION               │
+│ Deadlift hasn't progressed      │
+│ for 4 weeks.                    │
+│                                  │
+│ [ VIEW PROGRAM ]                │
+└──────────────────────────────────┘
+
+2.13 Coach Program Builder
+This should be one of the strongest coach tools.
+CREATE PROGRAM
+
+Program Name
+[ 12 Week Hypertrophy ]
+
+Duration
+[ 12 weeks ]
+
+Days
+[ Mon ] [ Tue ] [ Wed ] [ Thu ] [ Fri ]
+
+────────────────────────────
+
+MONDAY — PUSH
+
+Bench Press
+3 × 8–12
+RIR 2
+Rest 120s
+
+[ + ADD EXERCISE ]
+
+────────────────────────────
+
+TUESDAY — PULL
+
+[ + ADD EXERCISE ]
+
+────────────────────────────
+
+[ SAVE PROGRAM ]
+[ ASSIGN ATHLETE ]
+Eventually:
+Manual
+   │
+   ├── AI Generate
+   │
+   └── Duplicate Existing
+The coach can use AI as an accelerator without giving up control.
+
+2.14 Coach Analytics
+Instead of flashy charts everywhere, analytics should answer specific questions.
+ANALYTICS
+
+Performance
+├── Strength progression
+├── Volume
+├── PRs
+└── Exercise trends
+
+Adherence
+├── Workout completion
+├── Missed sessions
+├── Streaks
+└── Program compliance
+
+Athlete Health of Training
+├── Progressing
+├── Plateaued
+├── Declining
+└── Needs attention
+
+2.15 Notifications
+Athlete:
+Notifications
+│
+├── Workout reminder
+├── Coach feedback
+├── New program
+├── PR
+├── AI insight
+└── Goal milestone
+Coach:
+Notifications
+│
+├── Athlete completed workout
+├── Athlete missed workout
+├── Athlete hit PR
+├── Athlete needs attention
+├── Feedback request
+└── New athlete
+Different users → different notification priorities.
+
+2.16 Messaging
+We should keep messaging simple initially.
+Coach
+  │
+  ├── Athlete A
+  ├── Athlete B
+  └── Athlete C
+Conversation:
+Coach:
+How did today's workout feel?
+
+Athlete:
+Pretty good. Squats felt heavy.
+
+Coach:
+Let's keep the weight the same next session.
+AI conversation remains separate:
+Coach Chat
+AI Trainer
+
+2.17 Global Design System
+Before implementing individual screens, we should establish a design system.
+Typography
+Use a modern sans-serif hierarchy:
+Display
+Heading
+Subheading
+Body
+Caption
+Components
+Create reusable:
+Button
+Card
+StatCard
+ProgressBar
+Chart
+ExerciseCard
+WorkoutCard
+SetRow
+Avatar
+Badge
+Modal
+BottomSheet
+TabBar
+Input
+Toast
+This prevents every screen from becoming custom code.
+
+2.18 The Visual Direction
+I would go for a premium performance/fitness aesthetic, not the typical generic green gym app.
+Think:
+Clean
+High contrast
+Data-driven
+Athletic
+Minimal
+Modern
+Focused
+The interface should feel closer to a professional performance platform than a calorie counter.
+
+2.19 Information Hierarchy
+One rule should govern the entire app:
+Don't show data merely because we have it.
+Show information based on what the user needs at that moment.
+For example:
+Athlete opens app at 6:45 PM:
+TODAY'S WORKOUT
+        ↓
+START
+Not:
+12 charts
+8 statistics
+17 measurements
+Coach opens app:
+6 ATHLETES NEED ATTENTION
+        ↓
+WHO?
+        ↓
+WHY?
+        ↓
+WHAT SHOULD I DO?
+That is the UX we want.
+
+2.20 Phase 2 Screen Map
+The complete initial application becomes:
+                         APP
+                          │
+            ┌─────────────┴─────────────┐
+            │                           │
+        ATHLETE                       COACH
+            │                           │
+     ┌──────┼──────┐             ┌──────┼──────┐
+     │      │      │             │      │      │
+   HOME  WORKOUT PROGRESS      HOME ATHLETES PROGRAMS
+     │      │      │             │      │      │
+     │      │      ├─ Strength   │      │      ├─ Builder
+     │      │      ├─ Body       │      │      └─ Templates
+     │      │      └─ Consistency│      │
+     │      │                    │      ├─ Athlete Detail
+     │      ├─ Today             │      ├─ Progress
+     │      ├─ Active            │      └─ Feedback
+     │      └─ History           │
+     │                           ├─ Analytics
+     ├─ AI TRAINER               ├─ Messages
+     │                           └─ Profile
+     └─ PROFILE
+
+2.21 Phase 2 Development Order
+We should not build screens randomly.
+Build in this order:
+Step 1 — Design System
+Colors
+Typography
+Spacing
+Icons
+Buttons
+Cards
+Inputs
+Navigation
+Step 2 — Authentication
+Splash
+Login
+Register
+Forgot Password
+Role selection
+Onboarding
+Step 3 — Athlete Core
+Home
+Workout
+Exercise execution
+Workout completion
+History
+Step 4 — Athlete Progress
+Progress overview
+Strength
+Body
+Goals
+Measurements
+Photos
+Step 5 — AI
+AI Trainer
+Insights
+Context-aware responses
+Step 6 — Coach
+Coach Dashboard
+Athletes
+Athlete Detail
+Programs
+Program Builder
+Analytics
+Feedback
+Step 7 — Communication
+Messages
+Notifications
+Coach ↔ Athlete
+
+Phase 2 Target Architecture
+By the end of Phase 2, the app should have this navigation architecture:
+                         AUTH
+                          │
+                          ▼
+                    ROLE ROUTER
+                    /         \
+                   /           \
+                  ▼             ▼
+             ATHLETE           COACH
+                │                 │
+        ┌───────┼───────┐   ┌────┼────────┐
+        ▼       ▼       ▼   ▼    ▼        ▼
+      HOME   WORKOUT  AI  HOME ATHLETES PROGRAMS
+        │       │       │        │        │
+        └───┬───┘       │        ├─Detail ├─Builder
+            │           │        ├─Progress
+            ▼           │        └─Feedback
+         PROGRESS       │
+            │           │
+            └─────┬─────┘
+                  ▼
+               PROFILE
+The next step should be Phase 2A: the complete design system—we'll define the color palette, typography, spacing scale, component rules, cards, buttons, navigation, charts, workout controls, and the overall visual language before designing individual screens.
+Phase 2A — Design System
+We should lock the design language before building screens. The goal is a system that feels like a serious performance product, not a template fitness app.
+1. Visual Direction
+The overall style:
+PERFORMANCE
+    +
+PRECISION
+    +
+MINIMALISM
+    +
+ENERGY
+The interface should feel:
+Premium
+Athletic
+Data-driven
+Clean
+Fast
+Focused
+Modern
+Avoid:
+Excessive gradients
+Cartoonish fitness illustrations
+Huge decorative elements
+Too many colors
+Gamification everywhere
+Dashboard clutter
+
+2. Color System
+I'd use a dark-first interface with a strong accent.
+Core
+Background
+#0B0D0F
+
+Surface
+#121519
+
+Elevated Surface
+#181C21
+
+Border
+#262B31
+
+Primary Text
+#F5F7F9
+
+Secondary Text
+#9AA3AD
+
+Muted Text
+#626B75
+Accent
+Use a bright electric lime/green as the primary action color.
+Primary
+#B8FF3D
+This gives the app a recognizable fitness/performance identity.
+Semantic colors
+Success
+#35D07F
+
+Warning
+#FFB547
+
+Danger
+#FF5C5C
+
+Info
+#5EA7FF
+Important: semantic colors should be used sparingly.
+
+3. Athlete vs Coach
+We shouldn't create two completely different themes.
+Both use:
+Same design system
+Same typography
+Same components
+Same spacing
+But the information hierarchy changes.
+Athlete:
+Action-focused
+Workout-focused
+Personal progress
+Coach:
+Data-focused
+Athlete-focused
+Management-focused
+
+4. Typography
+Use a modern sans-serif such as Inter.
+Hierarchy:
+Display
+32–36 px
+Bold
+
+H1
+28 px
+Bold
+
+H2
+22–24 px
+Semibold
+
+H3
+18 px
+Semibold
+
+Body
+15–16 px
+Regular
+
+Caption
+12–13 px
+Medium
+For numerical metrics:
+Weight
+82.5 kg
+
+12
+days
+
+87%
+Use heavier typography and slightly tighter spacing.
+Numbers are important in a fitness application.
+
+5. Spacing System
+Use an 8-point base grid:
+4
+8
+12
+16
+24
+32
+40
+48
+64
+Most mobile layouts should use:
+Horizontal padding: 20px
+Card padding: 16–20px
+Section gap: 24–32px
+Don't randomly use:
+13px
+19px
+27px
+31px
+unless there's a genuine reason.
+
+6. Border Radius
+Keep the interface moderately rounded.
+Small
+8px
+
+Card
+14px
+
+Large Card
+18px
+
+Bottom Sheet
+24px
+
+Button
+12px
+Avoid the "everything is a giant pill" aesthetic.
+
+7. Buttons
+Three primary button types.
+Primary
+┌──────────────────────────┐
+│      START WORKOUT       │
+└──────────────────────────┘
+Strong accent background, dark text.
+Used for:
+Start workout
+Save
+Create program
+Complete workout
+Main actions
+
+Secondary
+┌──────────────────────────┐
+│      VIEW PROGRESS       │
+└──────────────────────────┘
+Used for secondary actions.
+
+Ghost
+View Details →
+Used for navigation and low-priority actions.
+
+8. Cards
+Cards are going to be heavily used.
+Standard Card
+┌─────────────────────────────┐
+│ TODAY'S WORKOUT             │
+│                             │
+│ Push                        │
+│ 6 exercises • 52 min       │
+│                             │
+│ START →                     │
+└─────────────────────────────┘
+Don't put a border around every tiny piece of information.
+Use surface contrast to establish hierarchy.
+
+9. Stat Cards
+For important metrics:
+┌───────────────┐
+│ BENCH PRESS   │
+│               │
+│ 82.5 kg       │
+│ ↑ 5.2%        │
+└───────────────┘
+Use these for:
+Weight
+Strength
+Volume
+Streak
+Compliance
+PRs
+
+10. Exercise Card
+┌──────────────────────────────┐
+│ [IMAGE]  Bench Press         │
+│          Chest               │
+│                              │
+│          3 × 8–12            │
+│          RIR 2               │
+│                              │
+│          Previous: 60 × 10  │
+└──────────────────────────────┘
+The exercise card should be reusable everywhere:
+Workout
+Program Builder
+Exercise Library
+History
+AI recommendations
+
+11. Set Row
+This is one of the most important components.
+┌─────────────────────────────────┐
+│ SET    WEIGHT     REPS     ✓    │
+├─────────────────────────────────┤
+│  1      60kg       10      ✓    │
+│  2      60kg        8      ✓    │
+│  3      55kg        8      ○    │
+└─────────────────────────────────┘
+During an active workout, this should be extremely fast to interact with.
+Avoid requiring the user to open a modal every time they enter a set.
+
+12. Rest Timer
+The rest timer should be a persistent but unobtrusive component.
+┌──────────────────────────────┐
+│ REST                         │
+│                              │
+│           01:42              │
+│                              │
+│     +30s       SKIP          │
+└──────────────────────────────┘
+Potential interactions:
++30 sec
++60 sec
+Skip
+Pause
+
+13. Progress Charts
+Charts should communicate something immediately.
+Bad:
+A complicated chart with 7 lines and no obvious takeaway.
+Good:
+Bench Press
+
+90kg ┤
+     │                 ●
+85kg ┤            ●
+     │       ●
+80kg ┤   ●
+     │
+75kg ┤
+     └────────────────────
+       W1 W2 W3 W4 W5
+Then:
++10.5% over 5 weeks
+The number tells the story; the chart supports it.
+
+14. Progress Colors
+Don't make every chart a different color.
+Use the primary accent for the main data series.
+Use semantic colors only when meaningful:
+Green → improvement
+Red → decline
+Yellow → warning
+Gray → neutral
+
+15. Badges
+Use compact status indicators.
+ACTIVE
+COMPLETED
+PR
+NEEDS ATTENTION
+PLATEAU
+Examples:
+● ACTIVE
+
+↑ PR
+
+! NEEDS ATTENTION
+Don't turn every piece of data into a badge.
+
+16. AI UI
+The AI needs its own visual identity while still fitting the app.
+Example:
+┌──────────────────────────────┐
+│ AI INSIGHT                   │
+│                              │
+│ Your bench volume increased  │
+│ 12% over the last 3 weeks.   │
+│                              │
+│ Recommendation               │
+│ Try 82.5kg next session.      │
+│                              │
+│ VIEW DATA →                  │
+└──────────────────────────────┘
+The important thing:
+AI should show its reasoning context.
+Not chain-of-thought, but evidence.
+For example:
+Based on:
+• Last 4 bench sessions
+• +12% volume
+• Average RIR 2
+This increases trust.
+
+17. AI Chat
+Instead of a plain messaging screen:
+User:
+Why was my bench weaker?
+
+AI:
+Your weight dropped today, but your
+overall pressing volume is still up 6%
+from last week.
+
+Based on:
+[3 workouts] [Bench Press] [Volume]
+The [3 workouts] etc. can be tappable context chips.
+That creates a connection between conversational AI and the actual fitness platform.
+
+18. Navigation
+Athlete
+Bottom tab:
+┌────────────────────────────────────┐
+│                                    │
+│              CONTENT               │
+│                                    │
+├────────┬────────┬────────┬────┬────┤
+│  Home  │Workout │Progress│ AI │ Me │
+└────────┴────────┴────────┴────┴────┘
+Coach
+┌────────────────────────────────────┐
+│                                    │
+│              CONTENT               │
+│                                    │
+├─────────┬──────────┬────────┬──────┤
+│Dashboard│ Athletes │Programs│ More │
+└─────────┴──────────┴────────┴──────┘
+Coach analytics can live inside Dashboard/More initially rather than consuming a permanent tab.
+
+19. Icons
+Use one icon family consistently.
+Recommended style:
+Outlined icons
+Simple geometry
+No mixed icon libraries
+Examples:
+Home
+Dumbbell
+Chart
+AI/Spark
+User
+Calendar
+Bell
+Message
+Settings
+Icons should support text rather than replace it everywhere.
+
+20. Empty States
+Don't leave blank screens.
+Example:
+          ┌────────────┐
+          │   GRAPH    │
+          └────────────┘
+
+       No progress yet
+
+Complete your first workout
+to start tracking your progress.
+
+       [ START WORKOUT ]
+Useful empty states should always tell the user:
+What's missing?
+Why?
+What should I do?
+
+21. Loading States
+Avoid giant loading spinners.
+Use skeletons:
+┌─────────────────────────────┐
+│ ███████████                 │
+│                             │
+│ ███████████████████         │
+│                             │
+│ ████████                    │
+└─────────────────────────────┘
+Especially for:
+Dashboard
+Athlete list
+Progress
+AI insights
+
+22. Bottom Sheets
+Use bottom sheets for contextual actions.
+Example:
+Bench Press
+────────────
+
+View Exercise
+Replace Exercise
+Edit Prescription
+View History
+Cancel
+This is better than navigating through multiple screens for simple actions.
+
+23. Modals
+Use modals only for actions that require focused attention.
+Good:
+Delete Program?
+This cannot be undone.
+
+[Cancel] [Delete]
+Bad:
+Opening every simple setting in a modal.
+
+24. Workout Screen Rule
+During a workout, navigation should disappear as much as possible.
+The user should not be distracted by:
+Home
+Progress
+AI
+Profile
+Instead:
+Workout
+   ↓
+Exercise
+   ↓
+Set
+   ↓
+Rest
+   ↓
+Next Set
+The workout experience is a focused mode.
+
+25. Accessibility
+This should be built in from the beginning.
+Include:
+Dynamic text sizing
+Adequate touch targets
+Strong contrast
+Screen reader labels
+Haptic feedback where appropriate
+Don't rely only on color to communicate status
+For example:
+Bad:
+Green = completed
+Red = failed
+Better:
+✓ Completed
+! Needs attention
+
+26. Responsive Strategy
+Even though the athlete app is primarily mobile:
+Athlete
+Mobile-first
+Coach
+Eventually:
+Mobile
+Tablet
+Desktop/Web
+Coach dashboards benefit heavily from larger screens because they involve tables, comparisons, and analytics.
+So I recommend:
+Athlete → React Native mobile
+Coach → React Native initially + responsive web later
+We can still share the underlying design system.
+
+27. Component Architecture
+Our React Native UI library should eventually look like:
+components/
+│
+├── primitives/
+│   ├── Text
+│   ├── Button
+│   ├── Input
+│   ├── Icon
+│   └── Divider
+│
+├── layout/
+│   ├── Screen
+│   ├── Stack
+│   ├── Row
+│   └── Section
+│
+├── cards/
+│   ├── WorkoutCard
+│   ├── StatCard
+│   ├── ExerciseCard
+│   ├── InsightCard
+│   └── AthleteCard
+│
+├── workout/
+│   ├── SetRow
+│   ├── RestTimer
+│   ├── ExerciseHeader
+│   └── WorkoutProgress
+│
+├── charts/
+│   ├── LineChart
+│   ├── BarChart
+│   └── ProgressChart
+│
+├── navigation/
+│   ├── AthleteTabBar
+│   └── CoachTabBar
+│
+└── feedback/
+    ├── Toast
+    ├── Modal
+    ├── BottomSheet
+    └── EmptyState
+This is important because we're building a platform, not a handful of screens.
+
+28. Design Tokens
+Instead of hardcoding values:
+color="#B8FF3D"
+everywhere, we'll have:
+colors.primary
+colors.background
+colors.surface
+
+spacing.sm
+spacing.md
+spacing.lg
+
+radius.sm
+radius.md
+radius.lg
+
+typography.h1
+typography.body
+typography.caption
+Then changing the visual identity later becomes easy.
+
+29. Final Design Language
+The app's visual hierarchy should essentially be:
+              PRIMARY ACTION
+                    ↓
+             IMPORTANT DATA
+                    ↓
+              NEXT ACTION
+                    ↓
+               CONTEXT
+                    ↓
+              SECONDARY DATA
+For example:
+TODAY'S WORKOUT
+
+Push
+6 exercises • 52 min
+
+[ START WORKOUT ]
+
+──────────────────
+
+YOUR PROGRESS
+
+Bench      82.5kg ↑
+Squat      120kg  →
+Streak     12 days
+
+──────────────────
+
+AI INSIGHT
+
+Your pressing strength is trending up.
+That's much stronger than trying to show every feature on the home screen.
+
+Phase 2A Complete
+We now have:
+✓ Color system
+✓ Typography
+✓ Spacing
+✓ Radius
+✓ Buttons
+✓ Cards
+✓ Exercise components
+✓ Workout components
+✓ Charts
+✓ AI components
+✓ Navigation
+✓ Accessibility
+✓ Responsive strategy
+✓ Component architecture
+✓ Design tokens
+Next: Phase 2B — Screen-by-Screen UX
+Now we can start designing the actual application.
+The order should be:
+AUTH
+ ↓
+ONBOARDING
+ ↓
+ATHLETE HOME
+ ↓
+TODAY'S WORKOUT
+ ↓
+ACTIVE WORKOUT
+ ↓
+WORKOUT SUMMARY
+ ↓
+PROGRESS
+ ↓
+AI TRAINER
+ ↓
+PROFILE
+ ↓
+COACH HOME
+ ↓
+ATHLETES
+ ↓
+ATHLETE DETAIL
+ ↓
+PROGRAM BUILDER
+ ↓
+COACH ANALYTICS
+We should start with Authentication + Athlete Onboarding, because onboarding determines the information needed to generate the athlete's first experience and eventually gives the AI enough context to personalize the training system.
+Phase 2B — Authentication & Athlete Onboarding
+We’ll design these as a complete flow rather than isolated screens.
+The goal is:
+OPEN APP
+   ↓
+AUTHENTICATE
+   ↓
+IDENTIFY ROLE
+   ↓
+ONBOARD
+   ↓
+PERSONALIZE
+   ↓
+DASHBOARD
+
+1. App Launch
+The first screen should be extremely simple.
+┌──────────────────────────────┐
+│                              │
+│                              │
+│                              │
+│            LOGO              │
+│                              │
+│        YOUR TAGLINE          │
+│                              │
+│                              │
+│                              │
+│                              │
+└──────────────────────────────┘
+No unnecessary buttons.
+The app checks:
+Is user authenticated?
+        │
+   ┌────┴────┐
+   │         │
+  YES        NO
+   │         │
+   ▼         ▼
+Role Router Login
+
+2. Welcome Screen
+For a new user:
+┌──────────────────────────────┐
+│                              │
+│       TRAIN SMARTER.         │
+│       GET STRONGER.          │
+│                              │
+│ Track your training,         │
+│ understand your progress,    │
+│ and train with intelligence. │
+│                              │
+│                              │
+│ [ CREATE ACCOUNT ]           │
+│                              │
+│ [ LOG IN ]                   │
+│                              │
+└──────────────────────────────┘
+Keep this focused.
+
+3. Login
+┌──────────────────────────────┐
+│ ←                            │
+│                              │
+│ Welcome back                 │
+│                              │
+│ Email                        │
+│ ┌──────────────────────────┐ │
+│ │ alex@example.com         │ │
+│ └──────────────────────────┘ │
+│                              │
+│ Password                     │
+│ ┌──────────────────────────┐ │
+│ │ •••••••••••              │ │
+│ └──────────────────────────┘ │
+│                              │
+│ Forgot password?             │
+│                              │
+│ [ LOG IN ]                   │
+│                              │
+│ ───────── OR ─────────       │
+│                              │
+│ Continue with Google         │
+│ Continue with Apple          │
+│                              │
+│ Don't have an account?       │
+│ Create account               │
+└──────────────────────────────┘
+Google/Apple can be implemented after email/password if we're prioritizing MVP.
+
+4. Registration
+Don't ask for 15 fields immediately.
+First:
+Create your account
+
+First name
+Last name
+Email
+Password
+
+[ CONTINUE ]
+Then role:
+How will you use the app?
+
+┌──────────────────────────────┐
+│                              │
+│  ATHLETE                     │
+│                              │
+│  Train, track and improve.   │
+│                              │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│                              │
+│  COACH                       │
+│                              │
+│  Manage and coach athletes.  │
+│                              │
+└──────────────────────────────┘
+This is better than making the user choose "role" as a technical concept.
+
+5. Athlete Onboarding
+After:
+Create Account
+      ↓
+Athlete
+      ↓
+Athlete Onboarding
+We should use a progress indicator.
+STEP 2 OF 6
+
+● ● ○ ○ ○ ○
+The user should know onboarding has an end.
+
+6. Step 1 — Basic Information
+Tell us about yourself
+
+Date of birth
+
+[ DD / MM / YYYY ]
+
+Height
+
+[ 178 ] [ cm ]
+
+Current weight
+
+[ 74 ] [ kg ]
+
+[ CONTINUE ]
+Don't ask unnecessary demographic information.
+
+7. Step 2 — Experience
+What's your training experience?
+
+○ Beginner
+
+I've just started training.
+
+○ Intermediate
+
+I've been training consistently.
+
+○ Advanced
+
+I've trained seriously for years.
+This affects:
+Program complexity
+Exercise selection
+AI recommendations
+Onboarding defaults
+
+8. Step 3 — Primary Goal
+This is a major personalization step.
+What's your main goal?
+
+┌──────────────┐
+│ BUILD MUSCLE │
+└──────────────┘
+
+┌──────────────┐
+│ GET STRONGER │
+└──────────────┘
+
+┌──────────────┐
+│ LOSE FAT     │
+└──────────────┘
+
+┌──────────────┐
+│ FITNESS      │
+└──────────────┘
+
+┌──────────────┐
+│ ENDURANCE    │
+└──────────────┘
+Then:
+Anything else you're working toward?
+
+☐ Muscle gain
+☐ Strength
+☐ Fat loss
+☐ Conditioning
+☐ Mobility
+Primary goal + secondary goals gives us more useful data.
+
+9. Step 4 — Training Availability
+How often can you train?
+
+[ 5 ] days per week
+
+Preferred workout duration
+
+○ 30 min
+○ 45 min
+● 60 min
+○ 90+ min
+Then:
+When do you usually train?
+
+○ Morning
+○ Afternoon
+● Evening
+○ No preference
+This becomes useful later for notifications and scheduling.
+
+10. Step 5 — Equipment
+Where do you train?
+
+● Commercial gym
+○ Home gym
+○ Home
+○ Other
+Then:
+What equipment do you have?
+
+☑ Barbell
+☑ Dumbbells
+☑ Cable machines
+☑ Machines
+☐ Resistance bands
+☐ Pull-up bar
+☐ Kettlebells
+We can make this searchable instead of showing a giant list.
+
+11. Step 6 — Training Preferences
+What do you enjoy training?
+
+☑ Chest
+☑ Back
+☑ Shoulders
+☑ Arms
+☑ Legs
+☐ Core
+Then:
+Anything you want to avoid?
+
+[ Optional ]
+Important distinction:
+Preference ≠ injury/medical advice.
+We're collecting training preferences, not attempting to diagnose or manage medical conditions.
+
+12. Goal Confirmation
+Before entering the app:
+YOUR TRAINING PROFILE
+
+Goal
+Muscle Gain
+
+Experience
+Intermediate
+
+Training
+5 days / week
+
+Session
+60 minutes
+
+Equipment
+Commercial Gym
+
+Preferred Time
+Evening
+
+────────────────────
+
+We'll use this to personalize
+your training experience.
+
+[ START TRAINING ]
+
+13. First Dashboard Experience
+Don't dump the user onto an empty dashboard.
+The first experience should have a clear state:
+Welcome, Alex
+
+Let's get your training
+system ready.
+
+┌──────────────────────────────┐
+│ YOUR FIRST PROGRAM           │
+│                              │
+│ Build your training plan     │
+│ based on your goals.         │
+│                              │
+│ [ CREATE MY PROGRAM ]        │
+└──────────────────────────────┘
+There are two paths:
+                  FIRST PROGRAM
+                       │
+             ┌─────────┴─────────┐
+             ▼                   ▼
+       AI Generated         Coach Assigned
+             │                   │
+             ▼                   ▼
+         AI Program           Program
+
+14. Independent Athlete
+If the athlete has no coach:
+Create My Program
+       ↓
+AI Program Setup
+Example:
+Based on your profile:
+
+Muscle gain
+5 days/week
+60 min
+Commercial gym
+Intermediate
+
+Would you like us to
+create your starting plan?
+
+[ GENERATE PLAN ]
+This is where AI becomes immediately useful.
+
+15. Coach-Assigned Athlete
+If the athlete joins through a coach:
+Coach invitation
+       ↓
+Accept
+       ↓
+Coach relationship created
+       ↓
+Coach assigns program
+       ↓
+Athlete dashboard
+The athlete shouldn't have to generate their own program if the coach is managing them.
+
+16. Invite Code
+For the MVP, a simple coach connection system could be:
+JOIN YOUR COACH
+
+Enter invitation code
+
+[ ABC123 ]
+
+[ JOIN COACH ]
+Later we can support:
+Invite link
+QR code
+Email invitation
+Search coach
+
+17. Coach Onboarding
+The coach flow should be shorter and more professional.
+Create Account
+      ↓
+Coach
+      ↓
+Professional Profile
+Information
+Your coaching profile
+
+Bio
+
+Specializations
+☑ Hypertrophy
+☑ Strength
+
+Experience
+5 years
+
+Certifications
+
+[ + ADD CERTIFICATION ]
+
+[ CONTINUE ]
+Then:
+How many athletes do you currently coach?
+
+○ 1–5
+○ 6–20
+○ 21–50
+○ 50+
+This can help us understand how to optimize the coach dashboard.
+
+18. Authentication State Architecture
+Our frontend navigation should now be:
+Root
+│
+├── Splash
+│
+├── Auth
+│   ├── Welcome
+│   ├── Login
+│   ├── Register
+│   ├── Forgot Password
+│   └── Reset Password
+│
+└── App
+    │
+    ├── Athlete
+    │   ├── Onboarding
+    │   └── Main App
+    │
+    └── Coach
+        ├── Onboarding
+        └── Main App
+
+19. State Machine
+This is worth defining now.
+NEW USER
+   │
+   ▼
+REGISTERED
+   │
+   ▼
+EMAIL VERIFIED
+   │
+   ▼
+ONBOARDING
+   │
+   ▼
+PROFILE COMPLETE
+   │
+   ▼
+ACTIVE
+For a returning user:
+OPEN APP
+   ↓
+TOKEN VALID?
+   ↓
+YES
+   ↓
+PROFILE COMPLETE?
+   ↓
+YES
+   ↓
+ROLE
+   ↓
+ATHLETE / COACH
+
+20. Onboarding Data Flow
+Everything collected here goes into the schema we designed.
+Onboarding
+    │
+    ├── Basic Info
+    │       ↓
+    │   athleteProfiles
+    │
+    ├── Goals
+    │       ↓
+    │     goals
+    │
+    ├── Training Preferences
+    │       ↓
+    │   athleteProfiles
+    │
+    └── Equipment
+            ↓
+       athleteProfiles
+We shouldn't store onboarding answers in a separate permanent collection.
+
+21. UX Rules for Onboarding
+Rule 1 — One decision per screen
+Don't create:
+15 fields
+20 checkboxes
+8 dropdowns
+on one screen.
+Rule 2 — Always allow back
+Users should be able to revise answers.
+Rule 3 — Save progress
+If the user closes the app at:
+Step 4
+they return to Step 4.
+Rule 4 — Skip optional information
+Required:
+Goal
+Experience
+Training frequency
+Optional:
+Training preference
+Secondary goals
+Additional equipment
+
+22. Phase 2B Architecture
+Our authentication/onboarding flow is now:
+                     APP
+                      │
+                   SPLASH
+                      │
+             ┌────────┴────────┐
+             ▼                 ▼
+          RETURNING           NEW
+             │                 │
+             ▼                 ▼
+       AUTH CHECK           REGISTER
+             │                 │
+             ▼                 ▼
+            ROLE             ROLE
+             │          ┌──────┴──────┐
+             │          ▼             ▼
+             │       ATHLETE        COACH
+             │          │             │
+             │          ▼             ▼
+             │      ONBOARDING    ONBOARDING
+             │          │             │
+             └──────────┴──────┬──────┘
+                                ▼
+                             PROFILE
+                             COMPLETE
+                                │
+                                ▼
+                              APP
+What comes next
+The next screen we should design is Athlete Home, because it is the central hub from which the workout, progress, AI, goals, and coach feedback experiences branch out.
+We'll define it down to the exact sections, hierarchy, states, interactions, and API data each section consumes before moving into the workout experience.
+Phase 2C — Athlete Home
+The Athlete Home is the command center for the athlete. It should not try to display everything the app knows about them.
+Its job is simple:
+Tell the athlete what matters right now and give them an immediate next action.
+
+1. Home Screen Information Hierarchy
+The priority should be:
+1. Today's workout
+        ↓
+2. Current progress
+        ↓
+3. Important insight
+        ↓
+4. Coach communication
+        ↓
+5. Goals / motivation
+So the screen flows roughly:
+HEADER
+  ↓
+TODAY'S WORKOUT
+  ↓
+QUICK PROGRESS
+  ↓
+AI INSIGHT
+  ↓
+COACH FEEDBACK
+  ↓
+GOAL
+
+2. Default Home Screen
+┌──────────────────────────────────┐
+│ Good morning, Alex        🔔     │
+│ Friday, Aug 28                   │
+│                                  │
+│ TODAY'S WORKOUT                  │
+│ ┌──────────────────────────────┐ │
+│ │ PUSH                         │ │
+│ │ Chest • Shoulders • Triceps  │ │
+│ │                              │ │
+│ │ 6 exercises     ~52 min      │ │
+│ │                              │ │
+│ │ [ START WORKOUT ]            │ │
+│ └──────────────────────────────┘ │
+│                                  │
+│ YOUR PROGRESS                    │
+│ ┌────────────┐ ┌──────────────┐ │
+│ │ BENCH      │ │ CONSISTENCY  │ │
+│ │ 82.5 kg    │ │ 87%          │ │
+│ │ ↑ 5.2%     │ │ 12 day streak│ │
+│ └────────────┘ └──────────────┘ │
+│                                  │
+│ AI INSIGHT                      │
+│ ┌──────────────────────────────┐ │
+│ │ Your pressing strength has   │ │
+│ │ improved for 3 weeks.        │ │
+│ │                              │ │
+│ │ View analysis →              │ │
+│ └──────────────────────────────┘ │
+│                                  │
+│ COACH FEEDBACK                  │
+│ ┌──────────────────────────────┐ │
+│ │ "Increase bench next week."  │ │
+│ │                              │ │
+│ │ Coach • 2h ago               │ │
+│ └──────────────────────────────┘ │
+│                                  │
+├──────────────────────────────────┤
+│ Home  Workout  Progress  AI  Me │
+└──────────────────────────────────┘
+
+3. Header
+Keep it minimal.
+Good morning, Alex        🔔
+Friday, Aug 28
+The profile picture doesn't need to dominate the screen.
+Tapping the notification icon:
+Home
+ ↓
+Notifications
+Tapping the greeting/profile:
+Home
+ ↓
+Profile
+
+4. Time-Aware Greeting
+The greeting can dynamically change:
+Morning
+Good morning, Alex
+
+Afternoon
+Good afternoon, Alex
+
+Evening
+Good evening, Alex
+But don't make this overly conversational.
+The app should feel like a training system, not a chatbot.
+
+5. Today's Workout Card
+This is the most important component.
+Not started
+PUSH
+
+6 exercises
+~52 min
+
+[ START WORKOUT ]
+In progress
+PUSH
+
+4 / 6 exercises
+
+████████████░░ 67%
+
+[ CONTINUE WORKOUT ]
+Completed
+PUSH
+
+✓ Completed
+
+52 min
+8,420 kg volume
+
+[ VIEW SUMMARY ]
+Rest day
+REST DAY
+
+No workout scheduled today.
+
+Next:
+Pull • Tomorrow
+
+[ VIEW PROGRAM ]
+No program
+NO PROGRAM YET
+
+Your training plan hasn't
+been assigned yet.
+
+[ SET UP TRAINING ]
+This is important because the dashboard should behave correctly in every state.
+
+6. Workout Card Interaction
+Tapping anywhere on the card:
+Today's Workout
+       ↓
+Workout Overview
+Tapping:
+START WORKOUT
+goes directly into:
+Active Workout
+That's intentional.
+The user shouldn't have to:
+Home
+→ Workout
+→ Today's workout
+→ Start
+just to begin training.
+
+7. Quick Progress
+We should only show 2–3 metrics on Home.
+For example:
+BENCH
+82.5 kg
+↑ 5.2%
+
+CONSISTENCY
+87%
+12 day streak
+Other data belongs in Progress.
+Potential metrics should be dynamically selected based on the athlete's goals.
+Strength goal
+Bench PR
+Squat PR
+Deadlift PR
+Muscle gain
+Body weight
+Training volume
+Consistency
+Fat loss
+Weight trend
+Consistency
+Goal progress
+The Home screen shouldn't be identical for every athlete.
+
+8. AI Insight
+The AI insight should be generated from actual data.
+Example:
+AI INSIGHT
+
+Your bench volume increased 12%
+over the last three weeks.
+
+Recommendation:
+You may be ready for a small
+progression next session.
+
+VIEW ANALYSIS →
+Notice:
+Observation
+     ↓
+Evidence
+     ↓
+Recommendation
+Not:
+"You're doing amazing! Keep crushing it!"
+The app should provide useful information.
+
+9. AI Insight States
+New
+NEW
+Viewed
+AI INSIGHT
+Actionable
+RECOMMENDATION
+No insight
+Don't show:
+No AI insights.
+Instead, simply omit the section or show something useful such as:
+Your training is on track.
+Keep following your current program.
+
+10. Coach Feedback
+The athlete should immediately see new coach feedback.
+COACH FEEDBACK
+
+"Your squat depth looked much
+better this week. Keep it up."
+
+Coach • 2h ago
+
+VIEW FEEDBACK →
+If unread:
+● NEW
+Tapping opens the full feedback.
+
+11. Goal Card
+I would put goals below the more important operational information.
+Example:
+CURRENT GOAL
+
+Bench Press
+100 kg
+
+82.5 kg / 100 kg
+
+██████████████░░░ 82%
+
+18 kg to go
+Potential CTA:
+VIEW GOAL →
+If the goal is achieved:
+GOAL ACHIEVED
+
+100 kg Bench Press
+
+✓ Completed Aug 24
+
+12. Home Personalization
+This is where the system starts becoming intelligent.
+The home screen should eventually adapt.
+For example:
+Athlete missed three workouts
+GET BACK ON TRACK
+
+You've missed your last 3 sessions.
+
+Next workout:
+Pull • Today
+
+[ START WORKOUT ]
+Athlete just hit a PR
+NEW PERSONAL RECORD
+
+Bench Press
+90 kg × 5
+
+[ VIEW PROGRESS ]
+Athlete has no recent activity
+READY TO TRAIN?
+
+Your next session is waiting.
+
+[ VIEW WORKOUT ]
+Athlete has excellent consistency
+12 DAY STREAK
+
+You're on your longest streak
+this month.
+The UI should react to state, not remain static.
+
+13. Home API
+The frontend should primarily consume:
+GET /api/v1/athletes/me/dashboard
+Response:
+{
+  "user": {
+    "firstName": "Alex"
+  },
+
+  "today": {
+    "date": "2026-08-28",
+    "isRestDay": false
+  },
+
+  "workout": {
+    "id": "...",
+    "name": "Push",
+    "exerciseCount": 6,
+    "estimatedDurationMinutes": 52,
+    "status": "not_started"
+  },
+
+  "progress": {
+    "primaryMetric": {
+      "label": "Bench Press",
+      "value": 82.5,
+      "unit": "kg",
+      "changePercentage": 5.2
+    },
+
+    "consistency": {
+      "percentage": 87,
+      "streak": 12
+    }
+  },
+
+  "insight": {
+    "id": "...",
+    "title": "Bench Progress",
+    "content": "...",
+    "recommendation": "..."
+  },
+
+  "coachFeedback": {
+    "id": "...",
+    "content": "...",
+    "createdAt": "..."
+  },
+
+  "goal": {
+    "title": "Bench Press",
+    "current": 82.5,
+    "target": 100,
+    "unit": "kg",
+    "percentage": 82
+  }
+}
+One API call → complete Home screen.
+
+14. Home Loading State
+When the API is loading:
+┌──────────────────────────────┐
+│ ███████████                  │
+│ ███████                     │
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ █████████████████        │ │
+│ │ ███████                  │ │
+│ │                          │ │
+│ │ ████████████             │ │
+│ └──────────────────────────┘ │
+│                              │
+│ █████████                    │
+│                              │
+│ █████████████████████        │
+└──────────────────────────────┘
+No full-screen spinner.
+
+15. Error State
+If dashboard loading fails:
+Something went wrong.
+
+We couldn't load your
+training dashboard.
+
+[ TRY AGAIN ]
+Don't expose backend errors.
+
+16. Offline Behavior
+This matters a lot for a gym app.
+Gyms can have poor connectivity.
+The athlete should still be able to:
+View today's workout
+View exercise instructions
+Record sets
+Use rest timer
+Finish workout
+Then:
+Offline
+  ↓
+Local workout state
+  ↓
+Connection restored
+  ↓
+Sync
+  ↓
+Backend
+This is a major architectural consideration.
+The workout screen should eventually support an offline-first data flow.
+
+17. Home Navigation
+Bottom navigation:
+┌───────────────────────────────────┐
+│                                   │
+│              CONTENT              │
+│                                   │
+├────────┬────────┬────────┬───┬────┤
+│  Home  │Workout │Progress│ AI│ Me │
+└────────┴────────┴────────┴───┴────┘
+Active state
+The selected tab gets the accent treatment.
+Don't use giant icons or labels.
+
+18. Workout Tab
+Tapping Workout opens:
+WORKOUT
+│
+├── Today's Workout
+│
+├── Current Program
+│
+└── History
+We will design this separately.
+
+19. Progress Tab
+PROGRESS
+│
+├── Overview
+├── Strength
+├── Body
+├── Consistency
+└── Personal Records
+
+20. AI Tab
+AI TRAINER
+│
+├── Chat
+├── Insights
+└── Recommendations
+
+21. Profile Tab
+PROFILE
+
+Alex Sharma
+
+Training
+├── Fitness Profile
+├── Goals
+├── Preferences
+└── Equipment
+
+Account
+├── Notifications
+├── Privacy
+├── Security
+└── Settings
+
+Other
+├── Help
+└── Log Out
+
+22. Home Component Tree
+From a development perspective:
+AthleteHomeScreen
+│
+├── HomeHeader
+│   ├── Greeting
+│   └── NotificationButton
+│
+├── TodayWorkoutCard
+│
+├── ProgressSnapshot
+│   ├── MetricCard
+│   └── ConsistencyCard
+│
+├── AIInsightCard
+│
+├── CoachFeedbackCard
+│
+├── GoalCard
+│
+└── AthleteTabBar
+This gives us a clean React Native component structure.
+
+23. State Architecture
+The screen should explicitly support:
+Loading
+Loaded
+Empty
+Error
+Offline
+And workout-specific states:
+No workout
+Not started
+In progress
+Completed
+Rest day
+This is something we'll carry into every major screen.
+
+24. Home UX Principle
+The final hierarchy is:
+                 TODAY
+                   ↓
+              TAKE ACTION
+                   ↓
+               PROGRESS
+                   ↓
+               UNDERSTAND
+                   ↓
+             COMMUNICATE
+                   ↓
+                 GOAL
+The user should never have to wonder:
+"What am I supposed to do now?"
+The answer should be obvious.
+
+Next — Phase 2D: Workout System
+This is the most important screen group in the entire athlete application.
+We'll design:
+Workout Overview
+      ↓
+Exercise Instructions
+      ↓
+Active Workout
+      ↓
+Set Logging
+      ↓
+Rest Timer
+      ↓
+Exercise Completion
+      ↓
+Workout Completion
+      ↓
+Workout Summary
+      ↓
+Performance Analysis
+We'll also define the offline workout architecture, set-entry interactions, automatic rest timers, previous-performance display, PR detection, workout modification, and exactly how the frontend communicates with the MongoDB/API layer.
+Phase 2D — Workout System
+This is the core athlete experience. If this part is excellent, the app has a strong foundation even before AI, nutrition, wearables, or social features are added.
+The design principle is:
+During a workout, the app should require as little thinking and tapping as possible.
+The athlete should be lifting, not managing an app.
+
+1. Complete Workout Flow
+                  WORKOUT
+                     │
+                     ▼
+              Workout Overview
+                     │
+                     ▼
+              Start Workout
+                     │
+                     ▼
+             Active Workout
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+      Exercise               Rest
+          │                     │
+          ▼                     │
+       Set Entry ◄──────────────┘
+          │
+          ▼
+       Next Set
+          │
+          ▼
+     Next Exercise
+          │
+          ▼
+     Finish Workout
+          │
+          ▼
+      Summary
+          │
+          ▼
+   Performance Analysis
+
+2. Workout Overview
+When the athlete taps today's workout:
+┌──────────────────────────────────┐
+│ ← Push Day                  ⋮   │
+│                                  │
+│ Chest • Shoulders • Triceps      │
+│                                  │
+│ 6 exercises                      │
+│ ~52 minutes                      │
+│                                  │
+│ ──────────────────────────────── │
+│                                  │
+│ 01  Bench Press                  │
+│     3 × 8–12 • RIR 2             │
+│                                  │
+│ 02  Incline DB Press             │
+│     3 × 8–12 • RIR 2             │
+│                                  │
+│ 03  Shoulder Press               │
+│     3 × 8–10 • RIR 2             │
+│                                  │
+│ 04  Cable Fly                    │
+│     3 × 10–15                    │
+│                                  │
+│ 05  Lateral Raise                │
+│     3 × 12–15                    │
+│                                  │
+│ 06  Triceps Pushdown             │
+│     3 × 10–15                    │
+│                                  │
+│ [ START WORKOUT ]                │
+└──────────────────────────────────┘
+Important
+Show prescription, not actual performance.
+Actual performance only appears once the workout begins.
+
+3. Exercise Preview
+Tapping an exercise:
+┌──────────────────────────────────┐
+│ ← Bench Press                    │
+│                                  │
+│         [ EXERCISE VIDEO ]       │
+│                                  │
+│ Chest                            │
+│ Barbell • Compound               │
+│                                  │
+│ TARGET                           │
+│ 3 sets × 8–12 reps               │
+│ RIR 2                            │
+│ Rest 120 sec                     │
+│                                  │
+│ PREVIOUS                         │
+│ 60kg × 10                        │
+│ 60kg × 9                         │
+│ 57.5kg × 10                      │
+│                                  │
+│ [ CLOSE ]                        │
+└──────────────────────────────────┘
+This is useful before starting, but we shouldn't force the athlete through it.
+
+4. Start Workout
+When they tap:
+START WORKOUT
+we immediately create:
+Workout Session
+status = in_progress
+startedAt = now
+API:
+POST /api/v1/workouts/sessions
+Response:
+{
+  "sessionId": "...",
+  "status": "in_progress"
+}
+Then the app enters Workout Mode.
+
+5. Workout Mode
+This should visually feel different from the normal app.
+┌──────────────────────────────────┐
+│ ← Push                    1/6    │
+│                                  │
+│ BENCH PRESS                      │
+│                                  │
+│ [ EXERCISE VIDEO ]               │
+│                                  │
+│ Previous: 60kg × 10              │
+│                                  │
+│ ┌──────────────────────────────┐ │
+│ │ SET   KG       REPS      ✓  │ │
+│ ├──────────────────────────────┤ │
+│ │  1    60        10       ✓  │ │
+│ │  2    60         8       ✓  │ │
+│ │  3    55         8       ○  │ │
+│ └──────────────────────────────┘ │
+│                                  │
+│ RIR                              │
+│ [ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4+ ] │
+│                                  │
+│ [ COMPLETE SET ]                 │
+│                                  │
+│ Next: Incline DB Press →        │
+└──────────────────────────────────┘
+
+6. Set Entry
+Don't make users type everything from scratch.
+When starting a new set:
+SET 3
+
+Weight
+[ 55 ] kg
+
+Reps
+[ 8 ]
+
+RIR
+[ 1 ]
+
+[ COMPLETE SET ]
+But the fields should be pre-filled intelligently.
+For example:
+Previous:
+60kg × 10
+Current:
+60kg
+10 reps
+The athlete can simply tap:
+✓
+if they repeated the previous performance.
+This drastically reduces friction.
+
+7. Weight Input
+Weight entry should support quick adjustment.
+        60 kg
+
+     − 2.5       + 2.5
+
+[ CUSTOM WEIGHT ]
+Or:
+← 57.5   60   62.5 →
+The user should not need to open the keyboard every time.
+
+8. Rep Input
+Use a numeric stepper:
+        10
+
+       −   +
+Also allow direct entry for unusual values.
+
+9. RIR Input
+RIR should be quick:
+RIR
+
+0   1   2   3   4+
+Selected value is visually obvious.
+RPE can similarly be:
+RPE
+
+6   7   8   9   10
+We don't need to force both RIR and RPE every time.
+The athlete's preferred tracking method can be configurable.
+
+10. Completing a Set
+When the athlete taps:
+COMPLETE SET
+The app:
+Validate set
+     ↓
+Save locally
+     ↓
+Sync with backend
+     ↓
+Mark completed
+     ↓
+Start rest timer
+The UI immediately changes.
+SET 2 ✓
+No waiting for the server.
+
+11. Rest Timer
+Immediately after completing a set:
+┌──────────────────────────────────┐
+│                                  │
+│              REST                │
+│                                  │
+│             01:47                │
+│                                  │
+│        +30       +60             │
+│                                  │
+│            SKIP                  │
+│                                  │
+│ Next: Set 3                      │
+└──────────────────────────────────┘
+The timer should remain usable while the user navigates minimally.
+
+12. Automatic Rest Duration
+Prescription:
+Rest = 120 seconds
+The app automatically starts:
+02:00
+But the athlete can:
++30
++60
+Skip
+
+13. Haptics
+Useful events can have haptic feedback:
+Set completed
+Rest finished
+PR detected
+Workout completed
+Don't vibrate for every interaction.
+
+14. Exercise Progress
+At the top of the workout:
+1 / 6
+
+██████░░░░░░░
+As exercises are completed:
+4 / 6
+
+████████████░░
+This creates a sense of progress without turning the workout into a game.
+
+15. Previous Performance
+This is a major feature.
+Every exercise should show:
+LAST SESSION
+
+60kg × 10
+60kg × 9
+57.5kg × 10
+Potentially:
+BEST
+
+65kg × 8
+This lets the athlete make informed decisions.
+
+16. PR Detection
+When a set exceeds a previous personal record:
+NEW PR
+
+Bench Press
+
+65kg × 8
+
+Previous:
+62.5kg × 8
+
+[ CONTINUE ]
+Don't interrupt the athlete with a giant animation.
+A short celebration is enough.
+
+17. Exercise Replacement
+Sometimes equipment is unavailable.
+From:
+⋮
+show:
+Bench Press
+
+View Exercise
+Replace Exercise
+Skip Exercise
+Add Note
+Replace:
+Recommended alternatives
+
+Machine Chest Press
+DB Bench Press
+Smith Machine Press
+
+[ SELECT ]
+The replacement should be recorded in the session.
+
+18. Skipping an Exercise
+Don't silently delete it.
+Ask:
+Skip Exercise?
+
+Your coach prescribed this exercise.
+
+Reason:
+○ Equipment unavailable
+○ Pain/discomfort
+○ Time
+○ Other
+
+[ SKIP ] [ CANCEL ]
+For V1, we can simplify this if necessary, but the event should still be recorded.
+
+19. Workout Notes
+At the exercise level:
+Add note...
+
+"Left shoulder felt slightly tight."
+At workout level:
+Workout notes
+
+"Energy was low today."
+These notes become useful context for the coach and AI.
+
+20. Leaving Mid-Workout
+If the user closes the app:
+Workout session
+status = in_progress
+When they return:
+Welcome back
+
+You have an active Push workout.
+
+[ CONTINUE ]
+[ END WORKOUT ]
+Never automatically lose the session.
+
+21. Abandon Workout
+If they choose to end:
+END WORKOUT?
+
+You completed 4 of 6 exercises.
+
+Your completed sets will be saved.
+
+[ KEEP WORKING ]
+[ END WORKOUT ]
+Then:
+status = abandoned
+The data remains available for analysis.
+
+22. Offline Architecture
+This deserves special attention.
+The workout should work even if:
+Wi-Fi = bad
+Mobile data = bad
+Internet = unavailable
+Architecture:
+             ACTIVE WORKOUT
+                    │
+                    ▼
+              LOCAL STORE
+                    │
+            ┌───────┴────────┐
+            ▼                ▼
+       UI updates        Sync Queue
+                             │
+                    Connection restored
+                             │
+                             ▼
+                          API
+                             │
+                             ▼
+                         MongoDB
+The user experience should not depend on API latency.
+
+23. Local Workout State
+During the workout, maintain a local copy:
+activeSession
+completedExercises
+completedSets
+timerState
+notes
+syncStatus
+Each set gets a sync state:
+pending
+synced
+failed
+If a request fails:
+Set saved locally ✓
+Waiting for connection...
+Don't make the athlete redo the set.
+
+24. Workout Completion
+After the final set:
+┌──────────────────────────────────┐
+│                                  │
+│          WORKOUT COMPLETE        │
+│                                  │
+│                ✓                 │
+│                                  │
+│ Push                             │
+│                                  │
+│ 52 min                           │
+│ 6 exercises                      │
+│ 18 sets                          │
+│ 8,420 kg volume                  │
+│                                  │
+│ NEW PR                           │
+│ Bench Press                      │
+│ 65kg × 8                         │
+│                                  │
+│ [ VIEW SUMMARY ]                 │
+└──────────────────────────────────┘
+
+25. Workout Summary
+WORKOUT SUMMARY
+
+Push
+
+52 min
+8,420 kg
+18 sets
+
+────────────────────────
+
+PERFORMANCE
+
+Bench Press       ↑
+Shoulder Press    →
+Cable Fly         ↑
+
+────────────────────────
+
+PERSONAL RECORDS
+
+Bench Press
+65kg × 8
+
+────────────────────────
+
+HOW DID IT FEEL?
+
+😫   😐   🙂   💪
+
+[ DONE ]
+Instead of emojis in the actual production UI, I'd use a neutral effort scale or icons if we want the visual language to stay consistent.
+
+26. Post-Workout Feedback
+One useful input:
+How was today's workout?
+
+Too easy
+Somewhat easy
+Good
+Hard
+Very hard
+And:
+Energy
+
+Low ─────●──── High
+This data can eventually feed the AI.
+
+27. Performance Analysis
+After completion:
+Workout saved ✓
+
+Analyzing your performance...
+But this should be asynchronous.
+The user shouldn't wait for the LLM.
+Backend:
+Workout Complete
+      ↓
+Save Session
+      ↓
+Return Success
+      ↓
+Background Analysis
+      ↓
+AI Insight
+
+28. Post-Workout AI
+A few seconds/minutes later:
+AI INSIGHT
+
+Strong session.
+
+Your bench volume increased 7%
+compared with your previous Push workout.
+
+You also matched your previous
+best RIR.
+
+VIEW ANALYSIS →
+The insight appears on Home and AI.
+
+29. Coach Notification
+If the athlete has a coach:
+Workout completed
+
+Alex completed Push Day.
+
+18 sets
+8,420 kg
+52 minutes
+The coach doesn't need to receive a notification for every trivial event if that becomes noisy.
+Notification preferences should eventually control this.
+
+30. API Flow
+Start
+POST /api/v1/workouts/sessions
+Add set
+POST /api/v1/workouts/sessions/:id/sets
+Update notes
+PATCH /api/v1/workouts/sessions/:id
+Complete
+POST /api/v1/workouts/sessions/:id/complete
+Summary
+GET /api/v1/workouts/sessions/:id
+
+31. Important Backend Rule
+The mobile app should never calculate the final truth.
+For example, it can display:
+8,420 kg
+but the backend should validate/recalculate:
+Σ(weight × reps)
+before permanently accepting the workout.
+This prevents corrupted or manipulated data.
+
+32. Workout Data Flow
+             PROGRAM
+                │
+                ▼
+       PLANNED WORKOUT
+                │
+                ▼
+        ATHLETE STARTS
+                │
+                ▼
+         LOCAL SESSION
+                │
+                ├───────────────┐
+                ▼               ▼
+           UI UPDATES       SYNC QUEUE
+                                │
+                                ▼
+                              API
+                                │
+                                ▼
+                            MongoDB
+                                │
+                                ▼
+                       PERFORMANCE ENGINE
+                                │
+                    ┌───────────┴───────────┐
+                    ▼                       ▼
+                  COACH                    AI
+                    │                       │
+                    └──────────┬────────────┘
+                               ▼
+                         NEXT DECISION
+
+33. Workout Component Architecture
+Our React Native implementation should eventually have:
+WorkoutScreen
+│
+├── WorkoutHeader
+│
+├── WorkoutProgress
+│
+├── ExerciseHeader
+│
+├── ExerciseMedia
+│
+├── PreviousPerformance
+│
+├── SetList
+│   └── SetRow
+│
+├── RIRSelector
+├── RPESelector
+│
+├── CompleteSetButton
+│
+├── RestTimer
+│
+├── ExerciseActions
+│
+└── NextExerciseButton
+And:
+WorkoutSummaryScreen
+├── SummaryHeader
+├── WorkoutStats
+├── ExercisePerformance
+├── PersonalRecords
+├── WorkoutFeedback
+└── DoneButton
+
+34. Workout State Machine
+We should explicitly model the session:
+NOT_STARTED
+     │
+     ▼
+IN_PROGRESS
+     │
+     ├──────────────┐
+     │              │
+     ▼              ▼
+COMPLETED       ABANDONED
+Exercise:
+PENDING
+  ↓
+IN_PROGRESS
+  ↓
+COMPLETED
+Set:
+PENDING
+  ↓
+COMPLETED
+  ↓
+SYNCED
+This makes the system much easier to reason about.
+
+35. The Most Important UX Rule
+During an active workout:
+One primary action should always be obvious.
+For example:
+Set ready
+    ↓
+COMPLETE SET
+    ↓
+REST
+    ↓
+NEXT SET
+    ↓
+COMPLETE SET
+The user shouldn't have to figure out:
+"What do I press now?"
+
+36. Phase 2D Complete
+We now have the architecture for:
+✓ Workout overview
+✓ Exercise preview
+✓ Active workout
+✓ Set logging
+✓ Weight/reps input
+✓ RIR/RPE
+✓ Previous performance
+✓ Rest timer
+✓ PR detection
+✓ Exercise replacement
+✓ Exercise skipping
+✓ Notes
+✓ Offline support
+✓ Sync queue
+✓ Workout completion
+✓ Workout summary
+✓ Post-workout feedback
+✓ AI analysis
+✓ Coach notifications
+✓ API integration
+✓ Workout state machine
+Next: Phase 2E — Progress & Analytics
+We'll design the Progress system next:
+Progress Overview
+      ↓
+Strength
+      ↓
+Exercise Detail
+      ↓
+Personal Records
+      ↓
+Volume
+      ↓
+Body Progress
+      ↓
+Measurements
+      ↓
+Progress Photos
+      ↓
+Consistency
+      ↓
+Goals
+The important part will be making the analytics actually useful, rather than turning the app into a screen full of charts.
+Phase 2E — Progress & Analytics
+The Progress system should answer one question:
+"Am I actually getting better?"
+It should not become a collection of random graphs.
+The system will combine strength, volume, body changes, consistency, goals, and AI interpretation.
+
+1. Progress Architecture
+                    PROGRESS
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     STRENGTH         BODY       CONSISTENCY
+        │              │              │
+    ┌───┼───┐      ┌───┼───┐      ┌───┼───┐
+    ▼   ▼   ▼      ▼   ▼   ▼      ▼   ▼   ▼
+   PRs  1RM Volume Weight Measurements Streak
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+                      GOALS
+                       │
+                       ▼
+                       AI ANALYSIS
+
+2. Progress Tab
+The main screen:
+┌──────────────────────────────────┐
+│ Progress                         │
+│                                  │
+│ 12 WEEK OVERVIEW                 │
+│                                  │
+│ Strength       ↑ 12.4%           │
+│ Consistency    87%               │
+│ Volume         ↑ 18.2%           │
+│                                  │
+│ ──────────────────────────────── │
+│                                  │
+│ STRENGTH                         │
+│                                  │
+│ Bench Press                      │
+│ 70kg ──────────────→ 82.5kg     │
+│                                  │
+│ Squat                            │
+│ 100kg ─────────────→ 120kg      │
+│                                  │
+│ [ VIEW STRENGTH ]                │
+│                                  │
+│ ──────────────────────────────── │
+│                                  │
+│ BODY                             │
+│                                  │
+│ Weight        72 → 74 kg         │
+│                                  │
+│ [ VIEW BODY ]                    │
+└──────────────────────────────────┘
+
+3. Top-Level Metrics
+We should use three primary metrics.
+Strength
+How performance is changing.
+Consistency
+How reliably the athlete trains.
+Body
+How physical measurements are changing.
+Volume can appear as a secondary metric depending on the user's goal.
+
+4. Time Range Selector
+Every progress screen should support:
+7D     30D     3M     6M     1Y     ALL
+Default:
+3M
+Three months provides enough data to make trends meaningful without overwhelming the screen.
+
+5. Strength Dashboard
+STRENGTH
+
+Overall
+↑ 12.4%
+
+────────────────────────
+
+TOP EXERCISES
+
+Bench Press
+82.5 kg
+↑ 7.2%
+
+Squat
+120 kg
+↑ 10.4%
+
+Deadlift
+150 kg
+→ 0.0%
+
+────────────────────────
+
+VOLUME
+
+Week 1       18,400 kg
+Week 12      21,700 kg
+
+↑ 17.9%
+
+────────────────────────
+
+[ PERSONAL RECORDS ]
+
+6. Exercise Detail
+When the athlete selects Bench Press:
+← Bench Press
+
+82.5 kg
+Current Best
+
+↑ 7.2%
+
+
+ESTIMATED 1RM
+
+91.3 kg
+
+────────────────────
+
+STRENGTH TREND
+
+     ●
+   ●
+ ●
+●
+────────────────────
+W1 W3 W5 W7 W9 W12
+
+────────────────────
+
+RECENT SESSIONS
+
+Aug 27
+60 × 10
+60 × 8
+55 × 8
+
+Aug 24
+60 × 10
+60 × 9
+57.5 × 10
+
+7. Estimated 1RM
+We should calculate estimated 1RM from actual performance.
+For example, using a formula such as Epley:
+1RM ≈ weight × (1 + reps / 30)
+So:
+60kg × 10
+
+≈ 80kg estimated 1RM
+But the UI should label it clearly:
+Estimated 1RM
+not present it as an actual tested max.
+
+8. Personal Records
+Dedicated screen:
+PERSONAL RECORDS
+
+ALL TIME
+
+Bench Press
+90 kg × 5
+Aug 24, 2026
+
+Squat
+140 kg × 3
+Aug 18, 2026
+
+Deadlift
+170 kg × 2
+Aug 12, 2026
+
+────────────────────
+
+RECENT PRs
+
+Bench Press
++2.5 kg
+2 days ago
+Filter:
+All
+This Month
+This Year
+
+9. PR Types
+Don't define PR only as "heaviest weight."
+Potential PR categories:
+Heaviest Weight
+Most Reps at Weight
+Estimated 1RM
+Most Volume
+Best Set
+Example:
+60kg × 12
+
+may be a rep PR
+
+even if:
+
+65kg × 8
+
+is the weight PR.
+
+10. Volume Analytics
+Volume:
+Weight × Reps
+For example:
+60 × 10 = 600kg
+60 × 8  = 480kg
+55 × 8  = 440kg
+
+Total = 1,520kg
+The system can aggregate:
+Exercise volume
+Workout volume
+Muscle-group volume
+Weekly volume
+Monthly volume
+
+11. Muscle Group Volume
+This can eventually become a powerful feature.
+WEEKLY VOLUME
+
+Chest       █████████████
+Back        ███████████
+Shoulders   ████████
+Legs        ███████████████
+Arms        ███████
+Then:
+Legs received significantly more weekly volume than your upper body.
+The AI can interpret this later.
+
+12. Body Progress
+BODY
+
+Weight
+
+74.0 kg
+
+↑ 2.1 kg
+
+────────────────────
+
+WEIGHT TREND
+
+76 ┤
+75 ┤           ●
+74 ┤       ● ●
+73 ┤   ●
+72 ┤ ●
+   └────────────────
+    W1 W3 W5 W7 W9
+But don't overemphasize daily fluctuations.
+The backend should eventually calculate:
+7-day average
+30-day trend
+rather than interpreting every single measurement independently.
+
+13. Body Measurements
+MEASUREMENTS
+
+Chest
+102 cm → 105 cm
+
+Waist
+82 cm → 81 cm
+
+Left Arm
+35 cm → 37 cm
+
+Right Arm
+35 cm → 36.5 cm
+Useful visualization:
+Measurement
+    │
+105 ┤       ●
+    │     ●
+100 ┤ ●
+    └────────────
+      Jan   Mar
+
+14. Progress Photos
+This deserves its own screen.
+PROGRESS PHOTOS
+
+       FRONT
+
+┌───────────┐   ┌───────────┐
+│           │   │           │
+│   PHOTO   │   │   PHOTO   │
+│           │   │           │
+└───────────┘   └───────────┘
+ Jan 10           Mar 10
+
+       BACK
+
+┌───────────┐   ┌───────────┐
+│   PHOTO   │   │   PHOTO   │
+└───────────┘   └───────────┘
+
+15. Photo Comparison
+A useful feature:
+COMPARE
+
+January 10
+       │
+       │
+       │
+March 10
+Allow:
+Side-by-side
+Slider comparison
+The original photos should never be modified.
+
+16. Consistency
+This shouldn't just be a streak counter.
+Show:
+CONSISTENCY
+
+87%
+
+12 day streak
+
+────────────────────
+
+THIS MONTH
+
+Scheduled       20
+Completed       18
+Missed           2
+
+90% completion
+Then:
+WEEKLY
+
+Mon ✓
+Tue —
+Wed ✓
+Thu ✓
+Fri ✓
+Sat —
+Sun —
+
+17. Streaks
+Streaks can be motivating, but don't make them the central metric.
+CURRENT
+12 days
+
+BEST
+27 days
+If a user misses one day, don't make the entire interface scream "FAILED."
+Consistency over time matters more.
+
+18. Goals
+Goals should connect directly to progress.
+GOALS
+
+Bench Press
+
+82.5 / 100 kg
+
+██████████████░░
+82%
+
+Estimated:
+~8–10 weeks
+The estimated timeline should be clearly marked as an estimate, not a promise.
+
+19. Goal Detail
+BENCH PRESS — 100 KG
+
+Current
+82.5 kg
+
+Target
+100 kg
+
+Started
+70 kg
+
+Progress
++12.5 kg
+
+────────────────
+
+TREND
+
+[GRAPH]
+
+────────────────
+
+RECENT MILESTONES
+
+75 kg ✓
+80 kg ✓
+82.5 kg ✓
+85 kg ○
+90 kg ○
+95 kg ○
+100 kg ○
+This creates a much better sense of progression.
+
+20. AI Progress Analysis
+The AI should sit on top of the analytics rather than replacing them.
+Example:
+AI PROGRESS ANALYSIS
+
+You're progressing well in your
+main lifts.
+
+Strength
+↑ 12.4%
+
+Volume
+↑ 17.9%
+
+Consistency
+87%
+
+However, your deadlift has remained
+flat for 4 weeks.
+
+[ SEE WHY ]
+Tap:
+Deadlift plateau
+
+Your deadlift hasn't increased,
+but your volume has.
+
+Possible factors:
+• Similar working weights
+• Higher accumulated volume
+• No recent rep PR
+
+[ ASK AI ]
+
+21. Important AI Rule
+The AI shouldn't diagnose:
+"You are overtrained."
+Instead:
+"Your recent training volume has increased significantly while performance has remained flat."
+Then:
+"Consider discussing a reduction in training load with your coach."
+The system should distinguish observed data from interpretation.
+
+22. Progress API Architecture
+The frontend shouldn't calculate all this itself.
+GET /api/v1/progress/overview
+
+GET /api/v1/progress/strength
+
+GET /api/v1/progress/exercises/:id
+
+GET /api/v1/progress/volume
+
+GET /api/v1/progress/body
+
+GET /api/v1/progress/consistency
+
+GET /api/v1/progress/records
+
+23. Example Progress Response
+{
+  "period": "3m",
+
+  "strength": {
+    "changePercentage": 12.4
+  },
+
+  "consistency": {
+    "completionPercentage": 87,
+    "currentStreak": 12,
+    "bestStreak": 27
+  },
+
+  "volume": {
+    "changePercentage": 17.9
+  },
+
+  "body": {
+    "weight": {
+      "current": 74,
+      "change": 2.1
+    }
+  },
+
+  "personalRecords": [
+    {
+      "exercise": "Bench Press",
+      "weight": 90,
+      "reps": 5
+    }
+  ]
+}
+
+24. Progress Data Flow
+             WORKOUT SESSION
+                    │
+                    ▼
+               ACTUAL SETS
+                    │
+                    ▼
+             PERFORMANCE ENGINE
+                    │
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+      Strength     Volume    Consistency
+        │           │           │
+        └───────────┼───────────┘
+                    ▼
+                 PROGRESS
+                    │
+             ┌──────┴──────┐
+             ▼             ▼
+           USER            AI
+             │             │
+             └──────┬──────┘
+                    ▼
+               NEXT ACTION
+
+25. Analytics Should Be Goal-Aware
+This is an important design decision.
+If someone is training for strength:
+Strength
+Volume
+PRs
+1RM
+should dominate.
+If they're focused on fat loss:
+Body trend
+Consistency
+Training volume
+Goal progress
+should dominate.
+If they're focused on general fitness:
+Consistency
+Workout frequency
+Volume
+Performance
+The Progress page should therefore have a personalized overview, while still allowing access to everything.
+
+26. Coach Progress View
+The same data powers the coach side.
+Coach sees:
+RAHUL
+
+Strength      ↑ 8%
+Consistency   91%
+Volume        ↑ 14%
+
+Bench         ↑
+Squat         ↑
+Deadlift      →
+
+⚠ Deadlift plateau
+4 weeks
+The coach gets the interpretation, not just raw graphs.
+
+27. Phase 2E Complete
+We now have:
+✓ Progress overview
+✓ Strength analytics
+✓ Exercise history
+✓ Estimated 1RM
+✓ Personal records
+✓ Volume
+✓ Muscle-group volume
+✓ Body weight
+✓ Measurements
+✓ Progress photos
+✓ Photo comparison
+✓ Consistency
+✓ Streaks
+✓ Goals
+✓ AI analysis
+✓ Goal-aware analytics
+✓ Coach progress view
+✓ Progress APIs
+
+Next — Phase 2F: AI Trainer
+This is where the app becomes substantially different from a normal workout tracker.
+We'll design:
+AI HOME
+   ↓
+CHAT
+   ↓
+CONTEXT RETRIEVAL
+   ↓
+FITNESS DATA
+   ↓
+AI RESPONSE
+   ↓
+INSIGHTS
+   ↓
+RECOMMENDATIONS
+   ↓
+PROGRAM ADAPTATION
+We'll also define exactly what the AI can access, what it is allowed to recommend, how it references workout data, how coach-controlled athletes differ from independent athletes, and how we prevent the AI from pretending to know things it doesn't.
+Phase 2F — AI Trainer
+This is the layer that can turn the app from a gym tracking app into an intelligent training platform.
+The key architectural principle:
+The AI doesn't own the training system. It reads structured training data, reasons over it, and proposes actions. The platform decides what can actually be changed.
+That distinction will matter enormously once we have real users.
+
+1. AI Architecture
+We should have four AI capabilities rather than one giant chatbot.
+                         AI ENGINE
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+          ▼                 ▼                 ▼
+    AI TRAINER          AI ANALYST       AI PROGRAMMER
+          │                 │                 │
+          ▼                 ▼                 ▼
+       Chat             Insights       Recommendations
+          │                 │                 │
+          └─────────────────┼─────────────────┘
+                            │
+                            ▼
+                       AI CONTEXT
+                            │
+                 ┌──────────┼──────────┐
+                 ▼          ▼          ▼
+              Athlete    Training    Progress
+               Data        Data        Data
+And eventually a fourth component:
+AI COACH COPILOT
+for coaches.
+
+2. AI Trainer
+The athlete sees:
+┌──────────────────────────────────┐
+│ AI TRAINER                       │
+│                                  │
+│ Your training intelligence       │
+│                                  │
+│ ┌──────────────────────────────┐ │
+│ │ Ask about your training...  │ │
+│ └──────────────────────────────┘ │
+│                                  │
+│ QUICK QUESTIONS                  │
+│                                  │
+│ How am I progressing?            │
+│                                  │
+│ Why did my bench decrease?       │
+│                                  │
+│ Should I increase my weight?     │
+│                                  │
+│ What should I focus on?          │
+│                                  │
+│ ─────────────────────────────── │ │
+│                                  │
+│ RECENT INSIGHT                   │
+│ Your squat volume has increased  │
+│ 11% over the last month.         │
+└──────────────────────────────────┘
+
+3. This Is NOT a Generic Chatbot
+A generic chatbot:
+User
+ ↓
+LLM
+ ↓
+Answer
+Our system:
+User
+ ↓
+Question Classification
+ ↓
+Context Retrieval
+ ↓
+Structured Fitness Data
+ ↓
+AI Reasoning
+ ↓
+Safety / Validation
+ ↓
+Response
+For:
+"Why am I getting weaker?"
+the backend might retrieve:
+Last 6 workouts
+Current program
+Exercise performance
+Volume
+RIR/RPE
+Recent consistency
+Recent body-weight trend
+Then give the AI only the relevant information.
+
+4. Context Retrieval
+This is one of the most important backend components.
+User asks:
+"Why did my bench drop?"
+          │
+          ▼
+   Intent Detection
+          │
+          ▼
+      Bench Press
+          │
+          ▼
+Retrieve:
+• Recent sessions
+• Previous performance
+• Program prescription
+• Volume
+• RIR/RPE
+          │
+          ▼
+       AI Context
+The AI doesn't need unrelated data.
+
+5. AI Context Object
+Internally, the backend can construct something like:
+{
+  "athlete": {
+    "experienceLevel": "intermediate",
+    "primaryGoal": "strength"
+  },
+
+  "currentProgram": {
+    "name": "Strength Block",
+    "week": 6
+  },
+
+  "exercise": {
+    "name": "Bench Press"
+  },
+
+  "recentSessions": [],
+
+  "performanceTrend": {
+    "weightChange": -2.5,
+    "volumeChange": 4.2,
+    "estimated1RMChange": -1.1
+  },
+
+  "consistency": {
+    "last30Days": 91
+  }
+}
+Then the AI generates an explanation.
+
+6. AI Response Structure
+We should encourage structured responses internally:
+Observation
+Evidence
+Possible explanation
+Recommendation
+Confidence
+The user doesn't necessarily see all five sections.
+Example:
+Your bench dropped slightly today, but
+your overall performance isn't declining.
+
+Your last 4 sessions show:
+
+• Volume: +6%
+• Average RIR: 1.8
+• Estimated 1RM: roughly stable
+
+One weaker session isn't enough to
+indicate a plateau.
+
+I'd keep the current load for now.
+That's far more useful than:
+"You might be tired."
+
+7. Evidence Chips
+Every AI insight can show its evidence:
+Based on
+
+[4 workouts]
+[Bench Press]
+[Volume trend]
+[3-week history]
+Tapping [4 workouts] could open the underlying sessions.
+This creates transparency.
+
+8. AI Confidence
+The AI should internally estimate confidence.
+Example:
+confidence = high
+or:
+confidence = low
+The UI doesn't need to show:
+"Confidence: 63%"
+Instead, low-confidence answers can be phrased conservatively.
+For example:
+"Your recent data suggests..."
+rather than:
+"The reason is..."
+
+9. AI Insight Engine
+Insights can be automatically generated after important events.
+Workout completed
+      ↓
+Performance engine
+      ↓
+Detect meaningful change
+      ↓
+AI analysis
+      ↓
+Insight generated?
+      │
+   ┌──┴──┐
+   │     │
+  YES    NO
+   │
+   ▼
+Store aiInsights
+Don't generate an AI insight after every set.
+Only after meaningful events.
+
+10. Insight Types
+Initially:
+performance
+plateau
+progression
+consistency
+volume
+goal
+milestone
+program
+Examples:
+Performance
+Bench press volume increased 9%.
+Plateau
+Deadlift performance has remained flat for four weeks.
+Consistency
+You completed 18 of your last 20 scheduled workouts.
+Goal
+You're 80% toward your 100 kg bench goal.
+
+11. AI Program Generation
+For independent athletes:
+AI TRAINER
+     ↓
+CREATE PROGRAM
+     ↓
+Goals
+Experience
+Days/week
+Duration
+Equipment
+Preferences
+     ↓
+AI
+     ↓
+Program Draft
+Example:
+YOUR PROGRAM
+
+5 DAYS / WEEK
+
+MON — Push
+TUE — Pull
+WED — Legs
+THU — Upper
+FRI — Lower
+
+[ REVIEW PROGRAM ]
+The AI should not immediately write directly into the active program.
+
+12. AI Program Approval
+Use:
+AI Generated
+      ↓
+Draft
+      ↓
+Validation
+      ↓
+User / Coach Review
+      ↓
+Approved
+      ↓
+Active Program
+For coach-managed athletes:
+AI Generated
+      ↓
+Coach Review
+      ↓
+Coach Approves
+      ↓
+Active
+This preserves coach authority.
+
+13. Program Adaptation
+This is where things become much more interesting.
+Suppose the prescription is:
+Bench Press
+60kg × 10 × 3
+Actual:
+60 × 10
+60 × 10
+60 × 10
+RIR 3
+The AI may recommend:
+Increase to 62.5 kg next session.
+But:
+AI
+ ↓
+Recommendation
+ ↓
+Training Rules Engine
+ ↓
+Valid?
+ ↓
+Coach/User approval if required
+ ↓
+Apply
+The LLM itself should not directly mutate the program.
+
+14. Training Rules Engine
+This is separate from the LLM.
+For example:
+IF
+performance meets target
+AND
+RIR >= target
+AND
+progression allowed
+
+THEN
+recommend +2.5kg
+The AI can explain the recommendation, while deterministic code handles the actual business logic.
+This is much more reliable.
+
+15. Coach-Controlled vs Independent
+This is an important distinction.
+Independent athlete
+AI
+ ↓
+Recommendation
+ ↓
+Athlete
+ ↓
+Approve
+ ↓
+Apply
+Coach-managed athlete
+AI
+ ↓
+Recommendation
+ ↓
+Coach
+ ↓
+Approve / Modify
+ ↓
+Apply
+The athlete can still ask the AI questions, but the coach remains the program authority.
+
+16. AI Coach Copilot
+This is a separate experience for coaches.
+Example:
+AI COACH COPILOT
+
+"Show me athletes who haven't
+progressed in their main lifts."
+
+             ↓
+
+Results
+
+Rahul
+Deadlift plateau — 4 weeks
+
+Sarah
+Bench plateau — 3 weeks
+
+Mike
+Squat regression — 2 weeks
+This could save coaches enormous amounts of time.
+
+17. Coach AI Summary
+Inside an athlete's profile:
+AI SUMMARY
+
+Rahul has trained consistently
+over the last 6 weeks.
+
+Strength:
+↑ Bench
+↑ Squat
+→ Deadlift
+
+Potential issue:
+Deadlift has plateaued for 4 weeks.
+
+Recent volume:
++11%
+
+[ REVIEW ANALYSIS ]
+The coach can then decide what to do.
+
+18. AI Chat Memory
+We need to distinguish two things.
+Conversation memory
+What was discussed in the current AI conversation.
+Fitness memory
+What actually happened in the athlete's training.
+Fitness memory should come from the database.
+Don't rely on the LLM remembering:
+"You benched 80kg three weeks ago."
+Retrieve it from MongoDB.
+Conversation
+      +
+Fitness Database
+      ↓
+AI Context
+
+19. Long-Term AI Memory
+Eventually we can store useful preferences:
+AI Memory
+
+User prefers:
+• Evening workouts
+• Shorter explanations
+• Dumbbell alternatives
+• Tracking RIR
+
+User frequently asks about:
+• Bench progression
+• Recovery
+But we should be careful about automatically storing everything.
+Memory should be:
+Useful
+Relevant
+Editable
+Deletable
+
+20. AI Safety Architecture
+The AI should have strict boundaries.
+                AI
+                 │
+         ┌───────┴────────┐
+         ▼                ▼
+    Fitness Guidance   Medical Boundary
+         │                │
+         ▼                ▼
+ Training data       Don't diagnose
+ recommendations     Don't prescribe
+If the user reports something that sounds like an injury or medical issue, the app should not pretend to diagnose it.
+For example:
+"My shoulder hurts when I bench."
+The AI should not confidently say:
+"You have rotator cuff tendinitis."
+Instead it can recommend stopping/adjusting the aggravating activity and seeking appropriate professional evaluation when warranted.
+
+21. AI API Architecture
+/api/v1/ai
+│
+├── POST /chat
+│
+├── GET /conversations
+│
+├── POST /conversations
+│
+├── GET /conversations/:id
+│
+├── POST /conversations/:id/messages
+│
+├── GET /insights
+│
+├── GET /insights/:id
+│
+├── POST /analyze-workout
+│
+├── POST /generate-program
+│
+├── POST /analyze-progress
+│
+└── POST /recommend
+
+22. AI Service Architecture
+The backend should not have one giant ai.service.ts.
+Use:
+ai/
+│
+├── ai.controller.ts
+│
+├── ai.service.ts
+│
+├── context/
+│   ├── athleteContext.ts
+│   ├── workoutContext.ts
+│   ├── progressContext.ts
+│   └── programContext.ts
+│
+├── agents/
+│   ├── trainerAgent.ts
+│   ├── analystAgent.ts
+│   ├── programmerAgent.ts
+│   └── coachCopilotAgent.ts
+│
+├── rules/
+│   ├── progressionRules.ts
+│   └── safetyRules.ts
+│
+└── prompts/
+    ├── trainer.ts
+    ├── analyst.ts
+    └── programmer.ts
+This will scale much better.
+
+23. AI Request Pipeline
+User Message
+      │
+      ▼
+Authentication
+      │
+      ▼
+Intent Detection
+      │
+      ▼
+Context Retrieval
+      │
+      ▼
+Context Validation
+      │
+      ▼
+AI Agent
+      │
+      ▼
+Output Validation
+      │
+      ▼
+Safety Check
+      │
+      ▼
+Response
+
+24. AI Doesn't Need Vector Search Immediately
+We don't need to throw a vector database into the architecture on Day 1.
+For structured fitness data, normal MongoDB queries are often enough.
+Example:
+Find:
+last 5 bench sessions
+MongoDB is already excellent for that.
+Later, vector search becomes useful for:
+Exercise knowledge
+Coach notes
+Training articles
+User-uploaded documents
+Long-form knowledge
+So:
+V1
+MongoDB queries
+Later
+MongoDB
++
+Vector Search
+
+25. AI Cost Control
+AI can become expensive quickly.
+Don't call the model unnecessarily.
+Bad:
+Every set
+ ↓
+AI
+Good:
+Workout completed
+ ↓
+Does this require analysis?
+ ↓
+YES
+ ↓
+AI
+Similarly, cache insights where possible.
+
+26. AI Home UI
+The final AI home could be:
+┌──────────────────────────────────┐
+│ AI TRAINER                       │
+│                                  │
+│ Train smarter with your data.   │
+│                                  │
+│ ┌──────────────────────────────┐ │
+│ │ Ask about your training...  │ │
+│ └──────────────────────────────┘ │
+│                                  │
+│ QUICK ACTIONS                    │
+│                                  │
+│ [ ANALYZE MY PROGRESS ]          │
+│ [ REVIEW MY PROGRAM ]            │
+│ [ WHY AM I PLATEAUING? ]         │
+│                                  │
+│ RECENT INSIGHT                   │
+│ ┌──────────────────────────────┐ │
+│ │ Bench progression detected   │ │
+│ │                              │ │
+│ │ +8.2% over 4 weeks           │ │
+│ │                              │ │
+│ │ View →                       │ │
+│ └──────────────────────────────┘ │
+│                                  │
+├──────────────────────────────────┤
+│ Home Workout Progress AI Me     │
+└──────────────────────────────────┘
+
+27. AI Chat UX
+┌──────────────────────────────────┐
+│ ← AI Trainer                     │
+│                                  │
+│ AI                               │
+│ Your bench has improved 8% over  │
+│ the last four weeks.             │
+│                                  │
+│          You                     │
+│          Why am I stuck at       │
+│          80kg?                   │
+│                                  │
+│ AI                               │
+│ Your recent sessions show that   │
+│ you're consistently reaching     │
+│ the top of your prescribed reps. │
+│                                  │
+│ Based on:                        │
+│ [4 sessions] [Volume] [RIR]      │
+│                                  │
+│ I'd consider a small progression│
+│ rather than adding more volume.  │
+│                                  │
+│ ┌──────────────────────────────┐ │
+│ │ Ask something...            │ │
+│ └──────────────────────────────┘ │
+└──────────────────────────────────┘
+
+28. AI Should Be Actionable
+Whenever possible:
+Insight
+  ↓
+Recommendation
+  ↓
+Action
+Example:
+"Your bench appears ready for progression."
+Then:
+[ REVIEW NEXT SESSION ]
+That could open:
+Bench Press
+
+Current
+60kg × 10
+
+Recommended
+62.5kg × 8–10
+
+[ APPLY ]
+For coach-controlled athletes:
+[ SEND TO COACH ]
+
+29. AI → App Integration
+This is the important part.
+AI shouldn't just output text.
+It should be capable of producing structured actions.
+Conceptually:
+{
+  "type": "progression_recommendation",
+
+  "exerciseId": "...",
+
+  "recommendation": {
+    "weight": 62.5,
+    "repRange": {
+      "min": 8,
+      "max": 10
+    }
+  },
+
+  "reason": "..."
+}
+The backend then validates it.
+This opens the door to:
+AI
+ ↓
+Structured recommendation
+ ↓
+Rules Engine
+ ↓
+UI confirmation
+ ↓
+Database
+That's much more powerful than a chatbot.
+
+30. The AI Feedback Loop
+Eventually:
+              TRAINING PLAN
+                    │
+                    ▼
+                 WORKOUT
+                    │
+                    ▼
+                ACTUAL DATA
+                    │
+                    ▼
+              PERFORMANCE
+                    │
+             ┌──────┴──────┐
+             ▼             ▼
+            AI           COACH
+             │             │
+             └──────┬──────┘
+                    ▼
+             RECOMMENDATION
+                    │
+                    ▼
+              VALIDATION
+                    │
+                    ▼
+              NEXT SESSION
+                    │
+                    └───────────→
+That is the long-term competitive advantage of the architecture.
+
+Phase 2F Complete
+We now have:
+✓ AI Trainer
+✓ Context retrieval
+✓ AI insights
+✓ Evidence
+✓ Confidence handling
+✓ Program generation
+✓ Program adaptation
+✓ Training rules engine
+✓ Coach AI Copilot
+✓ AI memory architecture
+✓ AI safety boundaries
+✓ AI API architecture
+✓ AI agent architecture
+✓ Cost control
+✓ Structured AI actions
+✓ AI → training feedback loop
+Next — Phase 2G: Coach Experience
+Now we switch perspectives completely.
+We'll design the coach side screen-by-screen:
+Coach Dashboard
+      ↓
+Athlete List
+      ↓
+Athlete Detail
+      ↓
+Athlete Performance
+      ↓
+Program Management
+      ↓
+Program Builder
+      ↓
+AI Coach Copilot
+      ↓
+Feedback
+      ↓
+Messaging
+      ↓
+Coach Analytics
+This is also where we'll make sure the Coach and Athlete dashboards are genuinely different, rather than the same interface with different labels.
+Phase 2G — Coach Experience
+The Coach app should feel like a professional training management system.
+The athlete asks:
+"What should I do today?"
+The coach asks:
+"Which athletes need my attention, and what should I do?"
+That difference should drive the entire UX.
+
+1. Coach App Architecture
+                         COACH APP
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+        DASHBOARD         ATHLETES         PROGRAMS
+            │                │                │
+            ▼                ▼                ▼
+       Attention         Athlete List      Program List
+       Activity          Athlete Detail    Builder
+       Analytics         Progress          Templates
+                            │
+                            ▼
+                         AI COPILOT
+                            │
+                 ┌──────────┼──────────┐
+                 ▼          ▼          ▼
+              Analyze    Recommend   Search
+
+2. Coach Bottom Navigation
+I recommend:
+┌────────────────────────────────────────┐
+│                                        │
+│                 CONTENT                │
+│                                        │
+├────────────┬──────────┬──────────┬─────┤
+│ Dashboard  │ Athletes │ Programs │ More│
+└────────────┴──────────┴──────────┴─────┘
+Why only four?
+Because Coach has more complex workflows than Athlete.
+We shouldn't cram:
+Dashboard
+Athletes
+Programs
+Analytics
+Messages
+AI
+Profile
+into seven bottom tabs.
+More contains:
+Analytics
+AI Copilot
+Messages
+Exercise Library
+Profile
+Settings
+
+3. Coach Dashboard
+The first screen:
+┌────────────────────────────────────┐
+│ Good morning, Coach                │
+│ Friday, Aug 28                     │
+│                                    │
+│ OVERVIEW                           │
+│                                    │
+│ ┌────────┐ ┌────────┐ ┌─────────┐ │
+│ │   42   │ │   37   │ │    6    │ │
+│ │Athletes│ │Programs│ │Attention│ │
+│ └────────┘ └────────┘ └─────────┘ │
+│                                    │
+│ NEEDS YOUR ATTENTION               │
+│                                    │
+│ Rahul                               │
+│ Deadlift plateau • 4 weeks         │
+│                                    │
+│ Sarah                               │
+│ 3 missed workouts                  │
+│                                    │
+│ Mike                                │
+│ Volume increased 24%              │
+│                                    │
+│ RECENT ACTIVITY                    │
+│                                    │
+│ ✓ Alex completed Push              │
+│ ↑ Sarah hit Bench PR               │
+│ ✓ Rahul completed Pull             │
+└────────────────────────────────────┘
+
+4. Dashboard Priority
+The coach dashboard should rank information by urgency.
+URGENT
+  ↓
+NEEDS ATTENTION
+  ↓
+RECENT ACTIVITY
+  ↓
+GENERAL PERFORMANCE
+Not:
+Random charts
+Random numbers
+Recent users
+
+5. Attention Engine
+This is one of the most valuable features.
+The backend identifies athletes who might require attention.
+Potential signals:
+Missed workouts
+Performance decline
+Plateau
+Sudden volume increase
+Goal deadline approaching
+Low adherence
+Repeated exercise substitutions
+Long inactivity
+Then the coach gets:
+NEEDS ATTENTION
+
+Rahul
+⚠ Deadlift plateau
+4 weeks
+
+Sarah
+⚠ Missed 3 workouts
+
+Mike
+⚠ Training volume +24%
+This eventually becomes AI-assisted.
+
+6. Attention Doesn't Mean "Problem"
+Important UX distinction.
+Avoid:
+FAILED ATHLETE
+Use:
+NEEDS ATTENTION
+The system is flagging something worth reviewing, not making a judgment.
+
+7. Athlete List
+ATHLETES
+
+[ Search athletes... ]
+
+42 athletes
+
+ALL     ATTENTION     ACTIVE
+
+────────────────────────
+
+Rahul Sharma
+● Active
+87% compliance
+
+Sarah Patel
+● Active
+94% compliance
+
+Mike Shah
+● Active
+72% compliance
+
+Alex Mehta
+● Active
+91% compliance
+Each athlete gets a compact summary.
+
+8. Athlete Filters
+Useful filters:
+Status
+├── Active
+├── Paused
+└── Inactive
+
+Performance
+├── Progressing
+├── Plateaued
+└── Declining
+
+Compliance
+├── High
+├── Medium
+└── Low
+Don't make filtering complicated in V1.
+
+9. Athlete Search
+Search should support:
+Name
+Email
+Program
+Later:
+Goal
+Training status
+
+10. Athlete Detail
+Tapping Rahul:
+┌────────────────────────────────────┐
+│ ← Rahul Sharma               ⋮    │
+│                                    │
+│ ● Active                           │
+│                                    │
+│ Compliance          87%            │
+│ Streak              8 days         │
+│                                    │
+│ CURRENT PROGRAM                    │
+│ 12 Week Hypertrophy                │
+│ Week 7 / 12                        │
+│                                    │
+│ PERFORMANCE                        │
+│                                    │
+│ Bench       ↑ 8%                   │
+│ Squat       ↑ 5%                   │
+│ Deadlift    → 0%                   │
+│                                    │
+│ ⚠ NEEDS ATTENTION                  │
+│ Deadlift hasn't progressed         │
+│ for 4 weeks.                       │
+│                                    │
+│ [ VIEW PROGRESS ]                  │
+└────────────────────────────────────┘
+
+11. Athlete Detail Navigation
+Use segmented navigation rather than endless scrolling.
+Overview
+Program
+Workouts
+Progress
+Goals
+Feedback
+Notes
+On smaller screens, this can be horizontally scrollable.
+
+12. Coach Athlete Overview
+The coach needs decision-ready information.
+ATHLETE OVERVIEW
+
+Training
+12 Week Hypertrophy
+Week 7
+
+Adherence
+87%
+
+Last Workout
+Yesterday
+
+Next Workout
+Today — Legs
+
+────────────────────
+
+KEY CHANGES
+
+Bench
++8%
+
+Squat
++5%
+
+Deadlift
+0%
+
+────────────────────
+
+AI SUMMARY
+
+Deadlift has plateaued for
+approximately 4 weeks.
+
+[ REVIEW ]
+
+13. Coach Workout History
+WORKOUT HISTORY
+
+Aug 28
+Legs
+✓ Completed
+64 min
+
+Aug 26
+Pull
+✓ Completed
+51 min
+
+Aug 24
+Push
+✓ Completed
+52 min
+
+Aug 22
+Legs
+✗ Missed
+Tap a workout:
+Workout Details
+│
+├── Exercises
+├── Sets
+├── Volume
+├── RIR/RPE
+├── Notes
+└── Coach Feedback
+
+14. Coach Program List
+PROGRAMS
+
+[ + CREATE PROGRAM ]
+
+ACTIVE
+
+12 Week Hypertrophy
+12 weeks
+24 athletes
+
+Strength Foundation
+8 weeks
+11 athletes
+
+────────────────────
+
+DRAFTS
+
+Beginner Strength
+Draft
+
+Upper/Lower
+Draft
+Filters:
+All
+Active
+Draft
+Archived
+
+15. Program Builder
+This needs to be powerful without becoming complicated.
+CREATE PROGRAM
+
+Name
+[ 12 Week Hypertrophy ]
+
+Duration
+[ 12 weeks ]
+
+Days per week
+[ 5 ]
+
+────────────────────
+
+WEEK 1
+
+MONDAY
+Push
+
+Bench Press
+3 × 8–12
+RIR 2
+Rest 120s
+
+Incline DB Press
+3 × 8–12
+RIR 2
+
+[ + ADD EXERCISE ]
+
+TUESDAY
+Pull
+
+[ + ADD EXERCISE ]
+
+────────────────────
+
+[ SAVE DRAFT ]
+
+16. Exercise Selection
+Tapping:
++ ADD EXERCISE
+opens:
+ADD EXERCISE
+
+[ Search exercises... ]
+
+Chest
+
+Bench Press
+Incline DB Press
+Machine Chest Press
+Cable Fly
+
+Back
+
+Lat Pulldown
+Barbell Row
+Seated Cable Row
+Select → configure prescription.
+
+17. Prescription Editor
+BENCH PRESS
+
+Sets
+[ 3 ]
+
+Reps
+[ 8 ] — [ 12 ]
+
+Weight
+[ Auto ]
+
+RIR
+[ 2 ]
+
+Rest
+[ 120 sec ]
+
+Tempo
+[ 3-1-1 ]
+
+Notes
+[ Pause briefly at chest ]
+
+[ SAVE ]
+
+18. Drag & Drop
+The coach should be able to reorder:
+1 Bench Press
+2 Incline Press
+3 Shoulder Press
+4 Cable Fly
+to:
+1 Bench Press
+2 Shoulder Press
+3 Incline Press
+4 Cable Fly
+On mobile, long press + drag is appropriate.
+
+19. Program Templates
+Coaches shouldn't have to build everything from scratch.
+PROGRAM TEMPLATES
+
+Push / Pull / Legs
+Upper / Lower
+5 Day Hypertrophy
+Strength
+Beginner Full Body
+Flow:
+Template
+   ↓
+Duplicate
+   ↓
+Customize
+   ↓
+Assign
+
+20. Assign Program
+After saving:
+ASSIGN PROGRAM
+
+Select athletes
+
+☑ Rahul
+☑ Sarah
+☐ Mike
+☐ Alex
+
+Start date
+[ Sep 1 ]
+
+[ ASSIGN ]
+We should support assigning to multiple athletes.
+
+21. Program Versioning
+This is extremely important.
+Suppose Rahul is on:
+Program Version 1
+The coach modifies the program.
+Don't silently alter historical data.
+Instead:
+Version 1
+     ↓
+Version 2
+Workout sessions already completed remain associated with the old prescription.
+This preserves historical accuracy.
+
+22. Coach Progress Analytics
+Coach should be able to see:
+ATHLETE PERFORMANCE
+
+Strength
+↑ 8%
+
+Volume
+↑ 14%
+
+Compliance
+87%
+
+PRs
+4
+And:
+EXERCISE PERFORMANCE
+
+Bench
+↑
+
+Squat
+↑
+
+Deadlift
+→
+
+Shoulder Press
+↑
+
+23. Athlete Comparison
+This should be introduced carefully.
+A coach might want:
+ATHLETE PERFORMANCE
+
+Rahul       87%
+Sarah       94%
+Mike        72%
+Alex        91%
+But avoid ranking athletes by default.
+Coaching is about individual progression.
+Comparison should be an analytical tool, not a leaderboard.
+
+24. AI Coach Copilot
+This lives under More.
+AI COACH COPILOT
+
+What would you like to analyze?
+
+[ Ask about your athletes... ]
+
+Suggested:
+
+"Who needs attention?"
+
+"Who has plateaued?"
+
+"Who missed workouts?"
+
+"Who is ready for progression?"
+
+"Summarize Rahul's progress."
+
+25. AI Copilot Example
+Coach:
+Who has plateaued recently?
+AI:
+3 athletes may need review.
+
+Rahul
+Deadlift — ~4 weeks
+
+Sarah
+Bench Press — ~3 weeks
+
+Mike
+Squat — ~3 weeks
+
+[ VIEW ATHLETES ]
+Tapping Rahul goes directly to the athlete.
+This creates a useful loop:
+AI
+ ↓
+Identify
+ ↓
+Open athlete
+ ↓
+Review data
+ ↓
+Coach decides
+
+26. AI Program Assistant
+Inside Program Builder:
+AI ASSIST
+
+"Create a 4-day strength
+program for Rahul based on
+his current performance."
+
+[ GENERATE DRAFT ]
+AI generates:
+DRAFT PROGRAM
+
+4 days
+12 weeks
+
+Generated based on:
+• Current program
+• Recent performance
+• Goals
+• Exercise history
+
+[ REVIEW ]
+The coach remains in control.
+
+27. AI Suggested Modification
+Inside an athlete's program:
+AI RECOMMENDATION
+
+Bench Press
+
+Current:
+60kg × 10 × 3
+
+Recent performance:
+10 / 10 / 10
+Average RIR: 3
+
+Suggested:
+62.5kg × 8–10 × 3
+
+[ APPLY ]
+[ MODIFY ]
+[ DISMISS ]
+This is the kind of AI integration that actually saves coaching time.
+
+28. Coach Feedback
+From athlete detail:
+FEEDBACK
+
+[ + ADD FEEDBACK ]
+
+Recent
+
+"Great work on your squat depth."
+Yesterday
+
+"Let's hold the deadlift weight
+for another week."
+Aug 24
+Compose:
+SEND FEEDBACK
+
+Message
+
+[ Your feedback... ]
+
+Related workout
+[ Legs — Aug 28 ]
+
+[ SEND ]
+
+29. Coach Notes
+Private:
+COACH NOTES
+
+Private
+
+"Consider reducing deadlift
+volume next mesocycle."
+
+[ + ADD NOTE ]
+These should be visually distinct from feedback.
+
+30. Messaging
+Coach can access:
+MESSAGES
+
+Rahul
+Last message 2h ago
+
+Sarah
+Last message yesterday
+
+Mike
+Last message Aug 26
+Conversation:
+Coach:
+How did today's session feel?
+
+Rahul:
+Good overall. Deadlifts felt heavy.
+
+Coach:
+Let's keep the weight unchanged
+next session.
+
+31. Notifications for Coach
+Important notifications:
+Athlete completed workout
+Athlete missed workout
+New PR
+Athlete requested feedback
+Program issue
+AI attention flag
+New athlete
+But the system should avoid notification spam.
+
+32. Coach Dashboard API
+Primary:
+GET /api/v1/coaches/me/dashboard
+Response:
+{
+  "stats": {
+    "athletes": 42,
+    "activePrograms": 37,
+    "needsAttention": 6
+  },
+
+  "attention": [],
+
+  "recentActivity": [],
+
+  "performanceSummary": {}
+}
+
+33. Athlete Detail API
+Rather than making the app load 20 endpoints:
+GET /api/v1/coaches/me/athletes/:athleteId
+returns the overview.
+Then detailed screens request specific data:
+GET /athletes/:id/workouts
+GET /athletes/:id/progress
+GET /athletes/:id/goals
+GET /athletes/:id/program
+This keeps large responses manageable.
+
+34. Coach Architecture
+The final navigation becomes:
+COACH APP
+│
+├── Dashboard
+│   ├── Overview
+│   ├── Needs Attention
+│   └── Activity
+│
+├── Athletes
+│   ├── List
+│   └── Athlete Detail
+│       ├── Overview
+│       ├── Program
+│       ├── Workouts
+│       ├── Progress
+│       ├── Goals
+│       ├── Feedback
+│       └── Notes
+│
+├── Programs
+│   ├── Active
+│   ├── Drafts
+│   ├── Templates
+│   └── Builder
+│
+└── More
+    ├── Analytics
+    ├── AI Copilot
+    ├── Messages
+    ├── Exercise Library
+    ├── Profile
+    └── Settings
+
+35. The Coach-Athlete Connection
+Now both sides connect cleanly:
+                    COACH
+                      │
+               Creates Program
+                      │
+                      ▼
+                   ATHLETE
+                      │
+                Executes Workout
+                      │
+                      ▼
+                 DATA CREATED
+                      │
+              ┌───────┴───────┐
+              ▼               ▼
+            COACH             AI
+              │               │
+              └───────┬───────┘
+                      ▼
+               INSIGHT /
+              RECOMMENDATION
+                      │
+                      ▼
+                    COACH
+                      │
+                 Makes Decision
+                      │
+                      ▼
+                 NEW PROGRAM
+That is the complete coaching loop.
+
+Phase 2G Complete
+We now have the architecture for:
+✓ Coach Dashboard
+✓ Attention System
+✓ Athlete List
+✓ Athlete Detail
+✓ Athlete Performance
+✓ Workout History
+✓ Program Management
+✓ Program Builder
+✓ Exercise Selection
+✓ Prescription Editor
+✓ Program Templates
+✓ Program Assignment
+✓ Program Versioning
+✓ Coach Analytics
+✓ AI Coach Copilot
+✓ AI Program Assistant
+✓ AI Recommendations
+✓ Coach Feedback
+✓ Private Notes
+✓ Messaging
+✓ Coach Notifications
+Remaining Phase 2
+We have now designed most of the core product.
+The remaining pieces are:
+2H → Notifications + Messaging UX
+2I → Profile + Settings
+2J → Admin architecture
+2K → Complete navigation map
+2L → Final screen inventory
+After those, Phase 2 will be complete and we can move into Phase 3 — Backend Implementation, where we actually create the MongoDB models, Node/TypeScript project, authentication, API routes, validation, and database connections.
+Phase 2H — Notifications + Messaging
+These are communication systems, so they should remain separate from the workout experience.
+
+1. Notification Architecture
+                    NOTIFICATIONS
+                          │
+             ┌────────────┼────────────┐
+             ▼            ▼            ▼
+          Athlete        Coach        System
+             │            │            │
+        ┌────┼────┐   ┌───┼────┐      │
+        ▼    ▼    ▼   ▼   ▼    ▼      ▼
+      Workout Coach PR  Athlete AI  Program
+Athlete notifications
+Workout reminder
+Workout completed
+Coach feedback
+New program
+PR achieved
+Goal milestone
+AI insight
+Coach message
+Coach notifications
+Athlete completed workout
+Athlete missed workout
+Athlete PR
+Athlete needs attention
+Feedback request
+New athlete
+Program assignment
+Coach message
+
+2. Notification Center
+┌──────────────────────────────────┐
+│ Notifications                    │
+│                                  │
+│ TODAY                            │
+│                                  │
+│ ● New PR                         │
+│   You hit a Bench Press PR       │
+│   10 min ago                     │
+│                                  │
+│ ● Coach feedback                 │
+│   "Great work today."            │
+│   2h ago                         │
+│                                  │
+│ YESTERDAY                        │
+│                                  │
+│ Workout reminder                 │
+│ Pull Day is scheduled today.     │
+│                                  │
+└──────────────────────────────────┘
+Unread:
+●
+Read:
+○
+
+3. Notification Actions
+A notification should take the user directly to the relevant screen.
+New PR
+ ↓
+Exercise Detail
+
+Coach Feedback
+ ↓
+Feedback Detail
+
+New Program
+ ↓
+Program
+
+Workout Reminder
+ ↓
+Today's Workout
+Never make the user hunt for the thing mentioned in the notification.
+
+Phase 2I — Profile + Settings
+Athlete Profile
+┌──────────────────────────────────┐
+│ Profile                          │
+│                                  │
+│          [ PHOTO ]               │
+│          Alex Sharma             │
+│          Athlete                 │
+│                                  │
+│ TRAINING                         │
+│ Fitness Profile              →  │
+│ Goals                         →  │
+│ Equipment                     →  │
+│ Preferences                   →  │
+│                                  │
+│ ACCOUNT                          │
+│ Notifications                 →  │
+│ Privacy                       →  │
+│ Security                      →  │
+│                                  │
+│ ABOUT                            │
+│ Help                           →  │
+│ Terms                          →  │
+│ Privacy Policy                 →  │
+│                                  │
+│ Log Out                          │
+└──────────────────────────────────┘
+
+1. Fitness Profile
+FITNESS PROFILE
+
+Experience
+Intermediate
+
+Primary Goal
+Muscle Gain
+
+Training Days
+5 / week
+
+Session Duration
+60 minutes
+
+Training Location
+Commercial Gym
+
+[ EDIT PROFILE ]
+
+2. Goals
+GOALS
+
+Active
+
+Bench Press
+100 kg
+82.5 / 100 kg
+
+Body Weight
+76 kg
+74 / 76 kg
+
+────────────────
+
+[ + ADD GOAL ]
+
+3. Notification Settings
+Users should control what they receive.
+NOTIFICATIONS
+
+Workout
+☑ Workout reminders
+☑ Program updates
+
+Progress
+☑ Personal records
+☑ Goal milestones
+
+Coach
+☑ New feedback
+☑ Messages
+
+AI
+☑ New insights
+☐ AI recommendations
+
+4. Privacy
+PRIVACY
+
+Profile visibility
+Private
+
+Coach data sharing
+Enabled
+
+Progress photos
+Private
+
+AI data usage
+Training data only
+
+[ MANAGE DATA ]
+The user should understand what data the AI and coach can access.
+
+Phase 2J — Admin Architecture
+The admin dashboard isn't part of the normal mobile application.
+I'd make it a web application.
+                ADMIN
+                  │
+      ┌───────────┼────────────┐
+      ▼           ▼            ▼
+    Users       Coaches      System
+      │           │            │
+      ▼           ▼            ▼
+ Accounts     Verification   Health
+ Reports      Management      Logs
+
+Admin Dashboard
+ADMIN DASHBOARD
+
+Users
+12,842
+
+Athletes
+10,421
+
+Coaches
+2,421
+
+Active Today
+4,382
+
+────────────────────
+
+SYSTEM
+
+API Health        ✓
+Database          ✓
+AI Service        ✓
+Notifications     ✓
+
+────────────────────
+
+RECENT ACTIVITY
+
+New registrations
+Reports
+Errors
+
+Admin User Management
+USERS
+
+Search...
+
+User          Role       Status
+
+Alex          Athlete    Active
+Rahul         Athlete    Active
+Sarah         Coach      Active
+Mike          Athlete    Suspended
+Actions:
+View
+Suspend
+Reactivate
+Delete
+Dangerous actions should require confirmation.
+
+Admin Coach Verification
+Eventually:
+COACH APPLICATIONS
+
+Sarah Patel
+Certification submitted
+
+[ REVIEW ]
+
+Documents
+Experience
+Specializations
+
+[ APPROVE ]
+[ REJECT ]
+This gives us a foundation for a future professional coaching marketplace if we ever want one.
+
+Phase 2K — Complete Navigation Map
+Now combine everything.
+Athlete
+ATHLETE
+│
+├── Home
+│   ├── Today's Workout
+│   ├── Progress Snapshot
+│   ├── AI Insight
+│   ├── Coach Feedback
+│   └── Goal
+│
+├── Workout
+│   ├── Today's Workout
+│   ├── Program
+│   ├── Active Workout
+│   │   ├── Exercise
+│   │   ├── Set
+│   │   ├── Rest
+│   │   └── Next Exercise
+│   ├── History
+│   └── Workout Summary
+│
+├── Progress
+│   ├── Overview
+│   ├── Strength
+│   ├── Exercise Detail
+│   ├── Personal Records
+│   ├── Volume
+│   ├── Body
+│   ├── Measurements
+│   ├── Photos
+│   ├── Consistency
+│   └── Goals
+│
+├── AI
+│   ├── AI Trainer
+│   ├── Chat
+│   ├── Insights
+│   └── Recommendations
+│
+└── Me
+    ├── Profile
+    ├── Fitness Profile
+    ├── Goals
+    ├── Notifications
+    ├── Privacy
+    ├── Security
+    └── Settings
+
+Coach
+COACH
+│
+├── Dashboard
+│   ├── Overview
+│   ├── Needs Attention
+│   └── Activity
+│
+├── Athletes
+│   ├── Athlete List
+│   └── Athlete Detail
+│       ├── Overview
+│       ├── Program
+│       ├── Workouts
+│       ├── Progress
+│       ├── Goals
+│       ├── Feedback
+│       └── Notes
+│
+├── Programs
+│   ├── Active
+│   ├── Drafts
+│   ├── Templates
+│   ├── Program Detail
+│   └── Program Builder
+│
+└── More
+    ├── Analytics
+    ├── AI Coach Copilot
+    ├── Messages
+    ├── Exercise Library
+    ├── Notifications
+    ├── Profile
+    └── Settings
+
+Phase 2L — Final Screen Inventory
+We can now create the implementation backlog.
+Authentication — 8
+01 Splash
+02 Welcome
+03 Login
+04 Register
+05 Role Selection
+06 Forgot Password
+07 Reset Password
+08 Email Verification
+Athlete Onboarding — 7
+09 Basic Information
+10 Training Experience
+11 Goals
+12 Training Availability
+13 Equipment
+14 Preferences
+15 Confirmation
+Athlete — 17+
+16 Home
+17 Workout
+18 Workout Overview
+19 Exercise Detail
+20 Active Workout
+21 Set Entry
+22 Rest Timer
+23 Exercise Replacement
+24 Workout Summary
+25 Workout History
+26 Progress Overview
+27 Strength
+28 Exercise Detail
+29 Personal Records
+30 Body Progress
+31 Measurements
+32 Progress Photos
+33 Goal Detail
+AI — 5
+34 AI Home
+35 AI Chat
+36 AI Insight Detail
+37 AI Recommendation
+38 AI Program Generator
+Coach — 15+
+39 Coach Dashboard
+40 Attention Center
+41 Athlete List
+42 Athlete Detail
+43 Athlete Progress
+44 Athlete Workouts
+45 Athlete Program
+46 Athlete Goals
+47 Feedback
+48 Notes
+49 Program List
+50 Program Detail
+51 Program Builder
+52 Exercise Selector
+53 Prescription Editor
+Communication — 4
+54 Notifications
+55 Notification Detail
+56 Messages
+57 Conversation
+Settings — 6
+58 Athlete Profile
+59 Fitness Profile
+60 Notification Settings
+61 Privacy
+62 Security
+63 App Settings
+Admin Web — 7
+64 Admin Dashboard
+65 User Management
+66 Coach Management
+67 Coach Verification
+68 Reports
+69 System Health
+70 Audit Logs
+So we're looking at roughly 70 screen/state definitions, but that does not mean we should build 70 independent screens. Many are states, sheets, or reusable components.
+
+Phase 2 Final Architecture
+At this point the product looks like:
+                         ┌──────────────┐
+                         │     AUTH     │
+                         └───────┬──────┘
+                                 │
+                          ROLE SELECTION
+                                 │
+                ┌────────────────┴────────────────┐
+                │                                 │
+                ▼                                 ▼
+           ┌──────────┐                      ┌──────────┐
+           │ ATHLETE  │                      │  COACH   │
+           └────┬─────┘                      └────┬─────┘
+                │                                 │
+       ┌────────┼─────────┐             ┌─────────┼─────────┐
+       ▼        ▼         ▼             ▼         ▼         ▼
+     HOME    WORKOUT   PROGRESS       HOME    ATHLETES   PROGRAMS
+       │        │         │             │         │         │
+       └────────┼─────────┘             └─────────┼─────────┘
+                ▼                                 ▼
+               AI                            AI COPILOT
+                │                                 │
+                └────────────┬────────────────────┘
+                             ▼
+                         DATA ENGINE
+                             │
+                    ┌────────┼────────┐
+                    ▼        ▼        ▼
+                 MongoDB    API      AI
+Phase 2 Is Complete
+We have now defined:
+Product roles
+Authentication
+Onboarding
+Athlete UX
+Coach UX
+Workout system
+Progress system
+AI system
+Messaging
+Notifications
+Profile/settings
+Admin architecture
+Navigation
+Screen inventory
+API boundaries
+Offline workout behavior
+AI/coach authority model
+Phase 3 — Backend Implementation
+Now we stop designing and start building.
+Since you've chosen MongoDB, I recommend this backend stack:
+Frontend
+React Native + TypeScript
+
+Backend
+Node.js
+Express
+TypeScript
+
+Database
+MongoDB
+Mongoose
+
+Authentication
+JWT
+Refresh Tokens
+bcrypt/Argon2
+
+Validation
+Zod
+
+API
+REST
+
+AI
+LLM API + structured outputs
+
+Storage
+Object storage for progress photos/media
+
+Notifications
+Push notification service
+
+Deployment
+Docker
+The first Phase 3 milestone should be:
+PHASE 3A
+Project Setup
+      ↓
+MongoDB Connection
+      ↓
+User Model
+      ↓
+Athlete Model
+      ↓
+Coach Model
+      ↓
+Authentication
+      ↓
+JWT / Refresh Tokens
+      ↓
+Role-Based Access Control
+      ↓
+First API Endpoint
+      ↓
+Register → Login → Profile
+Do not start by building the AI. Get the identity, database, authorization, and core data model correct first. Everything else depends on them.

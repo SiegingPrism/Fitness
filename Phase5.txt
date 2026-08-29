@@ -1,0 +1,4564 @@
+Good. With Phase 4J complete, we should move to Phase 5 — Production Launch & Monetization.
+Phase 5 Roadmap
+PHASE 5
+│
+├── 5A — Production Infrastructure
+├── 5B — Authentication & Account Management
+├── 5C — Payments & Subscriptions
+├── 5D — Gym/Coach Monetization
+├── 5E — AI Cost & Usage System
+├── 5F — App Store / Play Store Preparation
+├── 5G — Beta Release
+├── 5H — Security & Privacy
+├── 5I — Analytics & Growth
+└── 5J — Production Launch
+5A is next
+We'll set up the actual production environment:
+                    PRODUCTION
+                         │
+        ┌────────────────┼────────────────┐
+        ▼                ▼                ▼
+     Mobile            API            MongoDB
+        │                │                │
+        │                ├── Redis        │
+        │                ├── Storage      │
+        │                ├── WebSocket    │
+        │                └── AI           │
+        │
+        ├── Push Notifications
+        ├── Analytics
+        └── Crash Reporting
+We'll also establish:
+Production/staging environments
+CI/CD
+Database backups
+Secret management
+Domain/API configuration
+Monitoring
+Logging
+Health checks
+Deployment strategy
+Rollback strategy
+After that, payments become the next major milestone because the product architecture is already capable of supporting athletes, coaches, and gyms.
+Phase 5's eventual business model
+                    GYM APP
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       ATHLETE        COACH         GYM
+          │            │            │
+       Free/Pro     Pro Coach     Business
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+                  AI FEATURES
+                       │
+                       ▼
+                  Usage / Plans
+The important thing is that we don't bolt payments onto the app at the end. We'll design subscriptions and entitlements so they integrate cleanly with the existing roles and organization system.
+Next: Phase 5A — Production Infrastructure.
+Phase 5A — Production Infrastructure
+Now we move from "the app works" to "the app can safely run for real users."
+Do this phase before payments or a public beta.
+
+1. Production Architecture
+Our deployment should look like:
+                         USERS
+                           │
+                 ┌─────────┴─────────┐
+                 ▼                   ▼
+              iOS App            Android App
+                 │                   │
+                 └─────────┬─────────┘
+                           ▼
+                     API / Gateway
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+           Backend       WebSocket      AI
+              │            │
+        ┌─────┼─────┐      │
+        ▼     ▼     ▼      │
+     MongoDB Redis Storage  │
+        │                  │
+        └────────┬─────────┘
+                 ▼
+            Monitoring
+
+2. Three Environments
+We need:
+Development
+      ↓
+Staging
+      ↓
+Production
+Development
+Your local machine.
+localhost
+local MongoDB / development DB
+test credentials
+Staging
+A production-like environment for testing.
+staging-api.yourdomain.com
+staging MongoDB
+test push notifications
+test AI
+Production
+Real users.
+api.yourdomain.com
+production MongoDB
+production storage
+production notifications
+production AI
+Never connect development code to the production database.
+
+3. Environment Configuration
+Create:
+server/
+├── .env.example
+├── .env.development
+├── .env.staging
+└── .env.production
+But only:
+.env.example
+goes into Git.
+Never commit:
+.env.production
+or API keys.
+
+4. Environment Variables
+At minimum:
+NODE_ENV=
+PORT=
+
+MONGODB_URI=
+
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+
+REDIS_URL=
+
+STORAGE_BUCKET=
+STORAGE_REGION=
+STORAGE_ACCESS_KEY=
+STORAGE_SECRET_KEY=
+
+AI_API_KEY=
+
+PUSH_PROVIDER_KEY=
+
+CORS_ORIGINS=
+
+SENTRY_DSN=
+The exact names can differ depending on the services we choose.
+
+5. Central Config
+Use:
+server/src/config/
+├── env.ts
+├── database.ts
+├── redis.ts
+├── storage.ts
+├── ai.ts
+└── notifications.ts
+Then:
+config.database.mongoUri
+config.redis.url
+config.ai.provider
+instead of scattering environment variables throughout the code.
+
+6. Startup Validation
+The server should refuse to start if critical configuration is missing.
+Server starting
+      ↓
+Validate environment
+      ↓
+Validate MongoDB config
+      ↓
+Validate authentication config
+      ↓
+Validate required services
+      ↓
+Start server
+If something is wrong:
+ERROR
+Missing MONGODB_URI
+Server startup aborted
+This is much better than a production server starting in a broken state.
+
+7. Health Checks
+Create:
+GET /health
+Response:
+{
+  "status": "ok"
+}
+Then:
+GET /health/ready
+checks dependencies:
+API
+ ↓
+MongoDB ✓
+Redis ✓
+Storage ✓
+Example:
+{
+  "status": "ready",
+  "services": {
+    "mongodb": "healthy",
+    "redis": "healthy",
+    "storage": "healthy"
+  }
+}
+
+8. Liveness vs Readiness
+Keep these separate.
+Liveness
+/health
+Answers:
+Is the application process alive?
+Readiness
+/health/ready
+Answers:
+Can this instance actually serve traffic?
+This becomes important when we deploy multiple backend instances.
+
+9. MongoDB Production Setup
+Production MongoDB should have:
+Authentication
+Encryption
+Backups
+Indexes
+Monitoring
+Access restrictions
+Don't expose MongoDB directly to the public internet unnecessarily.
+Architecture:
+Internet
+   X
+   │
+ MongoDB
+Instead:
+Internet
+   │
+Backend
+   │
+Private DB network
+   │
+MongoDB
+
+10. MongoDB Connection Pool
+Configure reasonable connection pooling.
+We don't want:
+100 requests
+ ↓
+100 new DB connections
+Instead:
+Backend
+ ↓
+Connection Pool
+ ↓
+MongoDB
+The pool should be tuned based on the deployment size.
+
+11. MongoDB Indexes
+Before production, verify indexes for:
+users
+organizations
+organizationMemberships
+programs
+programAssignments
+workouts
+workoutSessions
+setLogs
+messages
+notifications
+checkIns
+attendance
+Then inspect real query patterns.
+Don't create dozens of speculative indexes.
+
+12. Redis
+Redis becomes useful for:
+Session/cache data
+Rate limiting
+WebSocket presence
+Temporary state
+Job queues
+Architecture:
+Backend
+ ├── MongoDB → persistent data
+ │
+ └── Redis → temporary/fast data
+MongoDB remains our source of truth.
+
+13. Job Queue
+Some work should not block an API request.
+Example:
+Workout completed
+      ↓
+API returns immediately
+      ↓
+Job Queue
+      │
+      ├── calculate analytics
+      ├── generate insight
+      ├── send notification
+      └── update aggregates
+This is especially important for:
+AI processing
+push notifications
+email
+image processing
+analytics
+scheduled reminders
+
+14. Worker Architecture
+Add:
+server/
+├── api/
+└── workers/
+    ├── notification.worker.ts
+    ├── analytics.worker.ts
+    ├── ai.worker.ts
+    ├── media.worker.ts
+    └── scheduled.worker.ts
+Then:
+API Server
+    │
+    ▼
+Queue
+    │
+    ├── Worker 1
+    ├── Worker 2
+    └── Worker 3
+This gives us independent scaling later.
+
+15. Scheduled Jobs
+We'll eventually need jobs like:
+Every hour
+ ↓
+Find upcoming workouts
+ ↓
+Generate reminders
+and:
+Daily
+ ↓
+Find expiring memberships
+ ↓
+Create notifications
+and:
+Weekly
+ ↓
+Generate coach summaries
+Don't use the mobile application itself as the scheduler.
+The backend should own scheduled jobs.
+
+16. Object Storage
+For:
+Profile photos
+Progress photos
+Chat images
+Exercise media
+Documents
+use object storage.
+Architecture:
+Mobile
+ ↓
+Upload authorization
+ ↓
+Object Storage
+ ↓
+File URL / object key
+ ↓
+MongoDB metadata
+MongoDB should not contain huge image binaries.
+
+17. Storage Structure
+Organize objects logically:
+users/{userId}/profile/
+users/{userId}/progress/
+conversations/{conversationId}/
+organizations/{organizationId}/
+exercises/{exerciseId}/
+Don't dump every file into one giant folder/key namespace without structure.
+
+18. CDN
+Static media can eventually use:
+Storage
+   ↓
+CDN
+   ↓
+Mobile
+This improves image delivery and reduces load on the application server.
+
+19. Backend Deployment
+Use a containerized backend:
+Docker
+   ↓
+Backend image
+   ↓
+Deployment platform
+Container:
+Node.js
++
+Application
++
+Production dependencies
+Don't manually configure every production machine.
+
+20. Multiple Backend Instances
+Eventually:
+              Load Balancer
+                 │
+       ┌─────────┼─────────┐
+       ▼         ▼         ▼
+    API #1     API #2     API #3
+       │         │         │
+       └─────────┼─────────┘
+                 ▼
+              MongoDB
+The application must therefore remain stateless wherever possible.
+Don't store important session state only in server memory.
+
+21. WebSocket Scaling
+This is particularly important because we already have real-time messaging.
+If:
+Athlete → Server 1
+Coach → Server 2
+Server 1 needs to communicate with Server 2.
+Use Redis pub/sub or an equivalent realtime broker:
+Server 1
+   │
+   ▼
+Redis Pub/Sub
+   │
+   ▼
+Server 2
+Then:
+Athlete sends message
+      ↓
+Server 1
+      ↓
+MongoDB
+      ↓
+Redis event
+      ↓
+Server 2
+      ↓
+Coach
+
+22. CI/CD
+Every Git push should trigger automated checks.
+Git Push
+   ↓
+CI
+   ├── Install
+   ├── Type check
+   ├── Lint
+   ├── Unit tests
+   ├── Integration tests
+   └── Build
+Then:
+main
+ ↓
+Staging deployment
+ ↓
+Smoke tests
+ ↓
+Production approval
+ ↓
+Production deployment
+
+23. Pull Request Protection
+Before merging:
+✓ Tests
+✓ TypeScript
+✓ Lint
+✓ Build
+✓ Security checks
+No direct unreviewed production changes.
+Even if you're the only developer, this structure prevents accidental breakage.
+
+24. Deployment Strategy
+Use:
+Development
+      ↓
+Pull Request
+      ↓
+Staging
+      ↓
+Smoke Test
+      ↓
+Production
+Don't:
+localhost
+ ↓
+"Looks fine"
+ ↓
+production
+
+25. Database Migration During Deployment
+If a deployment changes the schema:
+Backend v1
+ ↓
+Migration
+ ↓
+Database compatible with v2
+ ↓
+Backend v2
+Avoid:
+Backend v2
+ ↓
+Database still v1
+ ↓
+Everything breaks
+For destructive changes, use a staged migration.
+
+26. Rollback Strategy
+Every production deployment needs:
+Current version
+Previous stable version
+If:
+v1.8
+ ↓
+v1.9
+ ↓
+critical bug
+we should be able to:
+rollback
+ ↓
+v1.8
+quickly.
+
+27. Database Rollback Is Different
+Code rollback is easy.
+Database rollback can be dangerous.
+Therefore prefer:
+Expand
+ ↓
+Deploy compatible code
+ ↓
+Migrate
+ ↓
+Remove old fields later
+rather than immediately deleting old fields.
+
+28. Rate Limiting
+Public endpoints need rate limits.
+Especially:
+/login
+/register
+/password reset
+AI
+messages
+file upload
+Example concept:
+IP/User
+ ↓
+Rate limiter
+ ↓
+Request
+AI should have stricter limits because every request can cost money.
+
+29. AI Usage Limits
+We'll need:
+AI request
+ ↓
+Identify user
+ ↓
+Check plan
+ ↓
+Check monthly usage
+ ↓
+Allow / reject
+ ↓
+Call model
+ ↓
+Record usage
+This connects directly to Phase 5E.
+
+30. API Security Headers
+The backend should use appropriate HTTP security headers.
+Also:
+HTTPS only
+Secure cookies where applicable
+CORS restrictions
+Input validation
+Request size limits
+Never allow:
+Access-Control-Allow-Origin: *
+for sensitive authenticated APIs unless there's a deliberate reason.
+
+31. Request Size Limits
+Especially important for:
+Messages
+Images
+JSON payloads
+AI prompts
+Don't allow a client to send a 500 MB JSON request to your API.
+Uploads should use the storage architecture described earlier.
+
+32. Monitoring
+Production needs visibility.
+Monitor:
+API errors
+API latency
+MongoDB performance
+Redis health
+Queue failures
+WebSocket failures
+Push failures
+AI failures
+Storage failures
+
+33. Error Tracking
+When an error occurs:
+User
+ ↓
+App crashes
+ ↓
+Crash report
+ ↓
+Error monitoring
+ ↓
+Developer sees:
+   version
+   device
+   OS
+   stack trace
+   request ID
+This is much better than users reporting:
+"The app just crashed."
+
+34. Release Metadata
+Every application error should be associated with:
+App version
+Backend version
+Environment
+Device/OS
+Example:
+Mobile: 1.4.2
+Backend: 2026.08.28.3
+Environment: production
+This makes version-specific bugs much easier to identify.
+
+35. Application Analytics
+Keep two systems conceptually separate:
+Technical monitoring
+Crash
+Latency
+CPU
+Errors
+Product analytics
+Workout completed
+Program assigned
+AI used
+Check-in submitted
+Class booked
+Never mix the two into one giant analytics database without a reason.
+
+36. Privacy
+The app handles potentially sensitive fitness information.
+We should minimize collection.
+Only collect what the feature requires.
+For example:
+Workout feature
+→ workout data
+
+Messaging
+→ message metadata/content required for messaging
+
+AI
+→ context required for the requested AI feature
+Don't send the entire user profile to an AI provider for a question that only needs today's workout.
+
+37. Data Deletion
+We need an actual account deletion flow:
+Settings
+ ↓
+Delete Account
+ ↓
+Confirm
+ ↓
+Authentication
+ ↓
+Deletion workflow
+But deletion may involve multiple systems:
+MongoDB
+Storage
+Push tokens
+AI-related data
+Analytics
+Sessions
+Define exactly what is deleted versus what may need to be retained for legitimate operational/legal purposes.
+
+38. Account Export
+Eventually support:
+Settings
+ ↓
+Download My Data
+This is useful both for user trust and privacy compliance.
+The exact legal requirements depend on where the service operates and who uses it, so we'll handle the compliance specifics separately.
+
+39. Backup System
+Production database:
+MongoDB
+   ↓
+Automated backups
+   ↓
+Retention
+But the real test is:
+Backup
+ ↓
+Restore to temporary environment
+ ↓
+Verify
+Schedule restore tests periodically.
+
+40. Disaster Recovery
+Define:
+RPO
+RTO
+For example:
+RPO:
+How much data can we afford to lose?
+
+RTO:
+How long can recovery take?
+For an early-stage app, don't overengineer this.
+But have an explicit target.
+
+41. Production Runbook
+Create:
+docs/production/
+├── deployment.md
+├── rollback.md
+├── database.md
+├── incident-response.md
+├── backups.md
+└── environment.md
+If production breaks at 2 AM, you shouldn't have to remember every command.
+
+42. Incident Workflow
+When something breaks:
+Detect
+ ↓
+Assess
+ ↓
+Contain
+ ↓
+Rollback / Fix
+ ↓
+Verify
+ ↓
+Communicate
+ ↓
+Postmortem
+For example:
+AI endpoint suddenly returns 500
+ ↓
+Disable AI feature flag
+ ↓
+Core workout app continues working
+ ↓
+Investigate
+This is why feature flags matter.
+
+43. Feature Flags Become Important Here
+We'll have:
+ai_coach
+advanced_insights
+class_booking
+new_program_builder
+If something fails:
+feature flag
+ ↓
+OFF
+without redeploying the entire app.
+
+44. Staging Smoke Test
+Every staging deployment should test:
+Register
+Login
+Program assignment
+Workout start
+Workout completion
+Progress update
+Messaging
+Notifications
+Coach dashboard
+Admin dashboard
+AI request
+If one of the core flows breaks:
+STOP
+Don't promote the build.
+
+45. Production Smoke Test
+After production deployment:
+GET /health
+        ✓
+
+Login
+        ✓
+
+Fetch workout
+        ✓
+
+Complete test action
+        ✓
+
+Message
+        ✓
+
+Notification
+        ✓
+Then monitor errors for a short period.
+
+46. Phase 5A Final Architecture
+At the end of this phase:
+                         INTERNET
+                            │
+                       HTTPS / CDN
+                            │
+                     Load Balancer
+                            │
+               ┌────────────┼────────────┐
+               ▼            ▼            ▼
+            API #1        API #2       API #3
+               │            │            │
+               └────────────┼────────────┘
+                            │
+             ┌──────────────┼──────────────┐
+             ▼              ▼              ▼
+          MongoDB         Redis         Storage
+             │              │
+             │              └───────┐
+             │                      │
+             ▼                      ▼
+        Persistent Data        Queue / Events
+                                    │
+                       ┌────────────┼────────────┐
+                       ▼            ▼            ▼
+                    AI Worker   Notification  Analytics
+                                    Worker       Worker
+With:
+Monitoring
+Logging
+Crash tracking
+Backups
+CI/CD
+Feature flags
+around the entire system.
+
+47. Phase 5A Definition of Done
+Before moving forward, these must work:
+□ Development environment
+□ Staging environment
+□ Production environment
+□ Environment validation
+□ MongoDB production configuration
+□ Redis
+□ Object storage
+□ Job queue
+□ Health checks
+□ Structured logging
+□ Error monitoring
+□ Crash monitoring
+□ CI/CD
+□ Automated tests in deployment
+□ Database backups
+□ Restore test
+□ Rate limiting
+□ HTTPS
+□ Security headers
+□ API versioning
+□ Feature flags
+□ Rollback process
+□ Production runbook
+
+48. What Comes Immediately After
+Once 5A is stable:
+PHASE 5B
+Authentication & Account Management
+We'll harden the user-facing identity system:
+5B
+│
+├── Email/password
+├── Google/Apple login
+├── Email verification
+├── Password reset
+├── Refresh tokens
+├── Device sessions
+├── Logout all devices
+├── Account deletion
+├── Profile management
+├── Role switching
+├── Organization switching
+└── Security settings
+Then:
+5C → Payments
+5D → Monetization
+5E → AI usage/billing
+5F → App Store + Play Store
+5G → Beta
+5H → Security/privacy
+5I → Growth analytics
+5J → Launch
+Phase 5B should be the next implementation step.
+Phase 5B — Authentication & Account Management
+Now we harden the identity system before touching payments.
+The goal is to make this reliable:
+User
+ ↓
+Create account / Login
+ ↓
+Identity
+ ↓
+Session
+ ↓
+Role
+ ↓
+Organization
+ ↓
+Permissions
+ ↓
+App
+
+1. Authentication Architecture
+Use:
+                    AUTH
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+     Register       Login      Social Login
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+                  Session
+                     │
+              ┌──────┴──────┐
+              ▼             ▼
+        Access Token   Refresh Token
+              │             │
+              ▼             ▼
+           API Auth     Token Rotation
+The key distinction:
+Access token → short-lived
+Refresh token → longer-lived and securely managed
+
+2. User Model
+Your existing user model should remain the central identity.
+User
+│
+├── id
+├── email
+├── emailVerifiedAt
+├── passwordHash
+├── name
+├── avatar
+├── status
+├── createdAt
+└── updatedAt
+Do not store:
+password
+Store only:
+passwordHash
+
+3. Account Status
+Use:
+ACTIVE
+SUSPENDED
+DEACTIVATED
+PENDING
+Don't delete a user just because they temporarily leave a gym.
+Their organization membership and account lifecycle should be separate.
+
+4. Registration
+Flow:
+Create Account
+      ↓
+Email
+Password
+Name
+      ↓
+Validate
+      ↓
+Hash password
+      ↓
+Create User
+      ↓
+Create verification token
+      ↓
+Send verification
+      ↓
+Account created
+Response should not automatically expose sensitive information.
+
+5. Email Verification
+User receives:
+Verify your email
+
+[ VERIFY EMAIL ]
+Flow:
+Link
+ ↓
+Validate token
+ ↓
+Check expiry
+ ↓
+Mark emailVerifiedAt
+ ↓
+Invalidate token
+Verification tokens should:
+expire
+be single-use
+be stored securely
+never be reusable after successful verification
+
+6. Login
+Email
+Password
+   ↓
+Validate
+   ↓
+Find user
+   ↓
+Verify password
+   ↓
+Check account status
+   ↓
+Create session
+   ↓
+Return access + refresh credentials
+Do not reveal whether:
+email exists
+during password-reset requests.
+
+7. Login Error
+Avoid:
+"Email exists but password is wrong."
+Prefer a generic authentication failure.
+This prevents unnecessary account enumeration.
+
+8. Password Hashing
+Use a modern password hashing algorithm such as:
+Argon2id
+or another appropriately configured password hashing scheme supported by your stack.
+Never:
+MD5
+SHA1
+plain SHA256
+for password storage.
+
+9. Password Requirements
+Don't make passwords unnecessarily ridiculous.
+Use reasonable requirements such as:
+Minimum length
+Common-password protection
+No leaked/common credentials
+Length is generally more useful than forcing arbitrary combinations of symbols.
+
+10. Refresh Token Architecture
+The session model:
+Session
+│
+├── id
+├── userId
+├── refreshTokenHash
+├── deviceId
+├── platform
+├── createdAt
+├── lastUsedAt
+├── expiresAt
+├── revokedAt
+└── ip metadata
+Store a hash of the refresh token rather than a reusable raw token when practical.
+
+11. Access Token
+Keep access tokens short-lived.
+Conceptually:
+Access Token
+     ↓
+short lifetime
+     ↓
+API requests
+The exact duration should be chosen based on your security/usability requirements.
+
+12. Refresh Flow
+When access token expires:
+API
+ ↓
+401
+ ↓
+Refresh token
+ ↓
+POST /auth/refresh
+ ↓
+Validate session
+ ↓
+Rotate refresh token
+ ↓
+New access token
+The user should normally not notice this.
+
+13. Refresh Token Rotation
+Don't allow one refresh token to live forever.
+Use:
+Refresh Token A
+      ↓
+Refresh
+      ↓
+Refresh Token B
+      ↓
+A revoked
+If an old revoked token is reused, treat that as suspicious and invalidate the associated session/token family according to your security policy.
+
+14. Device Sessions
+Users should be able to see:
+ACTIVE SESSIONS
+
+iPhone
+Current device
+Last active: Now
+
+MacBook
+Last active: 12 min ago
+
+Chrome
+Last active: Yesterday
+Actions:
+[ Sign out ]
+[ Sign out all other devices ]
+
+15. Device Model
+UserSession
+│
+├── id
+├── userId
+├── deviceId
+├── platform
+├── deviceName
+├── appVersion
+├── lastActiveAt
+├── createdAt
+├── expiresAt
+└── revokedAt
+Don't store unnecessary device information.
+
+16. Logout
+Normal logout:
+App
+ ↓
+Logout
+ ↓
+Revoke current session
+ ↓
+Delete local credentials
+ ↓
+Return to login
+
+17. Logout All
+Settings
+ ↓
+Sign out all devices
+ ↓
+Revoke all sessions
+ ↓
+Current device
+ ↓
+Login again
+Useful if a device is lost or compromised.
+
+18. Forgot Password
+Flow:
+Forgot Password
+      ↓
+Enter email
+      ↓
+Request reset
+      ↓
+Email sent
+      ↓
+Open reset link
+      ↓
+Set new password
+      ↓
+Invalidate reset token
+      ↓
+Revoke existing sessions
+The reset endpoint should respond generically whether or not the email exists.
+
+19. Password Reset Token
+Model:
+PasswordResetToken
+│
+├── userId
+├── tokenHash
+├── expiresAt
+├── usedAt
+└── createdAt
+Don't store reusable raw reset tokens.
+
+20. Change Password
+For logged-in users:
+Current password
+New password
+Confirm password
+Then:
+Verify current password
+ ↓
+Validate new password
+ ↓
+Hash
+ ↓
+Update
+ ↓
+Revoke other sessions
+This prevents an attacker with a stolen session from silently changing the account password without consequences.
+
+21. Google / Apple Login
+Support:
+Continue with Google
+Continue with Apple
+Architecture:
+Mobile
+ ↓
+Identity Provider
+ ↓
+Identity Token
+ ↓
+Backend
+ ↓
+Verify token
+ ↓
+Find/create user
+ ↓
+Create application session
+The backend must verify the identity-provider token.
+Never trust a user-provided email address as proof of identity.
+
+22. Account Linking
+Suppose:
+alex@gmail.com
+already has a password account.
+Later they select:
+Continue with Google
+If the provider identity corresponds to the same verified account, allow controlled account linking.
+Avoid accidentally creating:
+Alex Account #1
+Alex Account #2
+
+23. Authentication Methods
+User profile can show:
+LOGIN METHODS
+
+Email + Password     ✓
+
+Google               ✓
+
+Apple                ✓
+Allow the user to manage linked methods securely.
+
+24. Role Resolution
+After authentication:
+User
+ ↓
+Organization memberships
+ ↓
+Available roles
+Example:
+Alex
+│
+├── Athlete
+│
+└── Iron Forge Fitness
+      └── Member
+Coach:
+Mike
+│
+├── Independent Coach
+│
+└── Iron Forge Fitness
+      └── Coach
+
+25. Role Switching
+If a user has multiple contexts:
+Mike
+│
+├── Coach
+└── Organization Admin
+the app can provide:
+Switch Role
+or:
+Switch Organization
+But don't confuse authentication with authorization.
+The backend still validates every request.
+
+26. Organization Switching
+Example:
+My Organizations
+
+Iron Forge Fitness
+Coach
+
+Elite Performance
+Admin
+Select:
+Elite Performance
+Now the organization context changes.
+Every organization API call should use the selected context, and the backend verifies membership.
+
+27. Onboarding
+After account creation:
+Account
+ ↓
+Role / Use Case
+ ↓
+Profile
+ ↓
+Goals
+ ↓
+Training preferences
+ ↓
+Equipment
+ ↓
+Ready
+Don't make onboarding a 20-screen questionnaire.
+Only collect information that immediately improves the product.
+
+28. Athlete Onboarding
+Example:
+What are you training for?
+
+○ Build muscle
+○ Get stronger
+○ Lose fat
+○ Improve fitness
+○ Athletic performance
+Then:
+Training experience
+
+○ Beginner
+○ Intermediate
+○ Advanced
+Then:
+Where do you train?
+
+○ Gym
+○ Home
+○ Both
+
+29. Coach Onboarding
+Coach needs:
+Coach Profile
+
+Specialties
+Experience
+Training style
+Bio
+Availability
+Don't ask for organization information if they're an independent coach.
+
+30. Gym Admin Onboarding
+Create Gym
+
+Gym Name
+Logo
+Location
+Contact
+Timezone
+Then:
+Invite coaches
+Then:
+Add members
+
+31. Profile Management
+Create:
+Profile
+│
+├── Personal information
+├── Avatar
+├── Goals
+├── Preferences
+├── Connected accounts
+├── Notifications
+├── Security
+└── Privacy
+Separate editable information from security settings.
+
+32. Notification Settings
+Already designed in Phase 4H.
+Keep them under:
+Settings
+ → Notifications
+with:
+Messages
+Workout reminders
+Program updates
+Check-ins
+PRs
+Coach feedback
+
+33. Privacy Settings
+Add:
+Privacy
+
+Profile visibility
+Progress visibility
+Activity visibility
+The exact options depend on whether the product supports public/social profiles.
+For the initial version, keep profiles private by default.
+
+34. Account Deletion
+Flow:
+Settings
+ ↓
+Delete Account
+ ↓
+Explain consequences
+ ↓
+Confirm identity
+ ↓
+Final confirmation
+ ↓
+Deletion workflow
+Don't make account deletion a single accidental tap.
+
+35. Deletion Architecture
+Don't immediately execute:
+DELETE everything
+Instead:
+Deletion Requested
+       ↓
+Account deactivated
+       ↓
+Background deletion workflow
+       ↓
+Delete/anonymize eligible data
+       ↓
+Storage cleanup
+       ↓
+Session revocation
+       ↓
+Complete
+This is especially useful once the application has millions of records or external services.
+
+36. Data Export
+Add:
+Download My Data
+Flow:
+Request export
+ ↓
+Background job
+ ↓
+Generate archive
+ ↓
+Notify user
+ ↓
+Secure download
+Don't generate huge exports synchronously inside the API request.
+
+37. Login Security
+Implement:
+Rate limiting
+Suspicious login detection
+Session management
+Secure token handling
+Password reset protection
+Later:
+2FA
+Passkeys
+can be added.
+
+38. Passkeys
+Passkeys are worth considering for the long-term roadmap:
+Sign in with Passkey
+Advantages include:
+strong phishing resistance
+less password dependence
+good mobile UX
+But don't block V1 on this.
+
+39. Authentication API
+Final initial surface:
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+POST /api/v1/auth/logout
+POST /api/v1/auth/logout-all
+
+POST /api/v1/auth/verify-email
+POST /api/v1/auth/resend-verification
+
+POST /api/v1/auth/forgot-password
+POST /api/v1/auth/reset-password
+
+POST /api/v1/auth/change-password
+
+POST /api/v1/auth/google
+POST /api/v1/auth/apple
+
+GET  /api/v1/auth/me
+
+GET  /api/v1/auth/sessions
+DELETE /api/v1/auth/sessions/:id
+
+40. Account APIs
+PATCH /api/v1/users/me
+POST  /api/v1/users/me/avatar
+
+GET   /api/v1/users/me/organizations
+POST  /api/v1/users/me/organizations/:id/select
+
+GET   /api/v1/users/me/export
+POST  /api/v1/users/me/delete
+
+41. Mobile Auth State
+Your mobile application should have a centralized auth store:
+AuthStore
+│
+├── user
+├── accessToken
+├── session
+├── organizations
+├── currentOrganization
+├── isAuthenticated
+└── initializationState
+Don't let individual screens manage authentication independently.
+
+42. App Startup
+When the app opens:
+App
+ ↓
+Load local session
+ ↓
+Check access token
+ ↓
+Refresh if needed
+ ↓
+GET /auth/me
+ ↓
+Load memberships
+ ↓
+Load current context
+ ↓
+App Ready
+
+43. Auth Navigation
+Use:
+RootNavigator
+│
+├── AuthStack
+│   ├── Login
+│   ├── Register
+│   ├── Forgot Password
+│   └── Verify Email
+│
+└── AppStack
+    ├── Athlete
+    ├── Coach
+    └── Organization
+Then route based on authenticated context.
+
+44. Avoid Navigation Flicker
+Bad:
+App opens
+ ↓
+Login screen
+ ↓
+Home
+when the user is actually already logged in.
+Use:
+Bootstrapping
+ ↓
+Resolve session
+ ↓
+Resolve user
+ ↓
+Resolve role
+ ↓
+Render correct navigator
+Show a short branded loading/splash state during this process.
+
+45. Authentication Tests
+Test:
+Register
+Login
+Logout
+Refresh
+Password reset
+Email verification
+Google login
+Apple login
+Session revoke
+Logout all
+Account deletion
+And attack scenarios:
+Expired access token
+Expired refresh token
+Revoked refresh token
+Reused refresh token
+Invalid reset token
+Expired reset token
+Wrong password
+Rate limit exceeded
+Unauthorized organization
+
+46. Critical Security Tests
+Test 1
+User A
+ ↓
+Modify User B
+Expected:
+403
+Test 2
+Coach
+ ↓
+Request unassigned athlete
+Expected:
+403
+Test 3
+Organization A Admin
+ ↓
+Organization B
+Expected:
+403
+Test 4
+Expired refresh token
+ ↓
+Refresh
+Expected:
+401
+
+47. Phase 5B Folder Structure
+server/src/modules/auth/
+│
+├── auth.controller.ts
+├── auth.service.ts
+├── auth.routes.ts
+├── auth.types.ts
+│
+├── services/
+│   ├── token.service.ts
+│   ├── password.service.ts
+│   ├── session.service.ts
+│   ├── verification.service.ts
+│   └── oauth.service.ts
+│
+├── models/
+│   ├── session.model.ts
+│   ├── reset-token.model.ts
+│   └── verification-token.model.ts
+│
+└── validators/
+    └── auth.validators.ts
+
+48. Phase 5B Definition of Done
+The phase is complete when:
+□ Register
+□ Email verification
+□ Login
+□ Logout
+□ Access token
+□ Refresh token
+□ Token rotation
+□ Session management
+□ Logout all devices
+□ Password reset
+□ Change password
+□ Google login
+□ Apple login
+□ Account linking
+□ Profile management
+□ Organization switching
+□ Role resolution
+□ Onboarding
+□ Account deletion
+□ Data export
+□ Rate limiting
+□ Security tests
+And the fundamental flow works:
+USER
+ │
+ ▼
+REGISTER
+ │
+ ▼
+VERIFY
+ │
+ ▼
+LOGIN
+ │
+ ▼
+SESSION
+ │
+ ├───────────────┐
+ ▼               ▼
+ATHLETE        COACH
+ │               │
+ ▼               ▼
+APP             APP
+ │               │
+ └───────┬───────┘
+         ▼
+ ORGANIZATION
+         │
+         ▼
+ PERMISSIONS
+         │
+         ▼
+ SECURE API
+
+Phase 5C — Payments & Subscriptions
+This is the next major business layer.
+We'll support three possible monetization surfaces:
+                    PAYMENTS
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     Athlete          Coach           Gym
+       Pro           Pro Coach      Business
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+                    Entitlements
+The critical architectural rule will be:
+Payment status and product access are separate concepts.
+For example:
+Payment
+ ↓
+Subscription
+ ↓
+Entitlement
+ ↓
+Feature access
+So if a payment provider changes later, the rest of the application doesn't need to be rewritten.
+Next we'll build plans → subscriptions → entitlements → checkout → webhooks → billing portal → failed payments → cancellation → refunds, and connect those entitlements to the Athlete, Coach, AI, and Gym features.
+Phase 5C — Payments & Subscriptions
+Now we build the monetization layer.
+The architecture should be:
+                    USER
+                      │
+                      ▼
+                    PLAN
+                      │
+                      ▼
+                  CHECKOUT
+                      │
+                      ▼
+                  PAYMENT
+                      │
+                      ▼
+                SUBSCRIPTION
+                      │
+                      ▼
+                ENTITLEMENTS
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       ATHLETE       COACH       GYM
+         PRO          PRO       BUSINESS
+The payment provider handles the actual transaction.
+Our backend remains the source of truth for what the user is allowed to access.
+
+1. Monetization Model
+For the first version, I'd structure the product around:
+Athlete
+FREE
+PRO
+Coach
+FREE
+PRO COACH
+Gym
+STARTER
+BUSINESS
+We can adjust pricing later without changing the architecture.
+
+2. Don't Hard-Code Prices
+Never do:
+if (plan === "PRO") {
+    price = 999;
+}
+Prices change.
+Instead:
+Product
+   │
+   ├── Plan
+   ├── Price
+   ├── Currency
+   ├── Billing interval
+   └── Provider product ID
+
+3. Product Model
+Create:
+Product
+│
+├── id
+├── name
+├── type
+├── description
+├── active
+└── metadata
+Example:
+{
+  "name": "Athlete Pro",
+  "type": "athlete_subscription",
+  "active": true
+}
+
+4. Price Model
+Separate price from product.
+Price
+│
+├── id
+├── productId
+├── amount
+├── currency
+├── interval
+├── intervalCount
+├── active
+└── providerPriceId
+Example:
+Athlete Pro
+│
+├── ₹499 / month
+└── ₹4,999 / year
+Both belong to the same product.
+
+5. Billing Intervals
+Support:
+MONTHLY
+YEARLY
+Later:
+QUARTERLY
+ONE_TIME
+Don't build every possible billing model now.
+
+6. Subscription Model
+Create:
+Subscription
+│
+├── id
+├── userId
+├── organizationId
+├── productId
+├── priceId
+├── provider
+├── providerSubscriptionId
+├── status
+├── currentPeriodStart
+├── currentPeriodEnd
+├── cancelAtPeriodEnd
+├── cancelledAt
+├── trialStart
+├── trialEnd
+├── createdAt
+└── updatedAt
+For a gym subscription, organizationId is used.
+For an individual athlete, userId is used.
+
+7. Subscription Status
+Use:
+TRIALING
+ACTIVE
+PAST_DUE
+PAUSED
+CANCELLED
+EXPIRED
+INCOMPLETE
+The exact statuses should map cleanly to whatever payment provider we use.
+
+8. Entitlements
+This is the most important part.
+Don't make feature access depend directly on:
+subscription.status === "active"
+Instead:
+Subscription
+     ↓
+Entitlements
+     ↓
+Feature Access
+Example:
+Athlete Pro
+│
+├── unlimited_workouts
+├── advanced_progress
+├── ai_coach
+├── advanced_insights
+└── progress_photos
+
+9. Entitlement Model
+Entitlement
+│
+├── id
+├── subjectType
+├── subjectId
+├── feature
+├── value
+├── source
+├── startsAt
+├── expiresAt
+└── createdAt
+Where:
+subjectType
+=
+USER
+or
+ORGANIZATION
+
+10. Why This Matters
+Suppose we later have:
+Athlete Pro
++
+Coach Pro
++
+Gym Business
++
+Promotional access
++
+Lifetime grandfathered users
+All can produce:
+ai_coach = true
+without rewriting application logic.
+
+11. Feature Gating
+Frontend:
+if (entitlements.aiCoach) {
+    showAICoach();
+}
+Backend:
+requireEntitlement("ai_coach")
+Both should exist.
+Frontend gating is UX.
+Backend gating is security.
+
+12. Never Trust Frontend Entitlements
+Bad:
+Mobile says:
+"I have PRO"
+Backend:
+Okay.
+Never do this.
+Backend determines:
+User
+ ↓
+Subscription
+ ↓
+Entitlement
+ ↓
+Permission
+
+13. Checkout Flow
+The initial flow:
+User
+ ↓
+Choose plan
+ ↓
+Backend creates checkout session
+ ↓
+Payment provider
+ ↓
+Payment
+ ↓
+Provider confirms
+ ↓
+Webhook
+ ↓
+Backend updates subscription
+ ↓
+Entitlements updated
+The webhook is critical.
+
+14. Never Activate Based Only on Client Redirect
+Don't do:
+Payment page
+ ↓
+Success redirect
+ ↓
+Client says payment succeeded
+ ↓
+Activate PRO
+A malicious client could fake that response.
+Instead:
+Payment Provider
+       ↓
+Verified Webhook
+       ↓
+Backend
+       ↓
+Subscription
+       ↓
+Entitlement
+
+15. Checkout Endpoint
+POST /api/v1/billing/checkout
+Request:
+{
+  "priceId": "price_123"
+}
+Backend verifies:
+User exists
+Price exists
+Price active
+User eligible
+Then creates provider checkout.
+
+16. Checkout Session
+Store:
+CheckoutSession
+│
+├── id
+├── userId
+├── priceId
+├── providerSessionId
+├── status
+└── createdAt
+This helps reconcile abandoned and completed checkouts.
+
+17. Webhook Endpoint
+POST /api/v1/webhooks/payment-provider
+This endpoint needs special handling.
+Important:
+Verify signature
+       ↓
+Parse event
+       ↓
+Check event ID
+       ↓
+Process
+       ↓
+Store event
+       ↓
+Return 200
+
+18. Webhook Event Model
+WebhookEvent
+│
+├── provider
+├── eventId
+├── eventType
+├── payloadHash
+├── processedAt
+├── status
+└── createdAt
+The unique event ID prevents duplicate processing.
+
+19. Webhook Idempotency
+Payment providers may retry webhooks.
+Example:
+subscription.active
+ ↓
+Webhook
+ ↓
+Server timeout
+ ↓
+Provider retries
+ ↓
+Same webhook
+We must not create:
+Subscription #1
+Subscription #2
+The event ID should be processed exactly once from our application's perspective.
+
+20. Subscription Lifecycle
+Normal subscription:
+Checkout
+ ↓
+ACTIVE
+ ↓
+Renewal
+ ↓
+ACTIVE
+ ↓
+Renewal
+Cancellation:
+ACTIVE
+ ↓
+cancelAtPeriodEnd = true
+ ↓
+ACTIVE until period end
+ ↓
+EXPIRED
+This is usually better UX than immediately removing access after cancellation.
+
+21. Failed Payment
+Example:
+ACTIVE
+ ↓
+Renewal fails
+ ↓
+PAST_DUE
+ ↓
+Retry payment
+ ↓
+Success → ACTIVE
+If recovery fails:
+PAST_DUE
+ ↓
+Grace period
+ ↓
+EXPIRED
+The exact grace period is a business decision.
+
+22. Payment Failure Notification
+User sees:
+Your payment couldn't be processed.
+
+Your Pro access remains active
+for now.
+
+[ UPDATE PAYMENT METHOD ]
+Don't immediately surprise the user by removing access if the provider supports recovery.
+
+23. Billing Screen
+Athlete:
+SUBSCRIPTION
+
+Athlete Pro
+₹499 / month
+
+Active
+
+Next billing date
+September 28
+
+[ Manage Subscription ]
+Coach:
+Coach Pro
+
+₹999 / month
+
+Active
+
+Next billing date
+September 28
+
+24. Gym Billing
+Admin:
+BUSINESS PLAN
+
+Iron Forge Fitness
+
+₹4,999 / month
+
+Active
+
+Next billing date
+September 28
+
+Members
+248
+
+[ Manage Billing ]
+
+25. Billing Portal
+Rather than building every billing-management screen ourselves initially:
+App
+ ↓
+Manage Billing
+ ↓
+Provider Billing Portal
+This can handle:
+Payment methods
+Invoices
+Billing details
+Cancellation
+Subscription changes
+This significantly reduces implementation complexity.
+
+26. Invoices
+Store invoice metadata:
+Invoice
+│
+├── userId
+├── organizationId
+├── subscriptionId
+├── providerInvoiceId
+├── amount
+├── currency
+├── status
+├── invoiceUrl
+└── createdAt
+Don't necessarily copy the entire provider invoice into MongoDB.
+Store the information your product actually needs.
+
+27. Billing History
+BILLING HISTORY
+
+Aug 28
+Athlete Pro
+₹499
+Paid
+
+Jul 28
+Athlete Pro
+₹499
+Paid
+
+Jun 28
+Athlete Pro
+₹499
+Paid
+Each can link to the provider's invoice.
+
+28. Plan Comparison
+Create:
+Choose Your Plan
+
+FREE
+₹0
+
+✓ Workout tracking
+✓ Basic progress
+✓ Basic history
+
+PRO
+₹499/month
+
+✓ Everything in Free
+✓ Advanced analytics
+✓ AI Coach
+✓ Advanced insights
+✓ Progress photos
+Keep the comparison focused.
+Don't make a wall of 50 checkboxes.
+
+29. Athlete Free Tier
+The free tier should still be genuinely useful.
+Possible:
+FREE
+│
+├── Workout logging
+├── Basic history
+├── Basic progress
+├── Goals
+├── Coach messaging
+└── Basic check-ins
+Premium:
+PRO
+│
+├── AI Coach
+├── Advanced analytics
+├── Advanced insights
+├── Progress photos
+├── Deeper trends
+└── Future premium features
+Coach communication should not necessarily be paywalled if the athlete is already part of a coach's paid program.
+
+30. Coach Monetization
+Coach Pro could include:
+COACH PRO
+
+Athlete management
+Program builder
+Advanced analytics
+AI Coach Assistant
+AI athlete summaries
+Automated insights
+Progress reports
+We can later introduce athlete-count limits.
+
+31. Coach Limits
+For example:
+FREE COACH
+5 athletes
+
+PRO COACH
+50 athletes
+
+PRO+
+Unlimited
+But implement this through entitlements/limits rather than:
+if (athletes.length > 5)
+Use:
+athlete_limit = 5
+
+32. Gym Monetization
+Gym plans could depend on:
+Member count
+Coach count
+Features
+AI usage
+Reporting
+Example:
+STARTER
+Up to 100 members
+
+BUSINESS
+Up to 500 members
+
+ENTERPRISE
+Custom
+Again, these are example tiers, not final pricing.
+
+33. Usage-Based AI
+This becomes especially important.
+AI requests have a real cost.
+Instead of:
+PRO = unlimited AI
+consider:
+AI usage allowance
+Example:
+Athlete Pro
+500 AI interactions/month
+or:
+Coach Pro
+1,000 AI interactions/month
+The actual limits can be tuned after observing usage.
+
+34. AI Usage Model
+AIUsage
+│
+├── subjectId
+├── periodStart
+├── periodEnd
+├── requests
+├── inputTokens
+├── outputTokens
+└── estimatedCost
+Then:
+AI Request
+ ↓
+Check entitlement
+ ↓
+Check usage
+ ↓
+Call model
+ ↓
+Record usage
+
+35. Don't Let Users Bypass AI Limits
+This must be enforced server-side:
+Mobile
+ ↓
+POST /ai/chat
+ ↓
+Auth
+ ↓
+Entitlement
+ ↓
+Usage limit
+ ↓
+AI
+Not:
+Mobile
+ ↓
+AI provider
+The AI provider key must never be shipped in the mobile application.
+
+36. Upgrade Flow
+When free user reaches a premium feature:
+Advanced Progress
+
+Available with Athlete Pro.
+
+[ UPGRADE ]
+Tap:
+Plan comparison
+ ↓
+Choose plan
+ ↓
+Checkout
+ ↓
+Payment
+ ↓
+Webhook
+ ↓
+PRO
+ ↓
+Feature unlocked
+
+37. Don't Immediately Trust Checkout Success
+After checkout:
+Payment complete
+ ↓
+Show:
+"Finalizing your subscription..."
+ ↓
+Poll / refresh subscription state
+ ↓
+Webhook confirms
+ ↓
+Entitlement appears
+ ↓
+Show Pro
+This handles the short gap between provider payment completion and webhook processing.
+
+38. Subscription Sync
+Create:
+GET /api/v1/billing/subscription
+Response:
+{
+  "plan": "athlete_pro",
+  "status": "active",
+  "currentPeriodEnd": "...",
+  "cancelAtPeriodEnd": false
+}
+And:
+GET /api/v1/billing/entitlements
+
+39. Billing Events
+The backend should react to events such as:
+checkout.completed
+subscription.created
+subscription.updated
+subscription.cancelled
+subscription.paused
+invoice.paid
+invoice.payment_failed
+refund.created
+The exact event names depend on the provider.
+
+40. Refunds
+If a payment is refunded:
+Refund
+ ↓
+Webhook
+ ↓
+Update billing record
+Whether the entitlement is immediately revoked or retained temporarily should be a defined business rule.
+Don't leave this behavior implicit.
+
+41. Promotional Access
+Later we may want:
+PRO for 30 days
+without payment.
+That's another reason for entitlements:
+Source:
+SUBSCRIPTION
+PROMOTION
+ADMIN
+TRIAL
+Example:
+ai_coach = true
+source = PROMOTION
+expiresAt = ...
+
+42. Trials
+Potentially:
+7-day Pro Trial
+Flow:
+FREE
+ ↓
+TRIALING
+ ↓
+ACTIVE
+But don't make trials mandatory.
+The business can decide whether they improve conversion.
+
+43. Entitlement Service
+Create:
+server/src/modules/billing/
+├── billing.controller.ts
+├── billing.service.ts
+├── entitlement.service.ts
+├── subscription.service.ts
+├── webhook.service.ts
+├── invoice.service.ts
+└── usage.service.ts
+Central method:
+entitlementService.has(
+  subjectId,
+  "ai_coach"
+)
+And:
+entitlementService.getAll(
+  subjectId
+)
+
+44. Billing Middleware
+For premium endpoints:
+requireAuth
+   ↓
+requireEntitlement("advanced_progress")
+   ↓
+controller
+For AI:
+requireAuth
+   ↓
+requireEntitlement("ai_coach")
+   ↓
+checkAIUsage
+   ↓
+AI controller
+
+45. Organization Billing
+For gym features:
+requireOrganization
+      ↓
+requirePermission
+      ↓
+requireOrganizationEntitlement
+      ↓
+controller
+Example:
+advanced_reports
+belongs to the organization rather than an individual admin.
+
+46. Billing Security
+Never accept from the client:
+price
+amount
+currency
+subscription status
+entitlements
+The client sends:
+priceId
+The server looks up the real price.
+
+47. Price Tampering Protection
+Bad:
+{
+  "price": 1
+}
+Backend:
+Okay, ₹1 subscription.
+Never.
+Instead:
+Client
+ ↓
+priceId
+ ↓
+Backend database
+ ↓
+Provider price
+
+48. Currency
+Store:
+amount
+currency
+Example:
+499
+INR
+Don't store:
+"₹499"
+as the numeric price.
+Formatting belongs to the UI.
+
+49. Billing Database Structure
+MongoDB
+│
+├── products
+├── prices
+├── subscriptions
+├── entitlements
+├── invoices
+├── checkoutSessions
+├── webhookEvents
+└── aiUsage
+
+50. Billing APIs
+Initial API surface:
+GET  /api/v1/billing/products
+GET  /api/v1/billing/prices
+
+POST /api/v1/billing/checkout
+
+GET  /api/v1/billing/subscription
+GET  /api/v1/billing/entitlements
+GET  /api/v1/billing/invoices
+
+POST /api/v1/billing/portal
+
+POST /api/v1/webhooks/payment-provider
+
+51. Mobile Billing Screens
+Add:
+billing/
+├── PlansScreen.tsx
+├── SubscriptionScreen.tsx
+├── BillingHistoryScreen.tsx
+└── components/
+    ├── PlanCard.tsx
+    ├── FeatureComparison.tsx
+    └── SubscriptionStatus.tsx
+
+52. Upgrade UI
+Don't interrupt the user constantly.
+Bad:
+Every premium button
+ ↓
+PAY NOW
+Better:
+Feature
+ ↓
+Explain value
+ ↓
+Show upgrade
+Example:
+Advanced Insights
+
+See deeper trends in your
+strength, volume and consistency.
+
+[ UNLOCK WITH PRO ]
+
+53. Subscription Cancellation
+User:
+Manage Subscription
+ ↓
+Cancel
+ ↓
+Explain:
+Access remains until Sep 28
+ ↓
+Confirm
+Then:
+cancelAtPeriodEnd = true
+
+54. Re-subscription
+If:
+cancelAtPeriodEnd = true
+but the period hasn't ended:
+[ Keep Subscription ]
+This should reverse the scheduled cancellation where the provider supports it.
+
+55. Billing State Machine
+Think of subscriptions as a state machine:
+             ┌───────────┐
+             │ TRIALING  │
+             └─────┬─────┘
+                   │
+                   ▼
+             ┌───────────┐
+        ┌───►│  ACTIVE   │◄────┐
+        │    └─────┬─────┘     │
+        │          │           │
+        │          ▼           │
+        │    ┌───────────┐     │
+        │    │ PAST_DUE  │─────┘
+        │    └─────┬─────┘
+        │          │
+        │          ▼
+        │    ┌───────────┐
+        └────│ EXPIRED   │
+             └───────────┘
+This makes billing logic predictable.
+
+56. Phase 5C Implementation Order
+Do this sequentially:
+1. Products
+       ↓
+2. Prices
+       ↓
+3. Subscription model
+       ↓
+4. Entitlement model
+       ↓
+5. Billing service
+       ↓
+6. Payment provider integration
+       ↓
+7. Checkout
+       ↓
+8. Webhook verification
+       ↓
+9. Subscription synchronization
+       ↓
+10. Entitlement synchronization
+       ↓
+11. Billing history
+       ↓
+12. Cancellation
+       ↓
+13. Failed payments
+       ↓
+14. AI usage limits
+       ↓
+15. Mobile billing UI
+
+57. Testing Matrix
+Before considering billing complete:
+Scenario
+Expected
+Successful checkout
+Subscription active
+Duplicate webhook
+No duplicate subscription
+Failed payment
+PAST_DUE
+Successful retry
+ACTIVE
+Cancellation
+Access until period end
+Expiration
+Entitlements removed
+Refund
+Billing state updated
+Invalid webhook
+Rejected
+Tampered price
+Rejected
+Free user → premium endpoint
+Denied
+Pro user → premium endpoint
+Allowed
+AI quota exceeded
+AI request denied
+Organization without entitlement
+Feature denied
+
+58. The Most Important Test
+Try this manually:
+FREE ATHLETE
+     ↓
+POST /ai/chat
+     ↓
+403 / ENTITLEMENT_REQUIRED
+Then:
+BUY PRO
+     ↓
+Payment provider
+     ↓
+Webhook
+     ↓
+Subscription ACTIVE
+     ↓
+Entitlement ai_coach = true
+     ↓
+POST /ai/chat
+     ↓
+SUCCESS
+Then:
+CANCEL
+     ↓
+cancelAtPeriodEnd = true
+     ↓
+Still PRO
+     ↓
+Period ends
+     ↓
+Entitlement expires
+     ↓
+AI blocked
+If that lifecycle works correctly, the foundation is solid.
+
+Phase 5D — Monetization & Business Rules
+After the payment infrastructure itself works, we should build the actual commercial layer:
+5D
+│
+├── Athlete pricing
+├── Coach pricing
+├── Gym pricing
+├── Free limits
+├── Premium limits
+├── Trials
+├── Coupons
+├── Promotions
+├── Referral system
+├── Coach revenue
+├── Gym billing
+└── Revenue analytics
+This is where we'll decide what exactly users pay for, rather than just technically accepting payments.
+The next phase should therefore be 5D — Monetization Strategy & Entitlement Rules, followed by 5E — AI Usage & Cost Control.
+Phase 5D — Monetization Strategy & Entitlement Rules
+Now we define what each user actually gets for free vs paid.
+The payment infrastructure from 5C handles money. Phase 5D handles product access.
+The architecture becomes:
+                    USER
+                      │
+                      ▼
+                   PLAN
+                      │
+                      ▼
+               ENTITLEMENTS
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       FEATURES      LIMITS      USAGE
+          │           │           │
+          └───────────┼───────────┘
+                      ▼
+                  APP ACCESS
+
+1. The Three Customer Types
+We have three fundamentally different customers:
+ATHLETE
+   │
+   ├── Free
+   └── Pro
+
+COACH
+   │
+   ├── Free
+   └── Pro
+
+GYM / ORGANIZATION
+   │
+   ├── Starter
+   └── Business
+Don't force the same subscription model onto all three.
+
+2. Athlete Free
+The free athlete should be able to use the core product.
+ATHLETE FREE
+│
+├── Profile
+├── Goals
+├── Workout tracking
+├── Exercise history
+├── Basic progress
+├── Basic statistics
+├── Workout calendar
+├── Coach messaging
+└── Basic check-ins
+The user should be able to build a genuine history before being asked to pay.
+
+3. Athlete Pro
+Premium focuses on intelligence and deeper analysis.
+ATHLETE PRO
+│
+├── Everything in Free
+├── AI Coach
+├── Advanced progress analytics
+├── Advanced insights
+├── Long-term trends
+├── Progress photos
+├── Advanced reports
+└── Future premium features
+The important differentiation:
+Free helps you track. Pro helps you understand and improve.
+
+4. Coach Free
+Coach Free should let an individual coach actually test the platform.
+COACH FREE
+│
+├── Coach profile
+├── Athlete management
+├── Program builder
+├── Workout builder
+├── Basic athlete analytics
+├── Messaging
+└── Limited athlete count
+Example limit:
+5 athletes
+Keep this configurable.
+
+5. Coach Pro
+COACH PRO
+│
+├── Everything in Free
+├── Larger athlete capacity
+├── Advanced analytics
+├── AI Coach Assistant
+├── AI athlete summaries
+├── Automated insights
+├── Advanced reports
+├── Program templates
+└── Advanced coaching tools
+The value proposition becomes:
+Coach Pro saves the coach time.
+That's stronger than simply giving them "more features."
+
+6. Gym Starter
+For smaller gyms:
+GYM STARTER
+│
+├── Organization
+├── Members
+├── Coaches
+├── Staff
+├── Attendance
+├── Programs
+├── Classes
+├── Messaging
+└── Basic reports
+Use member limits.
+Example:
+100 members
+
+7. Gym Business
+GYM BUSINESS
+│
+├── Everything in Starter
+├── Higher member limit
+├── Advanced reports
+├── Coach workload analytics
+├── AI gym insights
+├── Advanced attendance analytics
+├── Automated notifications
+├── Advanced member insights
+└── Priority features
+
+8. Feature Entitlements
+Create a central catalog:
+Feature
+│
+├── key
+├── name
+├── description
+├── type
+└── defaultValue
+Examples:
+ai_coach
+advanced_progress
+advanced_insights
+progress_photos
+advanced_reports
+program_templates
+automated_insights
+
+9. Limits Are Different
+Some features are not simply on/off.
+For example:
+athlete_limit = 5
+or:
+ai_requests_monthly = 500
+Therefore:
+Entitlement
+│
+├── BOOLEAN
+├── NUMBER
+└── ENUM
+Example:
+{
+  "feature": "athlete_limit",
+  "type": "number",
+  "value": 5
+}
+
+10. Central Entitlement Service
+Everything should go through one service.
+entitlementService.get(
+  subjectId,
+  "athlete_limit"
+);
+And:
+entitlementService.has(
+  subjectId,
+  "ai_coach"
+);
+And:
+entitlementService.canUse(
+  subjectId,
+  "ai_requests",
+  1
+);
+
+11. Never Hard-Code Plan Names
+Bad:
+if (user.plan === "PRO") {
+   allowAI();
+}
+Better:
+if (await entitlements.has(user.id, "ai_coach")) {
+   allowAI();
+}
+This allows us to change plans without changing application code.
+
+12. Feature Matrix
+Create an internal matrix like:
+Feature
+Athlete Free
+Athlete Pro
+Coach Free
+Coach Pro
+Gym Starter
+Gym Business
+Workout tracking
+✓
+✓
+—
+—
+✓
+✓
+Basic progress
+✓
+✓
+✓
+✓
+✓
+✓
+Advanced progress
+—
+✓
+—
+✓
+—
+✓
+AI Coach
+—
+✓
+—
+✓
+—
+✓
+Messaging
+✓
+✓
+✓
+✓
+✓
+✓
+Program builder
+—
+—
+✓
+✓
+✓
+✓
+Advanced reports
+—
+✓
+—
+✓
+—
+✓
+AI insights
+—
+✓
+—
+✓
+—
+✓
+This becomes the product's entitlement specification.
+
+13. Limits Matrix
+Example:
+Limit
+Free
+Pro
+AI requests/month
+0
+500
+Saved reports
+2
+25
+Progress photos
+5
+100
+Coach athletes
+—
+—
+For coaches:
+Limit
+Coach Free
+Coach Pro
+Athletes
+5
+50
+Active programs
+10
+100
+AI requests/month
+50
+1,000
+These numbers are placeholders. We can tune them based on real usage.
+
+14. Gym Limits
+Example:
+Starter
+├── members: 100
+├── coaches: 5
+└── staff: 3
+
+Business
+├── members: 500
+├── coaches: 25
+└── staff: 15
+Enterprise can later become:
+Custom
+without needing a new application architecture.
+
+15. Usage Counters
+For usage-based features:
+User
+ ↓
+Current billing period
+ ↓
+Usage
+Example:
+AI Usage
+
+342 / 500
+When the user reaches:
+500 / 500
+show:
+You've reached your monthly AI
+usage limit.
+
+Your allowance resets on
+September 28.
+
+[ VIEW PLAN ]
+
+16. Don't Hard Stop Core Functionality
+This is important.
+If AI quota reaches zero:
+AI → unavailable
+But:
+Workout tracking → still works
+Progress → still works
+Messaging → still works
+Never make the entire fitness app unusable because one premium feature reached its limit.
+
+17. Graceful Upgrade UI
+Premium feature:
+Advanced Insights
+────────────────────
+
+Understand trends across your
+training history.
+
+🔒 Pro feature
+
+[ UNLOCK ]
+The user understands:
+what the feature does
+why it matters
+why it's unavailable
+
+18. Usage Meter
+For AI:
+AI COACH
+
+342 / 500
+██████████████░░░░
+
+158 interactions remaining
+Don't show raw token counts to normal users.
+Tokens are an infrastructure concept, not a product concept.
+
+19. Subscription vs Entitlement
+Suppose:
+Subscription
+ACTIVE
+but:
+AI entitlement
+false
+The user shouldn't get AI.
+Likewise, an admin may grant:
+AI entitlement
+true
+temporarily without a subscription.
+This separation gives us flexibility.
+
+20. Promotional Access
+Example:
+PROMO
+AI Coach
+30 days
+Store:
+source = PROMOTION
+expiresAt = ...
+The user gets:
+ai_coach = true
+without changing their underlying subscription.
+
+21. Admin Overrides
+An organization owner might receive:
+advanced_reports = true
+because they are part of a beta program.
+Again:
+subscription ≠ entitlement
+
+22. Grandfathered Users
+Suppose early users get:
+Lifetime Pro
+Don't create a special:
+if (user.email === ...)
+Instead:
+Entitlement
+source = grandfathered
+expiresAt = null
+That's much cleaner.
+
+23. Trial Architecture
+If we use trials:
+Subscription
+status = TRIALING
+with:
+trialStart
+trialEnd
+During trial:
+Pro entitlements
+are active.
+After trial:
+TRIALING
+ ↓
+ACTIVE
+or:
+TRIALING
+ ↓
+EXPIRED
+depending on the billing setup.
+
+24. Coupons
+Create:
+Coupon
+│
+├── code
+├── type
+├── value
+├── duration
+├── maxRedemptions
+├── startsAt
+├── expiresAt
+└── active
+Types:
+PERCENTAGE
+FIXED_AMOUNT
+FREE_PERIOD
+Don't hard-code promotional pricing into products.
+
+25. Coupon Redemption
+Flow:
+User
+ ↓
+Enter code
+ ↓
+Backend validates
+ ↓
+Coupon eligible?
+ ↓
+Calculate discount
+ ↓
+Provider checkout
+Validation includes:
+active
+not expired
+redemption limit
+eligible plan
+eligible user
+
+26. Referral System
+Later:
+Alex
+ ↓
+Referral Code
+ ↓
+Rahul signs up
+ ↓
+Rahul subscribes
+ ↓
+Alex receives reward
+Reward could be:
+Pro days
+Discount
+Account credit
+Do not implement monetary payouts initially unless the business model requires them.
+
+27. Coach Revenue
+Eventually we can support:
+Coach
+ ↓
+Creates paid coaching program
+ ↓
+Athlete subscribes
+ ↓
+Platform processes payment
+ ↓
+Coach receives revenue share
+This is a much bigger system than ordinary subscriptions.
+Don't mix it into the first billing implementation.
+But design the database so future marketplace payments don't require rebuilding everything.
+
+28. Platform Fees
+If coach monetization is introduced:
+Athlete payment
+       ↓
+Gross amount
+       ↓
+Payment processing fee
+       ↓
+Platform fee
+       ↓
+Coach earnings
+This requires a proper marketplace/payment architecture.
+Treat it as a future subsystem.
+
+29. Revenue Ledger
+Eventually:
+LedgerEntry
+│
+├── organizationId/userId
+├── type
+├── amount
+├── currency
+├── referenceId
+├── status
+└── createdAt
+Types:
+SUBSCRIPTION_PAYMENT
+REFUND
+PLATFORM_FEE
+COACH_EARNING
+CREDIT
+This gives us a proper financial trail.
+
+30. Billing Doesn't Equal Revenue Analytics
+Payment provider data tells us:
+₹499 payment
+Revenue analytics asks:
+MRR
+ARR
+Churn
+LTV
+Conversion
+ARPU
+These should be calculated separately.
+
+31. Important Metrics
+For subscriptions:
+MRR
+Monthly Recurring Revenue
+
+ARR
+Annualized Recurring Revenue
+
+ARPU
+Average Revenue Per User
+
+Churn
+Customers lost / period
+
+Conversion
+Free → Paid
+
+Retention
+Paid users remaining
+Don't obsess over these before launch, but design events so we can calculate them.
+
+32. Free → Paid Funnel
+Track:
+Signup
+ ↓
+Onboarding
+ ↓
+Core feature usage
+ ↓
+Premium feature viewed
+ ↓
+Upgrade screen
+ ↓
+Checkout started
+ ↓
+Payment completed
+ ↓
+Pro activated
+This will tell us where users drop off.
+
+33. Premium Feature Analytics
+Track:
+premium_feature_viewed
+upgrade_clicked
+checkout_started
+checkout_completed
+subscription_cancelled
+Then:
+Feature
+ ↓
+Usage
+ ↓
+Conversion
+We can discover which premium features actually drive revenue.
+
+34. Avoid Dark Patterns
+Don't:
+Hide cancellation
+Use fake countdowns
+Disable core data export
+Repeatedly interrupt workouts
+Make users subscribe to access their own historical data
+The product should sell based on value.
+
+35. Recommended Initial Commercial Structure
+For V1:
+ATHLETE
+────────────────────
+Free
+Pro
+
+COACH
+────────────────────
+Free
+Pro
+
+GYM
+────────────────────
+Starter
+Business
+Keep it simple.
+Four or five paid variations can become difficult to maintain quickly.
+
+36. Suggested Product Positioning
+Athlete
+Track → Understand → Improve
+Coach
+Manage → Coach → Scale
+Gym
+Operate → Retain → Grow
+This gives each customer segment a distinct reason to pay.
+
+37. Entitlement Resolution
+The backend flow:
+Request
+   ↓
+Identify user
+   ↓
+Identify organization
+   ↓
+Find subscription(s)
+   ↓
+Resolve entitlements
+   ↓
+Apply overrides/promotions
+   ↓
+Resolve limits
+   ↓
+Allow / deny
+If multiple sources exist:
+Subscription
++
+Promotion
++
+Admin override
+the entitlement resolver determines the effective value.
+
+38. Entitlement Priority
+Define a deterministic priority.
+For example:
+ADMIN_OVERRIDE
+      ↓
+PROMOTION
+      ↓
+SUBSCRIPTION
+      ↓
+DEFAULT
+But don't automatically assume "higher priority" means "always true."
+The resolver should explicitly understand:
+boolean
+limit
+expiry
+
+39. Effective Entitlement
+Internally:
+interface EffectiveEntitlement {
+  feature: string;
+  enabled: boolean;
+  value?: number;
+  source: string;
+  expiresAt?: Date;
+}
+The mobile app receives only what's necessary.
+
+40. Cache Entitlements
+Entitlements are requested frequently.
+Don't query MongoDB repeatedly for:
+ai_coach
+on every tiny action.
+Use short-lived caching:
+MongoDB
+ ↓
+Entitlement Resolver
+ ↓
+Redis
+ ↓
+API
+Invalidate cache when:
+Subscription changes
+Promotion changes
+Admin override changes
+
+41. Don't Cache Forever
+If a subscription expires:
+Old cache
+ ↓
+PRO = true
+could accidentally give continued access.
+Use:
+TTL
++
+event-driven invalidation
+
+42. Mobile Entitlement Store
+The mobile app can keep:
+EntitlementStore
+│
+├── features
+├── limits
+└── fetchedAt
+This is for UX.
+Backend still validates every protected operation.
+
+43. Offline Premium Access
+Be careful here.
+If the athlete is offline:
+Can they use cached Pro features?
+For example:
+AI → NO
+Server-dependent advanced analytics → likely NO
+The app should define offline behavior feature-by-feature.
+
+44. Plan Changes
+User upgrades:
+Free
+ ↓
+Pro
+User downgrades:
+Pro
+ ↓
+Free
+Don't immediately delete their premium-created data.
+For example:
+100 progress photos
+after downgrade should not necessarily become:
+0 photos
+Instead:
+Existing data retained
+New uploads limited
+This avoids destructive subscription behavior.
+
+45. Data Access After Downgrade
+A good rule:
+Subscription controls
+NEW CAPABILITIES
+not:
+Subscription controls
+WHETHER YOUR HISTORICAL DATA EXISTS
+Historical workout data should remain accessible unless there's a specific product reason otherwise.
+
+46. Phase 5D Database
+Add:
+products
+prices
+entitlements
+coupons
+promotions
+usageCounters
+alongside:
+subscriptions
+invoices
+checkoutSessions
+webhookEvents
+
+47. Phase 5D Services
+billing/
+│
+├── entitlement.service.ts
+├── plan.service.ts
+├── subscription.service.ts
+├── coupon.service.ts
+├── promotion.service.ts
+├── usage.service.ts
+└── revenue.service.ts
+
+48. Phase 5D APIs
+GET /api/v1/plans
+
+GET /api/v1/entitlements
+
+GET /api/v1/billing/usage
+
+POST /api/v1/coupons/validate
+
+POST /api/v1/promotions/redeem
+Admin:
+GET /api/v1/admin/revenue
+GET /api/v1/admin/subscriptions
+GET /api/v1/admin/usage
+These admin endpoints need strict authorization.
+
+49. Phase 5D Definition of Done
+□ Athlete Free
+□ Athlete Pro
+□ Coach Free
+□ Coach Pro
+□ Gym Starter
+□ Gym Business
+
+□ Feature entitlements
+□ Numeric limits
+□ Usage counters
+□ Subscription → entitlement mapping
+□ Promotional access
+□ Trials
+□ Coupons
+□ Upgrade flow
+□ Downgrade flow
+□ Cancellation behavior
+□ Entitlement caching
+□ Admin overrides
+□ Premium UI gating
+□ Backend entitlement enforcement
+□ Revenue analytics events
+
+Phase 5E — AI Usage & Cost Control
+Now we address one of the biggest risks in the entire application:
+AI FEATURES
+     ↓
+USER ACTIVITY
+     ↓
+API CALLS
+     ↓
+MODEL COST
+If AI becomes popular but we don't control usage:
+Users ↑
+AI requests ↑
+Cost ↑↑↑
+So Phase 5E will build:
+AI
+│
+├── Usage tracking
+├── Token tracking
+├── Cost calculation
+├── Rate limits
+├── Per-user quotas
+├── Per-organization quotas
+├── Model routing
+├── Context optimization
+├── Caching
+├── Abuse prevention
+└── AI analytics
+The end result should be:
+USER
+ ↓
+AI Request
+ ↓
+Entitlement
+ ↓
+Quota
+ ↓
+Rate Limit
+ ↓
+Context Builder
+ ↓
+Model Router
+ ↓
+AI
+ ↓
+Usage Recording
+ ↓
+Response
+That is the next phase.
+Phase 5E — AI Usage & Cost Control
+Now we make the AI layer commercially and technically sustainable.
+The goal is:
+User
+ ↓
+AI Request
+ ↓
+Authentication
+ ↓
+Entitlement
+ ↓
+Rate Limit
+ ↓
+Usage Quota
+ ↓
+Context Builder
+ ↓
+Model Router
+ ↓
+AI Provider
+ ↓
+Response Validation
+ ↓
+Usage + Cost Recording
+The AI should never be a direct, uncontrolled call from the mobile app.
+
+1. AI Gateway
+Create one central entry point:
+POST /api/v1/ai/chat
+The request:
+{
+  "message": "Why has my bench stopped improving?",
+  "conversationId": "..."
+}
+The server determines everything else.
+The client should not decide:
+model
+price
+token limit
+system prompt
+entitlements
+
+2. AI Request Pipeline
+Every request follows:
+                 AI REQUEST
+                     │
+                     ▼
+                 Auth Check
+                     │
+                     ▼
+              Permission Check
+                     │
+                     ▼
+             Entitlement Check
+                     │
+                     ▼
+              Rate Limiting
+                     │
+                     ▼
+               Usage Check
+                     │
+                     ▼
+              Context Builder
+                     │
+                     ▼
+               Model Router
+                     │
+                     ▼
+                AI Provider
+                     │
+                     ▼
+              Output Validation
+                     │
+             ┌───────┴───────┐
+             ▼               ▼
+           Valid           Invalid
+             │               │
+             ▼               ▼
+          Return          Retry/Fallback
+             │
+             ▼
+       Record Usage/Cost
+
+3. AI Gateway Service
+Create:
+server/src/modules/ai/
+│
+├── ai.controller.ts
+├── ai.service.ts
+├── ai.gateway.ts
+├── ai.types.ts
+│
+├── context/
+├── providers/
+├── routing/
+├── usage/
+├── limits/
+├── prompts/
+├── validation/
+└── analytics/
+Central function:
+aiGateway.execute({
+  userId,
+  organizationId,
+  feature,
+  message,
+  conversationId
+});
+
+4. AI Feature Types
+Don't treat every AI request identically.
+Define features:
+ATHLETE_CHAT
+COACH_CHAT
+PROGRESS_EXPLANATION
+ATHLETE_SUMMARY
+CHECKIN_SUMMARY
+TRAINING_INSIGHT
+GYM_INSIGHT
+Then limits can differ.
+Example:
+ATHLETE_CHAT
+→ 1 request
+
+ATHLETE_SUMMARY
+→ potentially more expensive
+
+GYM_INSIGHT
+→ organization quota
+
+5. AI Usage Record
+Create:
+AIUsageRecord
+│
+├── id
+├── userId
+├── organizationId
+├── feature
+├── model
+├── provider
+├── inputTokens
+├── outputTokens
+├── totalTokens
+├── estimatedCost
+├── latencyMs
+├── success
+├── errorCode
+└── createdAt
+This lets us answer:
+How much is our AI actually costing?
+
+6. Usage Aggregation
+Don't calculate everything from millions of individual records every time.
+Maintain usage counters:
+AIUsageCounter
+│
+├── subjectId
+├── period
+├── requests
+├── inputTokens
+├── outputTokens
+├── estimatedCost
+└── updatedAt
+For example:
+August 2026
+
+Requests: 342
+Tokens: 182,430
+Estimated cost: ...
+
+7. Usage Period
+Use the subscription billing period where appropriate.
+For example:
+Pro subscription
+Aug 28 → Sep 28
+AI allowance:
+342 / 500
+When the period renews:
+New period
+ ↓
+0 / 500
+
+8. Rate Limiting
+Quota and rate limiting are different.
+Quota
+How much can you use this month?
+Rate limit
+How quickly can you use it?
+Example:
+500 requests/month
++
+20 requests/hour
+This prevents both accidental and malicious abuse.
+
+9. Rate Limit Layers
+Use multiple layers:
+IP
+ ↓
+User
+ ↓
+Organization
+ ↓
+AI Feature
+Example:
+IP: 100 requests/min
+User: 20 requests/hour
+AI quota: 500/month
+Exact limits should be tuned after observing real traffic.
+
+10. AI Abuse Protection
+Watch for:
+Rapid repeated requests
+Automated scripts
+Prompt flooding
+Extremely large prompts
+Repeated failed requests
+Multiple accounts from same source
+Don't assume every AI user is malicious.
+But don't leave the endpoint completely unrestricted.
+
+11. Input Limits
+Limit:
+message length
+conversation context
+attachments
+For example, don't allow a user to send a multi-megabyte text payload as a single chat message.
+
+12. Context Limits
+This is one of the biggest AI cost controls.
+Bad:
+Every request
+ ↓
+Entire workout history
++
+Entire chat history
++
+Entire profile
++
+Every check-in
+Better:
+Question
+ ↓
+Determine required context
+ ↓
+Fetch only relevant information
+
+13. Context Budget
+Define:
+Context budget
+For example:
+ATHLETE_CHAT
+
+Profile       small
+Current plan  medium
+Recent data   medium
+History       selective
+Conversation  recent
+The context builder should enforce a maximum.
+
+14. Conversation Summarization
+Long conversations:
+200 messages
+should become:
+Recent messages
++
+Conversation summary
++
+Relevant structured data
+This keeps costs predictable.
+
+15. Semantic Retrieval
+For questions such as:
+"What did my coach say about my squat last month?"
+we don't need every conversation.
+Use relevant retrieval:
+Question
+ ↓
+Search relevant messages
+ ↓
+Retrieve top relevant context
+ ↓
+AI
+This is where vector search can eventually become useful.
+But don't introduce a vector database until ordinary structured queries stop being sufficient.
+
+16. Model Router
+Create:
+ModelRouter
+It determines which model should handle a request.
+Example:
+Simple request
+ ↓
+Fast/cheap model
+
+Complex analysis
+ ↓
+More capable model
+
+17. Don't Use the Most Expensive Model Everywhere
+Example:
+"What was my workout today?"
+shouldn't require an expensive reasoning model.
+That's a normal database lookup.
+Whereas:
+Analyze my six-week training
+plateau and explain possible
+factors.
+may justify a more capable model.
+
+18. AI Routing Rules
+Conceptually:
+if feature === "ATHLETE_CHAT"
+    → standard model
+
+if feature === "PROGRESS_EXPLANATION"
+    → reasoning-capable model
+
+if feature === "GYM_INSIGHT"
+    → reasoning-capable model
+The actual model choices should remain configurable.
+
+19. Provider Abstraction
+Use:
+AIProvider
+│
+├── generate()
+├── stream()
+├── estimateCost()
+└── validateResponse()
+Then:
+providers/
+├── provider-a.ts
+├── provider-b.ts
+└── mock-provider.ts
+The rest of your application doesn't care which provider is underneath.
+
+20. Mock Provider
+This is very useful for development.
+Development
+ ↓
+Mock AI Provider
+Instead of spending money during every test.
+For example:
+"TEST_RESPONSE"
+This lets your automated tests exercise the AI pipeline without calling a real model.
+
+21. AI Response Validation
+Never blindly trust model output.
+If the expected response is:
+{
+  "answer": "...",
+  "actions": []
+}
+validate it.
+If malformed:
+AI
+ ↓
+Invalid JSON
+ ↓
+Retry / fallback
+Don't let malformed model output crash your API.
+
+22. Structured AI Actions
+For UI actions:
+{
+  "answer": "Your next workout is Push.",
+  "actions": [
+    {
+      "type": "OPEN_WORKOUT",
+      "id": "123"
+    }
+  ]
+}
+Backend validates:
+Does workout 123 actually belong
+to this athlete?
+Only then should the mobile app receive the action.
+
+23. Never Let AI Invent IDs
+Don't allow:
+AI says:
+OPEN_WORKOUT "xyz"
+and blindly navigate there.
+The server should verify every referenced entity.
+
+24. AI Cost Calculation
+Record:
+inputTokens
+outputTokens
+model
+provider
+Then:
+estimatedCost =
+inputCost +
+outputCost
+Keep provider pricing in configuration rather than hard-coding it throughout the application.
+
+25. Cost Dashboard
+Admin/internal dashboard:
+AI COST
+
+This Month
+
+Requests
+18,420
+
+Tokens
+8.2M
+
+Estimated Cost
+₹X,XXX
+
+Average Cost / Request
+₹X.XX
+Then break down:
+Athlete Chat       42%
+Coach Chat         23%
+Summaries          18%
+Insights           17%
+This tells us where money is actually going.
+
+26. Cost Per User
+Track:
+User
+ ↓
+AI requests
+ ↓
+Estimated cost
+Example:
+Top AI usage
+
+User A
+182 requests
+₹...
+
+User B
+167 requests
+₹...
+
+User C
+12 requests
+₹...
+This helps identify abnormal usage.
+
+27. Organization AI Usage
+For gyms:
+IRON FORGE FITNESS
+
+AI Usage
+──────────────
+
+Requests
+4,820
+
+Cost
+₹...
+
+Athlete insights
+2,300
+
+Coach assistant
+1,700
+
+Gym insights
+820
+Then the gym plan can have an organization-level allowance.
+
+28. AI Quotas
+Use entitlement values:
+ai_requests_monthly = 500
+and:
+ai_requests_hourly = 20
+For organizations:
+ai_requests_monthly = 10,000
+This keeps billing and AI usage connected.
+
+29. Quota Enforcement
+Flow:
+AI Request
+ ↓
+Get allowance
+ ↓
+Get current usage
+ ↓
+usage < allowance?
+      │
+   ┌──┴──┐
+  YES    NO
+   │      │
+   ▼      ▼
+Continue  Reject
+Return:
+{
+  "code": "AI_QUOTA_EXCEEDED",
+  "resetAt": "..."
+}
+
+30. Usage Reservation
+For concurrent requests, beware of:
+Request A → sees 499/500
+Request B → sees 499/500
+Both allowed
+Now:
+501/500
+Use an atomic increment/reservation strategy in Redis or MongoDB.
+
+31. Streaming
+For chat, streaming makes the AI feel much faster:
+AI
+ ↓
+"Your..."
+ ↓
+"recent..."
+ ↓
+"bench..."
+ ↓
+"performance..."
+instead of waiting for the entire answer.
+But usage should still be recorded correctly when the request finishes.
+
+32. Streaming Failure
+If stream disconnects:
+AI stream
+ ↓
+Connection lost
+the client should be able to:
+Retry
+without automatically duplicating a user action.
+
+33. AI Caching
+Some AI responses can be cached.
+Example:
+"Explain my progress this week"
+If nothing relevant changed:
+same context
++
+same question
+we may reuse a recent result.
+But don't cache personal AI responses across users.
+Cache keys must be scoped correctly.
+
+34. Invalidation
+If:
+Workout completed
+then cached:
+Weekly progress explanation
+may become stale.
+Invalidate relevant cached insights.
+
+35. AI Insight Generation
+Don't run AI every time someone opens the dashboard.
+Instead:
+Workout completed
+ ↓
+Queue
+ ↓
+Check whether insight is necessary
+ ↓
+Generate
+ ↓
+Store
+Then:
+Dashboard
+ ↓
+Read stored insight
+This saves both money and latency.
+
+36. Batch AI Jobs
+For coach summaries:
+Sunday night
+ ↓
+Find active athletes
+ ↓
+Generate weekly summaries
+Use worker jobs rather than blocking the API.
+
+37. AI Priority
+Not all AI jobs are equal.
+Use:
+HIGH
+MEDIUM
+LOW
+Example:
+User chat → HIGH
+
+Coach requested summary → HIGH
+
+Background weekly insight → LOW
+If AI infrastructure is under load, background jobs can wait.
+Interactive requests shouldn't.
+
+38. AI Timeout
+Every AI request needs a timeout.
+Don't let:
+POST /ai/chat
+hang indefinitely.
+Flow:
+Request
+ ↓
+AI provider
+ ↓
+Timeout
+ ↓
+Fallback / retry
+ ↓
+Return controlled error
+
+39. Provider Failure
+If the AI provider is unavailable:
+Provider
+   X
+   ↓
+Fallback provider
+if configured and appropriate.
+Otherwise:
+AI temporarily unavailable.
+
+Your workout tracking and
+other features remain available.
+Never let an AI outage take down the entire gym app.
+
+40. AI Circuit Breaker
+If a provider starts returning repeated failures:
+Provider failures
+      ↓
+Circuit breaker
+      ↓
+Temporarily stop requests
+      ↓
+Fallback
+This prevents your backend from hammering a failing provider.
+
+41. AI Safety Layer
+Before returning responses:
+User input
+ ↓
+Policy / boundary check
+ ↓
+Context
+ ↓
+AI
+ ↓
+Output validation
+ ↓
+Safety check
+ ↓
+User
+For fitness:
+Training advice
+✓
+
+Medical diagnosis
+✗
+
+Dangerous instructions
+✗
+
+Unsupported certainty
+✗
+
+42. AI Grounding
+For factual app-specific questions:
+User:
+"What was my squat PR?"
+AI must use:
+Progress data
+not guess.
+The response can say:
+Your recorded squat PR is 140 kg.
+Only if the database actually contains that value.
+
+43. AI Confidence
+Internally track:
+high
+medium
+low
+But don't necessarily expose a fake numerical confidence score to users.
+Confidence should be grounded in:
+data availability
+data freshness
+question type
+
+44. AI Prompt Injection
+Because users can send arbitrary text, don't treat user messages as instructions to your system.
+Structure:
+SYSTEM RULES
++
+APP CONTEXT
++
+USER DATA
++
+USER MESSAGE
+Clearly separate trusted instructions from untrusted user content.
+
+45. Never Expose System Prompts
+If the user asks:
+"Show me your system instructions."
+don't return internal prompts or secrets.
+The AI layer should treat system configuration as private application logic.
+
+46. Personal Data Minimization
+For every AI request ask:
+What data does this feature actually need?
+For:
+"What workout do I have today?"
+send:
+Today's workout
+not:
+Entire athlete profile
++
+all historical conversations
++
+all measurements
+
+47. AI Data Retention
+Define:
+Conversation retention
+Usage retention
+Prompt logging
+Error logging
+Don't retain raw AI inputs indefinitely just because storage is cheap.
+
+48. AI Analytics
+Track:
+ai_request_started
+ai_request_completed
+ai_request_failed
+ai_quota_exceeded
+ai_response_rated
+ai_feature_used
+Then:
+AI usage
+ ↓
+User satisfaction
+ ↓
+Retention
+ ↓
+Conversion
+
+49. AI Feedback
+Add:
+Was this helpful?
+
+👍
+👎
+Optionally:
+What went wrong?
+Don't make feedback mandatory.
+
+50. AI Quality Metrics
+Track:
+Response success rate
+Latency
+Thumbs-up rate
+Thumbs-down rate
+Retry rate
+Fallback rate
+Cost/request
+This lets us optimize quality and cost.
+
+51. AI Feature Cost Model
+Eventually:
+Feature
+│
+├── Requests
+├── Avg tokens
+├── Avg cost
+├── Success rate
+└── User value
+Example:
+Athlete Chat
+High usage
+Low cost/request
+
+Weekly Summary
+Low usage
+Higher cost/request
+
+Gym Insight
+Very low usage
+High value
+This helps decide which features belong in which plan.
+
+52. AI Quota UX
+Don't wait until the exact last request.
+At:
+80%
+show:
+You've used 80% of your AI allowance.
+At:
+95%
+show:
+You have limited AI usage remaining
+this month.
+This is better than suddenly blocking the feature.
+
+53. AI Upgrade Flow
+When quota is exhausted:
+AI Coach
+
+You've reached this month's
+AI allowance.
+
+Resets:
+September 28
+
+[ Upgrade Plan ]
+If the user already has the highest plan:
+You've reached this month's allowance.
+
+Your allowance resets on
+September 28.
+Don't aggressively upsell a user who cannot actually buy more.
+
+54. AI Cost Optimization Priority
+Optimize in this order:
+1. Don't call AI unnecessarily
+        ↓
+2. Reduce irrelevant context
+        ↓
+3. Cache where appropriate
+        ↓
+4. Route simple tasks cheaply
+        ↓
+5. Batch background work
+        ↓
+6. Optimize prompts
+        ↓
+7. Optimize model selection
+The biggest savings often come from not making the request at all.
+
+55. Phase 5E Folder Structure
+server/src/modules/ai/
+│
+├── ai.controller.ts
+├── ai.gateway.ts
+├── ai.service.ts
+├── ai.types.ts
+│
+├── context/
+│   ├── context-builder.ts
+│   ├── athlete-context.ts
+│   └── coach-context.ts
+│
+├── providers/
+│   ├── ai-provider.ts
+│   ├── provider-a.ts
+│   ├── provider-b.ts
+│   └── mock-provider.ts
+│
+├── routing/
+│   └── model-router.ts
+│
+├── usage/
+│   ├── usage.service.ts
+│   ├── usage-counter.ts
+│   └── cost.service.ts
+│
+├── limits/
+│   ├── quota.service.ts
+│   └── rate-limit.service.ts
+│
+├── validation/
+│   ├── response-validator.ts
+│   └── safety-validator.ts
+│
+├── prompts/
+│
+└── analytics/
+    └── ai-analytics.service.ts
+
+56. Phase 5E API
+Core:
+POST /api/v1/ai/chat
+
+GET /api/v1/ai/usage
+GET /api/v1/ai/limits
+Internal/admin:
+GET /api/v1/admin/ai/usage
+GET /api/v1/admin/ai/cost
+GET /api/v1/admin/ai/errors
+GET /api/v1/admin/ai/quality
+
+57. Phase 5E Definition of Done
+□ Central AI gateway
+□ Provider abstraction
+□ Model routing
+□ AI feature types
+□ Usage records
+□ Usage counters
+□ Monthly quotas
+□ Rate limiting
+□ Concurrent usage protection
+□ Cost calculation
+□ Context budgets
+□ Conversation summarization
+□ AI caching where appropriate
+□ Streaming
+□ Timeout handling
+□ Retry/fallback
+□ Circuit breaker
+□ Output validation
+□ AI safety layer
+□ Prompt-injection protection
+□ Data minimization
+□ AI analytics
+□ AI feedback
+□ Cost dashboard
+□ AI usage UI
+
+Phase 5F — App Store + Google Play Preparation
+Now the backend and monetization foundation are ready.
+Next we turn the application into something that can actually be distributed:
+PHASE 5F
+│
+├── App identity
+├── Bundle/package configuration
+├── App icons
+├── Splash screen
+├── Permissions
+├── Privacy declarations
+├── Store metadata
+├── Screenshots
+├── Release builds
+├── Signing
+├── TestFlight
+├── Play Console
+├── Internal testing
+├── Beta testing
+└── Production submission
+We'll also handle the important distinction between digital subscriptions sold inside mobile apps and other payment flows, because App Store/Play Store rules can affect how the billing architecture we just designed is exposed in the mobile applications.

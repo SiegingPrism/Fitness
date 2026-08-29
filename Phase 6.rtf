@@ -1,0 +1,1333 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\froman\fcharset0 Times-Bold;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red109\green109\blue109;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c50196\c50196\c50196;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat0\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Yes. 
+\f1\b At this point, improving the existing product and expanding the actual fitness content is the right move.
+\f0\b0  You have enough infrastructure. Continuing to build infrastructure before improving the product would be premature.\
+What I would 
+\f1\b not
+\f0\b0  do now is randomly add 50 exercises and 20 screens. We should move into a dedicated 
+\f1\b Product Enhancement Phase
+\f0\b0  where we systematically improve what users already experience.\
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 Phase 6 \'97 Product Expansion & Feature Refinement\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 The priority changes from:\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 "Can we build it?"\
+to:\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b \cf0 "Is this actually an excellent gym app?"
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f1\b\fs36 \cf0 \strokec2 The order I recommend\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 PHASE 6\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6A \'97 Complete Exercise & Workout Library\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6B \'97 Workout Experience 2.0\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6C \'97 Exercise Database & Discovery\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6D \'97 Progress & Analytics 2.0\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6E \'97 Athlete Experience 2.0\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6F \'97 Coach Experience 2.0\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6G \'97 Gym/Admin Experience 2.0\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6H \'97 AI Fitness Intelligence\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6I \'97 Social & Community\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  6J \'97 Gamification & Retention\
+\uc0\u9474 \
+\uc0\u9492 \u9472 \u9472  6K \'97 Personalization\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But 
+\f1\b we should not start all of these simultaneously.
+\f0\b0 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A \'97 Exercise & Workout Library\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This should be our first target.\
+Right now, having an app with a workout system but a limited exercise library makes the whole product feel unfinished.\
+We should build a proper exercise database.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Exercise structure\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Exercise\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Basic Information\
+\uc0\u9474    \u9500 \u9472 \u9472  name\
+\uc0\u9474    \u9500 \u9472 \u9472  description\
+\uc0\u9474    \u9500 \u9472 \u9472  category\
+\uc0\u9474    \u9492 \u9472 \u9472  difficulty\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Movement\
+\uc0\u9474    \u9500 \u9472 \u9472  movementPattern\
+\uc0\u9474    \u9500 \u9472 \u9472  primaryMuscles\
+\uc0\u9474    \u9500 \u9472 \u9472  secondaryMuscles\
+\uc0\u9474    \u9492 \u9472 \u9472  joints\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Equipment\
+\uc0\u9474    \u9500 \u9472 \u9472  requiredEquipment\
+\uc0\u9474    \u9492 \u9472 \u9472  optionalEquipment\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Execution\
+\uc0\u9474    \u9500 \u9472 \u9472  setup\
+\uc0\u9474    \u9500 \u9472 \u9472  steps\
+\uc0\u9474    \u9500 \u9472 \u9472  breathing\
+\uc0\u9474    \u9492 \u9472 \u9472  cues\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Programming\
+\uc0\u9474    \u9500 \u9472 \u9472  recommendedSets\
+\uc0\u9474    \u9500 \u9472 \u9472  recommendedReps\
+\uc0\u9474    \u9500 \u9472 \u9472  restTime\
+\uc0\u9474    \u9492 \u9472 \u9472  progressionMethod\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Media\
+\uc0\u9474    \u9500 \u9472 \u9472  images\
+\uc0\u9474    \u9500 \u9472 \u9472  demonstrationVideo\
+\uc0\u9474    \u9492 \u9472 \u9472  thumbnail\
+\uc0\u9474 \
+\uc0\u9492 \u9472 \u9472  Metadata\
+    \uc0\u9500 \u9472 \u9472  tags\
+    \uc0\u9500 \u9472 \u9472  aliases\
+    \uc0\u9492 \u9472 \u9472  status\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This gives us a foundation for almost every future feature.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.1 \'97 Exercise Categories\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 We shouldn't just have:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Chest\
+Back\
+Legs\
+Arms\
+Shoulders\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 We should support multiple classification systems.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Muscle\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Chest\
+Back\
+Shoulders\
+Biceps\
+Triceps\
+Forearms\
+Quads\
+Hamstrings\
+Glutes\
+Calves\
+Core\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Movement\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Horizontal Push\
+Vertical Push\
+Horizontal Pull\
+Vertical Pull\
+Squat\
+Hinge\
+Lunge\
+Carry\
+Rotation\
+Anti-Rotation\
+Isolation\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f1\b\fs28 \cf0 Equipment\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Barbell\
+Dumbbell\
+Cable\
+Machine\
+Kettlebell\
+Resistance Band\
+Bodyweight\
+Smith Machine\
+EZ Bar\
+Trap Bar\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This becomes extremely useful for workout generation later.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.2 \'97 Difficulty\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Use:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 BEGINNER\
+INTERMEDIATE\
+ADVANCED\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But difficulty shouldn't just mean "this exercise is hard."\
+It should consider:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa240\partightenfactor0
+\ls1\ilvl0\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 technical complexity\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 stability requirement\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 coordination\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 loading complexity\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 injury risk considerations\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.3 \'97 Exercise Alternatives\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This is a 
+\f1\b very important feature
+\f0\b0 .\
+Suppose the workout says:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Barbell Bench Press\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 but the gym doesn't have a barbell.\
+The user taps:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Replace Exercise\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 and gets:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Dumbbell Bench Press\
+Machine Chest Press\
+Smith Machine Bench Press\
+Push-ups\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 with appropriate similarity.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.4 \'97 Equipment-Aware Alternatives\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Even better:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 User equipment\
+       \uc0\u8595 \
+Exercise unavailable\
+       \uc0\u8595 \
+Find compatible movement\
+       \uc0\u8595 \
+Filter by equipment\
+       \uc0\u8595 \
+Rank alternatives\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 So someone training at home doesn't receive:\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 "Use the Hammer Strength machine."\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.5 \'97 Exercise Search\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Search should support:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 bench\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 and return:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Barbell Bench Press\
+Dumbbell Bench Press\
+Incline Bench Press\
+Close-Grip Bench Press\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But also:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 chest\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 and:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 push\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 and eventually:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 horizontal push\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.6 \'97 Filters\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Exercise discovery should support:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Muscle\
+Equipment\
+Difficulty\
+Movement\
+Body part\
+Exercise type\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 BACK\
++\
+DUMBBELL\
++\
+BEGINNER\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.7 \'97 Exercise Detail Page\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This should become one of the strongest screens in the app.\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+\uc0\u9474       Exercise Video          \u9474 \
+\uc0\u9474                               \u9474 \
+\uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+\
+Dumbbell Bench Press\
+\
+CHEST \'95 PUSH \'95 INTERMEDIATE\
+\
+Primary\
+Chest\
+\
+Secondary\
+Triceps \'95 Front Delts\
+\
+Equipment\
+Dumbbells + Bench\
+\
+HOW TO PERFORM\
+\
+1. Lie flat...\
+2. Position...\
+3. Lower...\
+4. Press...\
+\
+COACHING CUES\
+\
+\'95 Keep shoulder blades stable\
+\'95 Control the eccentric\
+\'95 Don't bounce at the bottom\
+\
+COMMON MISTAKES\
+\
+\'95 Excessive arch\
+\'95 Elbows flaring\
+\'95 Losing control\
+\
+[ ADD TO WORKOUT ]\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.8 \'97 Personal Exercise History\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This is where the database becomes personalized.\
+On an exercise:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Your History\
+\
+Bench Press\
+\
+Last workout\
+80 kg \'d7 8\
+\
+Best\
+100 kg \'d7 5\
+\
+Estimated 1RM\
+116 kg\
+\
+Total volume\
+42,380 kg\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Now the exercise page isn't just a wiki.\
+It's 
+\f1\b your training record
+\f0\b0 .\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.9 \'97 Exercise PRs\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Support:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Weight PR\
+Rep PR\
+Volume PR\
+Estimated 1RM PR\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 NEW PR\
+\
+Bench Press\
+\
+85 kg \'d7 8\
+\
+Previous:\
+82.5 kg \'d7 8\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This leads directly into retention/gamification later.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.10 \'97 Workout Library\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 We shouldn't only provide individual exercises.\
+Build:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Workout Library\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 with:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Push\
+Pull\
+Legs\
+Upper\
+Lower\
+Full Body\
+Chest\
+Back\
+Arms\
+Shoulders\
+Conditioning\
+Mobility\
+Core\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then goal-based:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Strength\
+Hypertrophy\
+Fat Loss\
+General Fitness\
+Athletic Performance\
+Beginner\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.11 \'97 Workout Templates\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Each workout:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Workout\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Warm-up\
+\uc0\u9500 \u9472 \u9472  Exercise 1\
+\uc0\u9500 \u9472 \u9472  Exercise 2\
+\uc0\u9500 \u9472 \u9472  Exercise 3\
+\uc0\u9500 \u9472 \u9472  Exercise 4\
+\uc0\u9492 \u9472 \u9472  Finisher\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Each exercise can contain:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Sets\
+Reps\
+Weight\
+RPE\
+Rest\
+Tempo\
+Notes\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.12 \'97 More Advanced Programming\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Eventually support:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 3 \'d7 8\
+4 \'d7 6\'968\
+3 \'d7 AMRAP\
+4 \'d7 10 @ RPE 8\
+5 \'d7 3 @ 80%\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This is important because coaches don't program everything as:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 3 sets \'d7 10 reps\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.13 \'97 Supersets\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 A1 Bench Press\
+3 \'d7 8\
+\
+A2 Cable Row\
+3 \'d7 10\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 The workout UI should understand that these belong together.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.14 \'97 Dropsets\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 12 reps\
+ \uc0\u8595 \
+reduce weight\
+ \uc0\u8595 \
+10 reps\
+ \uc0\u8595 \
+reduce weight\
+ \uc0\u8595 \
+8 reps\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.15 \'97 Warmups\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Support:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Warm-up\
+Working Sets\
+Back-off Sets\
+Finisher\
+Cooldown\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This is better than treating every set identically.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.16 \'97 Rest Timer\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 During workouts:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 SET COMPLETE\
+\
+Rest\
+01:32\
+\
+[ +15 sec ]     [ SKIP ]\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Eventually:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Rest complete\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 with optional sound/vibration.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.17 \'97 Automatic Weight Suggestions\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 After completing:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 80 kg \'d7 8\
+80 kg \'d7 8\
+80 kg \'d7 7\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 the app could suggest:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Next time\
+\
+Try:\
+82.5 kg\
+\
+Target:\
+6\'968 reps\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But this should be based on a defined progression algorithm rather than arbitrary AI output.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.18 \'97 RPE / RIR\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Add:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 RPE\
+1\'9610\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 or:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 RIR\
+0\'965+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 For advanced users.\
+This becomes extremely useful for coaches and adaptive programming.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.19 \'97 Workout Completion\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Completion screen should be significantly better than:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Workout complete.\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Instead:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 WORKOUT COMPLETE\
+\
+Push Day\
+\
+Duration\
+58 min\
+\
+Volume\
+8,420 kg\
+\
+Exercises\
+6\
+\
+Sets\
+18\
+\
+PRs\
+2\
+\
+\uc0\u55357 \u56613  New Bench Press PR\
+\
+[ VIEW SUMMARY ]\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.20 \'97 Workout Summary\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Show:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Today's Performance\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 with:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Volume\
+Sets\
+Reps\
+Duration\
+Calories* if supported\
+PRs\
+Exercise performance\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Avoid pretending calorie estimates are highly accurate.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.21 \'97 Progress 2.0\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This should be the next major feature after the workout experience.\
+Instead of:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Weight: 72 kg\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 give the athlete a real performance dashboard.\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 PROGRESS\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Strength\
+\uc0\u9500 \u9472 \u9472  Volume\
+\uc0\u9500 \u9472 \u9472  Bodyweight\
+\uc0\u9500 \u9472 \u9472  Measurements\
+\uc0\u9500 \u9472 \u9472  Consistency\
+\uc0\u9500 \u9472 \u9472  PRs\
+\uc0\u9492 \u9472 \u9472  Photos\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.22 \'97 Strength Trends\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Bench Press\
+\
+80kg \uc0\u9508        \u9581 \u9472 \u9472 \u9582 \
+75kg \uc0\u9508    \u9581 \u9472 \u9472 \u9472 \u9583   \u9584 \u9472 \u9472 \
+70kg \uc0\u9508 \u9472 \u9472 \u9472 \u9583 \
+     \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \
+       Jun Jul Aug\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Track estimated 1RM or another consistent metric.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.23 \'97 Volume Trends\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Weekly Volume\
+\
+Week 1   18,400 kg\
+Week 2   21,200 kg\
+Week 3   22,800 kg\
+Week 4   24,100 kg\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then surface meaningful trends.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.24 \'97 Muscle Group Volume\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 Weekly Training Volume\
+\
+Chest       \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \
+Back        \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \
+Quads       \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \
+Hamstrings  \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \
+Shoulders   \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \u9608 \
+Arms        \uc0\u9608 \u9608 \u9608 \u9608 \u9608 \
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This is particularly valuable to coaches.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.25 \'97 Training Consistency\
+\pard\pardeftab720\partightenfactor0
+
+\f2\b0\fs26 \cf0 THIS MONTH\
+\
+18 / 22 planned workouts\
+\
+82% adherence\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Current streak\
+7 workouts\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.26 \'97 Personal Records\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Create a dedicated:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 PRs\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 screen.\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 PERSONAL RECORDS\
+\
+Bench Press\
+100 kg \'d7 5\
+\
+Squat\
+140 kg \'d7 3\
+\
+Deadlift\
+180 kg \'d7 2\
+\
+Pull-up\
++30 kg \'d7 5\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This can become one of the strongest retention features.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.27 \'97 Coach Dashboard 2.0\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 The coach shouldn't just see:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Athlete list\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 They should see:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Athlete Health\
+\
+Attendance\
+Adherence\
+Progress\
+Fatigue indicators\
+PRs\
+Missed sessions\
+Check-ins\
+Messages\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 ATHLETE\
+\
+Rahul\
+\
+Adherence      92%\
+Workouts       18/20\
+Last workout   Today\
+PRs            +3\
+Check-in       Good\
+\
+\uc0\u9888  Needs attention\
+3 consecutive sessions\
+below target volume\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.28 \'97 Athlete Risk Signals\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 We can eventually flag:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Missed workouts\
+Declining performance\
+Sudden volume drop\
+Repeated low RPE\
+Repeated high fatigue\
+Long inactivity\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But these are 
+\f1\b signals
+\f0\b0 , not diagnoses.\
+The coach gets:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Potential attention needed\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 not:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Athlete is overtrained.\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.29 \'97 AI Coach\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Now AI becomes genuinely useful because we have structured fitness data.\
+Instead of generic:\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 "How can I get stronger?"\
+the AI can answer:\
+\pard\pardeftab720\sa240\partightenfactor0
+\cf0 "Your squat volume has increased 18% over the last four weeks while your top-set performance has remained stable."\
+That requires the data infrastructure we've already built.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.30 \'97 AI Should Be Data-Grounded\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Architecture:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 User Question\
+      \uc0\u8595 \
+Intent Detection\
+      \uc0\u8595 \
+Relevant Data Retrieval\
+      \uc0\u8595 \
+Context Builder\
+      \uc0\u8595 \
+AI\
+      \uc0\u8595 \
+Grounded Response\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 "Why am I plateauing on bench?"\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Retrieve:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Bench history\
+Volume\
+Frequency\
+RPE\
+Recent workouts\
+Bodyweight trend\
+Program\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then AI interprets those facts.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.31 \'97 Adaptive Workouts\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Eventually:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Today's Workout\
+       \uc0\u8595 \
+Previous performance\
+       \uc0\u8595 \
+Recovery/check-in\
+       \uc0\u8595 \
+Available equipment\
+       \uc0\u8595 \
+Goal\
+       \uc0\u8595 \
+Recommended workout\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Example:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Planned:\
+Bench 80kg \'d7 8\
+\
+Previous:\
+80kg \'d7 6, 6, 5\
+\
+Today's recommendation:\
+77.5kg \'d7 8\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 The system should be transparent about why the recommendation changed.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.32 \'97 Exercise Substitution Engine\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 This should eventually become a proper algorithm:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Original exercise\
+      \uc0\u8595 \
+Movement pattern\
+      \uc0\u8595 \
+Primary muscle\
+      \uc0\u8595 \
+Secondary muscle\
+      \uc0\u8595 \
+Equipment\
+      \uc0\u8595 \
+Difficulty\
+      \uc0\u8595 \
+User constraints\
+      \uc0\u8595 \
+Rank alternatives\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Barbell Squat\
+     \uc0\u8595 \
+Hack Squat\
+     \uc0\u8595 \
+Leg Press\
+     \uc0\u8595 \
+Goblet Squat\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 depending on the user's situation.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.33 \'97 Personalization\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Eventually the app should learn:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 User\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Goals\
+\uc0\u9500 \u9472 \u9472  Experience\
+\uc0\u9500 \u9472 \u9472  Equipment\
+\uc0\u9500 \u9472 \u9472  Exercise preferences\
+\uc0\u9500 \u9472 \u9472  Exercise dislikes\
+\uc0\u9500 \u9472 \u9472  Training frequency\
+\uc0\u9500 \u9472 \u9472  Performance\
+\uc0\u9500 \u9472 \u9472  Adherence\
+\uc0\u9492 \u9472 \u9472  Historical responses\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then recommendations become increasingly personalized.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.34 \'97 Social Layer\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 After the core fitness experience is strong:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Community\
+\uc0\u9474 \
+\uc0\u9500 \u9472 \u9472  Activity feed\
+\uc0\u9500 \u9472 \u9472  PR posts\
+\uc0\u9500 \u9472 \u9472  Challenges\
+\uc0\u9500 \u9472 \u9472  Friends\
+\uc0\u9500 \u9472 \u9472  Coach communities\
+\uc0\u9492 \u9472 \u9472  Gym community\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 But 
+\f1\b do not prioritize this before workout/progress quality
+\f0\b0 .\
+A social feed cannot compensate for a mediocre workout tracker.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.35 \'97 Gamification\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Good:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 7-day streak\
+100 workouts completed\
+First PR\
+10,000 kg volume\
+Consistency badge\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Bad:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Random points everywhere\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Gamification should reinforce actual fitness behavior.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.36 \'97 Challenges\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Examples:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 30-Day Consistency\
+20 Workouts\
+Bench PR Challenge\
+10,000 Rep Challenge\
+Gym Attendance Challenge\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 For gyms:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Iron Forge\
+August Challenge\
+\
+Members\
+124\
+\
+Completed\
+86\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 This could become a strong gym-retention feature.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.37 \'97 Gym Dashboard 2.0\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 Eventually:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 GYM OVERVIEW\
+\
+Members\
+1,248\
+\
+Active\
+982\
+\
+Attendance\
+78%\
+\
+New members\
++42\
+\
+Churn\
+3.2%\
+\
+Coaches\
+18\
+\
+Classes today\
+14\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Then:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 MEMBER RETENTION\
+ATTENDANCE\
+COACH PERFORMANCE\
+REVENUE\
+PROGRAM USAGE\
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.38 \'97 What We Should NOT Build Yet\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 I would postpone:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 \uc0\u10060  Huge social network\
+\uc0\u10060  Marketplace\
+\uc0\u10060  Wearable integrations with every brand\
+\uc0\u10060  Nutrition database\
+\uc0\u10060  Meal delivery\
+\uc0\u10060  Live streaming\
+\uc0\u10060  Complex AI avatars\
+\uc0\u10060  Cryptocurrency/rewards\
+\uc0\u10060  Dozens of subscription tiers\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 Those can come later.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A.39 \'97 Our New Priority\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 I would change the development strategy to:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0                 PRODUCT QUALITY\
+                     \uc0\u9474 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  Exercise Library    \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  Workout Experience  \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  Progress Analytics  \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  Coach Intelligence  \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  AI Personalization  \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+                     \uc0\u9660 \
+          \uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+          \uc0\u9474  Retention/Social    \u9474 \
+          \uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa321\partightenfactor0
+
+\f1\b\fs48 \cf0 \strokec2 6A Should Be Our Immediate Start\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b0\fs24 \cf0 I recommend we 
+\f1\b start by massively improving the exercise/workout database
+\f0\b0 , because it becomes the foundation for almost everything else.\
+Our first expansion should target roughly:\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 Chest          25\'9635\
+Back           30\'9640\
+Shoulders      20\'9625\
+Biceps         15\'9620\
+Triceps        15\'9620\
+Quads          20\'9625\
+Hamstrings     15\'9620\
+Glutes         15\'9620\
+Calves         10\'9615\
+Core           20\'9625\
+Full Body      15\'9620\
+Conditioning   15\'9620\
+Mobility       15\'9620\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 That gives us roughly 
+\f1\b 250\'96300 well-structured exercises
+\f0\b0 , rather than hundreds of poorly defined duplicates.\
+Then we'll build the 
+\f1\b exercise alternatives, search/filtering, exercise detail pages, workout templates, supersets, dropsets, RPE/RIR, rest timers, progression logic, and better workout completion experience
+\f0\b0  around that database.\
+So yes: 
+\f1\b stop expanding infrastructure for now. We should enter a product-building cycle.
+\f0\b0  The next concrete step is 
+\f1\b Phase 6A: redesign the Exercise schema + build the master exercise catalog
+\f0\b0 , then populate it systematically.\
+}

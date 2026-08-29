@@ -1,0 +1,41 @@
+@import "https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600;700&display=swap";
+@import "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap";
+
+:root {
+  --bg-color: #0c1324;
+  --surface-low: #151b2d;
+  --surface-mid: #191f31;
+  --surface-high: #23293c;
+  --surface-highest: #2e3447;
+  --primary-accent: #bef264;
+  --primary-dim: #a4d64c;
+  --tertiary-accent: #62fae3;
+  --text-primary: #dce1fb;
+  --text-muted: #c3c9b2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-headline {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

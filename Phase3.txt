@@ -1,0 +1,7463 @@
+Phase 3 — Backend Implementation
+Since Phase 1 and Phase 2 are complete, we can move into implementation.
+We'll start with Phase 3A: Backend Foundation + MongoDB.
+Target stack
+React Native + TypeScript
+          │
+          ▼
+      REST API
+          │
+          ▼
+Node.js + Express + TypeScript
+          │
+     ┌────┴────┐
+     ▼         ▼
+ MongoDB      AI
+  + Mongoose
+Phase 3 roadmap
+3A  Backend foundation + MongoDB
+3B  Authentication + RBAC
+3C  User/Athlete/Coach profiles
+3D  Exercise + workout data models
+3E  Programs + program assignment
+3F  Workout sessions + offline sync
+3G  Progress/analytics engine
+3H  Coach-athlete communication
+3I  Notifications
+3J  AI infrastructure
+3K  Security + testing
+3L  Deployment
+We'll do 3A now.
+
+3A. Backend Foundation
+1. Project Structure
+Create a separate backend project alongside your mobile application:
+gym-app/
+│
+├── mobile/
+│   └── React Native application
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── database.ts
+│   │   │   └── env.ts
+│   │   │
+│   │   ├── controllers/
+│   │   │
+│   │   ├── middleware/
+│   │   │
+│   │   ├── models/
+│   │   │
+│   │   ├── routes/
+│   │   │
+│   │   ├── services/
+│   │   │
+│   │   ├── utils/
+│   │   │
+│   │   ├── app.ts
+│   │   └── server.ts
+│   │
+│   ├── .env
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── README.md
+│
+└── README.md
+I recommend keeping mobile and backend separate for now rather than prematurely turning this into a complicated monorepo.
+
+2. Initialize Backend
+From the project root:
+mkdir backend
+cd backend
+npm init -y
+Install runtime dependencies:
+npm install express mongoose dotenv cors helmet morgan bcryptjs jsonwebtoken zod
+Development dependencies:
+npm install -D typescript ts-node-dev @types/node @types/express @types/cors @types/morgan @types/jsonwebtoken
+Then:
+npx tsc --init
+
+3. TypeScript Configuration
+Use a configuration suitable for Node + TypeScript.
+tsconfig.json:
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}
+
+4. Package Scripts
+Update package.json:
+{
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  }
+}
+Then:
+npm run dev
+We'll eventually have:
+npm run dev
+   ↓
+server.ts
+   ↓
+app.ts
+   ↓
+Express
+
+5. Environment Variables
+Create:
+backend/.env
+Initially:
+PORT=5000
+NODE_ENV=development
+
+MONGODB_URI=mongodb://127.0.0.1:27017/gym_app
+
+JWT_ACCESS_SECRET=replace_this
+JWT_REFRESH_SECRET=replace_this
+And:
+backend/.env.example
+PORT=
+NODE_ENV=
+
+MONGODB_URI=
+
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+Never commit .env.
+
+6. Gitignore
+node_modules/
+dist/
+.env
+.DS_Store
+*.log
+
+7. Environment Configuration
+Create:
+src/config/env.ts
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const requiredEnv = [
+  "MONGODB_URI",
+  "JWT_ACCESS_SECRET",
+  "JWT_REFRESH_SECRET"
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
+}
+
+export const env = {
+  port: Number(process.env.PORT) || 5000,
+  nodeEnv: process.env.NODE_ENV || "development",
+  mongodbUri: process.env.MONGODB_URI!,
+  jwtAccessSecret: process.env.JWT_ACCESS_SECRET!,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!
+};
+This prevents the server from silently running with missing secrets.
+
+8. MongoDB
+You have two reasonable options:
+Development
+Local MongoDB:
+mongodb://127.0.0.1:27017/gym_app
+Production
+MongoDB Atlas.
+For this project I'd use MongoDB Atlas from the beginning if you don't have a strong reason to maintain MongoDB locally.
+Architecture:
+Backend
+   │
+   │ MongoDB Driver
+   ▼
+MongoDB Atlas
+   │
+   ├── users
+   ├── athleteProfiles
+   ├── coachProfiles
+   ├── exercises
+   ├── programs
+   ├── workouts
+   ├── workoutSessions
+   ├── progress
+   ├── goals
+   ├── messages
+   └── notifications
+
+9. MongoDB Connection
+Create:
+src/config/database.ts
+import mongoose from "mongoose";
+import { env } from "./env.js";
+
+export async function connectDatabase() {
+  try {
+    await mongoose.connect(env.mongodbUri);
+
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+    process.exit(1);
+  }
+}
+
+10. Express Application
+Create:
+src/app.ts
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+
+const app = express();
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+app.use(morgan("dev"));
+
+app.get("/health", (_req, res) => {
+  res.json({
+    success: true,
+    service: "gym-api",
+    status: "healthy"
+  });
+});
+
+export default app;
+
+11. Server Entry Point
+Create:
+src/server.ts
+import app from "./app.js";
+import { connectDatabase } from "./config/database.js";
+import { env } from "./config/env.js";
+
+async function startServer() {
+  await connectDatabase();
+
+  app.listen(env.port, () => {
+    console.log(`Server running on port ${env.port}`);
+  });
+}
+
+startServer();
+Now:
+npm run dev
+You should get something similar to:
+MongoDB connected
+Server running on port 5000
+And:
+GET /health
+should return:
+{
+  "success": true,
+  "service": "gym-api",
+  "status": "healthy"
+}
+
+12. API Versioning
+We're going to version the API from the start.
+Instead of:
+/api/users
+use:
+/api/v1/users
+Why?
+Because later:
+/api/v1
+/api/v2
+can coexist if the API changes significantly.
+
+13. Route Structure
+Create:
+src/routes/
+Eventually:
+routes/
+├── auth.routes.ts
+├── user.routes.ts
+├── athlete.routes.ts
+├── coach.routes.ts
+├── exercise.routes.ts
+├── program.routes.ts
+├── workout.routes.ts
+├── progress.routes.ts
+├── goal.routes.ts
+├── ai.routes.ts
+├── message.routes.ts
+└── notification.routes.ts
+For now we only need:
+auth
+users
+
+14. The First Database Model — User
+This is the most important model because everything else references it.
+We should not create separate authentication systems for athletes and coaches.
+Instead:
+User
+ │
+ ├── Athlete Profile
+ │
+ └── Coach Profile
+
+15. User Model
+Create:
+src/models/User.ts
+import mongoose, { Document, Schema } from "mongoose";
+
+export type UserRole = "athlete" | "coach" | "admin";
+
+export interface IUser extends Document {
+  email: string;
+  passwordHash: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  isEmailVerified: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+
+    passwordHash: {
+      type: String,
+      required: true,
+      select: false
+    },
+
+    firstName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    lastName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    role: {
+      type: String,
+      enum: ["athlete", "coach", "admin"],
+      required: true
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+export const User = mongoose.model<IUser>("User", userSchema);
+
+16. Why passwordHash Instead of password
+Never store:
+password: "mypassword123"
+Store:
+passwordHash:
+"$2b$..."
+The original password should never be recoverable from the database.
+
+17. Athlete Profile
+Separate authentication identity from fitness information.
+User
+ │
+ └── AthleteProfile
+      ├── height
+      ├── weight
+      ├── experience
+      ├── goals
+      ├── trainingDays
+      ├── equipment
+      └── preferences
+Create:
+src/models/AthleteProfile.ts
+Initially:
+import mongoose, { Document, Schema } from "mongoose";
+
+export type ExperienceLevel =
+  | "beginner"
+  | "intermediate"
+  | "advanced";
+
+export type TrainingGoal =
+  | "muscle_gain"
+  | "strength"
+  | "fat_loss"
+  | "fitness"
+  | "endurance";
+
+export interface IAthleteProfile extends Document {
+  userId: mongoose.Types.ObjectId;
+  heightCm?: number;
+  weightKg?: number;
+  experienceLevel?: ExperienceLevel;
+  primaryGoal?: TrainingGoal;
+  trainingDaysPerWeek?: number;
+  sessionDurationMinutes?: number;
+  trainingLocation?: string;
+  equipment: string[];
+  preferences: string[];
+}
+
+const athleteProfileSchema = new Schema<IAthleteProfile>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true
+    },
+
+    heightCm: Number,
+
+    weightKg: Number,
+
+    experienceLevel: {
+      type: String,
+      enum: ["beginner", "intermediate", "advanced"]
+    },
+
+    primaryGoal: {
+      type: String,
+      enum: [
+        "muscle_gain",
+        "strength",
+        "fat_loss",
+        "fitness",
+        "endurance"
+      ]
+    },
+
+    trainingDaysPerWeek: Number,
+
+    sessionDurationMinutes: Number,
+
+    trainingLocation: String,
+
+    equipment: {
+      type: [String],
+      default: []
+    },
+
+    preferences: {
+      type: [String],
+      default: []
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+export const AthleteProfile =
+  mongoose.model<IAthleteProfile>(
+    "AthleteProfile",
+    athleteProfileSchema
+  );
+
+18. Coach Profile
+Create:
+src/models/CoachProfile.ts
+Structure:
+CoachProfile
+│
+├── userId
+├── bio
+├── specializations
+├── experienceYears
+├── certifications
+└── verificationStatus
+We'll implement this fully in Phase 3C.
+
+19. Why Profiles Are Separate
+Don't create:
+User
+├── athlete fields
+├── coach fields
+├── workout fields
+├── program fields
+├── progress fields
+└── everything else
+That becomes a massive document.
+Instead:
+User
+│
+├── AthleteProfile
+│
+├── CoachProfile
+│
+├── WorkoutSession
+│
+├── Program
+│
+└── Goals
+MongoDB's document model gives us flexibility without turning users into a junk drawer.
+
+20. First API Structure
+We'll eventually have:
+/api/v1
+│
+├── /auth
+│
+├── /users
+│
+├── /athletes
+│
+├── /coaches
+│
+├── /exercises
+│
+├── /programs
+│
+├── /workouts
+│
+├── /progress
+│
+├── /goals
+│
+├── /ai
+│
+├── /messages
+│
+└── /notifications
+
+21. First Milestone
+Before moving forward, 3A is successful if all of these work:
+✓ Backend starts
+✓ Environment variables load
+✓ MongoDB connects
+✓ Express starts
+✓ /health works
+✓ User model exists
+✓ Athlete profile model exists
+✓ TypeScript compiles
+Run:
+npm run build
+There should be no TypeScript errors.
+
+22. What We Should NOT Build Yet
+Don't jump into:
+❌ AI
+❌ Workout UI
+❌ Push notifications
+❌ Analytics
+❌ Program generation
+❌ Chat
+❌ Progress charts
+Those depend on the underlying data architecture.
+Our next implementation layer is:
+3A Foundation
+      ↓
+3B Authentication
+      ↓
+3C Profiles
+      ↓
+3D Fitness Data
+
+Phase 3A → 3B
+Once the foundation is running, the next implementation is Authentication + Role-Based Access Control:
+REGISTER
+   ↓
+Password hashing
+   ↓
+User created
+   ↓
+LOGIN
+   ↓
+Access token
+   +
+Refresh token
+   ↓
+Authenticated request
+   ↓
+JWT middleware
+   ↓
+Role middleware
+   ↓
+ATHLETE / COACH / ADMIN
+We'll also establish the security rules now, because every subsequent API endpoint depends on authentication and authorization being correct.
+Phase 3B — Authentication + Role-Based Access Control
+Now we build the security layer that everything else depends on.
+The final flow will be:
+REGISTER
+   ↓
+Validate input
+   ↓
+Hash password
+   ↓
+Create User
+   ↓
+LOGIN
+   ↓
+Verify password
+   ↓
+Generate tokens
+   ↓
+AUTHENTICATED REQUEST
+   ↓
+Verify access token
+   ↓
+Check user role
+   ↓
+Allow / Reject
+
+1. Authentication Architecture
+We'll use:
+Access Token
++
+Refresh Token
+Access token
+Short-lived.
+15 minutes
+Used for API requests.
+Refresh token
+Longer-lived.
+7–30 days
+Used to obtain a new access token.
+This is substantially better than issuing one long-lived JWT and leaving it valid for weeks.
+
+2. Token Flow
+                 LOGIN
+                   │
+                   ▼
+             Verify password
+                   │
+             ┌─────┴─────┐
+             ▼           ▼
+       Access Token   Refresh Token
+          15 min          30 days
+             │              │
+             ▼              ▼
+         API calls       Secure storage
+When access token expires:
+API request
+    ↓
+401
+    ↓
+Refresh token
+    ↓
+New access token
+    ↓
+Retry request
+
+3. Token Payload
+Keep JWT payloads small.
+{
+  "sub": "userId",
+  "role": "athlete"
+}
+Don't put:
+name
+email
+goals
+workouts
+progress
+inside the token.
+JWT is an authentication credential, not a user database.
+
+4. Authentication Files
+Add:
+src/
+├── controllers/
+│   └── auth.controller.ts
+│
+├── routes/
+│   └── auth.routes.ts
+│
+├── services/
+│   └── auth.service.ts
+│
+├── middleware/
+│   ├── auth.middleware.ts
+│   └── role.middleware.ts
+│
+├── utils/
+│   ├── password.ts
+│   └── tokens.ts
+│
+└── types/
+    └── express.d.ts
+
+5. Password Utility
+Create:
+src/utils/password.ts
+import bcrypt from "bcryptjs";
+
+const SALT_ROUNDS = 12;
+
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
+
+export async function comparePassword(
+  password: string,
+  hash: string
+) {
+  return bcrypt.compare(password, hash);
+}
+We'll use a deliberately strong cost factor rather than an extremely cheap hash.
+
+6. Validation
+Don't trust frontend validation.
+The backend must validate everything.
+Create:
+src/validation/auth.validation.ts
+import { z } from "zod";
+
+export const registerSchema = z.object({
+  email: z.string().email().max(254),
+
+  password: z
+    .string()
+    .min(8)
+    .max(128),
+
+  firstName: z
+    .string()
+    .min(1)
+    .max(50)
+    .trim(),
+
+  lastName: z
+    .string()
+    .min(1)
+    .max(50)
+    .trim(),
+
+  role: z.enum(["athlete", "coach"])
+});
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+
+  password: z
+    .string()
+    .min(1)
+    .max(128)
+});
+Notice:
+admin
+isn't allowed during public registration.
+An admin account should be provisioned separately.
+
+7. Token Utility
+Create:
+src/utils/tokens.ts
+import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
+import { UserRole } from "../models/User.js";
+
+interface TokenPayload {
+  sub: string;
+  role: UserRole;
+}
+
+export function generateAccessToken(payload: TokenPayload) {
+  return jwt.sign(payload, env.jwtAccessSecret, {
+    expiresIn: "15m"
+  });
+}
+
+export function generateRefreshToken(payload: TokenPayload) {
+  return jwt.sign(payload, env.jwtRefreshSecret, {
+    expiresIn: "30d"
+  });
+}
+
+export function verifyAccessToken(token: string) {
+  return jwt.verify(token, env.jwtAccessSecret) as TokenPayload;
+}
+
+export function verifyRefreshToken(token: string) {
+  return jwt.verify(token, env.jwtRefreshSecret) as TokenPayload;
+}
+
+8. Important Security Upgrade
+For a real production system, we shouldn't rely solely on stateless refresh JWTs.
+Eventually we'll maintain refresh-token sessions:
+RefreshSession
+│
+├── userId
+├── tokenHash
+├── device
+├── expiresAt
+├── revokedAt
+└── createdAt
+This lets us:
+Log out one device
+Log out everywhere
+Revoke stolen sessions
+Track sessions
+We'll add this shortly.
+
+9. Auth Service
+Create:
+src/services/auth.service.ts
+import { User } from "../models/User.js";
+import { comparePassword, hashPassword } from "../utils/password.js";
+import {
+  generateAccessToken,
+  generateRefreshToken
+} from "../utils/tokens.js";
+
+interface RegisterInput {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: "athlete" | "coach";
+}
+
+export async function registerUser(input: RegisterInput) {
+  const email = input.email.toLowerCase().trim();
+
+  const existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    throw new Error("USER_ALREADY_EXISTS");
+  }
+
+  const passwordHash = await hashPassword(input.password);
+
+  const user = await User.create({
+    email,
+    passwordHash,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    role: input.role
+  });
+
+  const payload = {
+    sub: user._id.toString(),
+    role: user.role
+  };
+
+  return {
+    user,
+    accessToken: generateAccessToken(payload),
+    refreshToken: generateRefreshToken(payload)
+  };
+}
+
+export async function loginUser(
+  email: string,
+  password: string
+) {
+  const user = await User
+    .findOne({ email: email.toLowerCase().trim() })
+    .select("+passwordHash");
+
+  if (!user) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  const validPassword = await comparePassword(
+    password,
+    user.passwordHash
+  );
+
+  if (!validPassword) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  if (!user.isActive) {
+    throw new Error("ACCOUNT_DISABLED");
+  }
+
+  const payload = {
+    sub: user._id.toString(),
+    role: user.role
+  };
+
+  return {
+    user,
+    accessToken: generateAccessToken(payload),
+    refreshToken: generateRefreshToken(payload)
+  };
+}
+
+10. Auth Controller
+Create:
+src/controllers/auth.controller.ts
+import { Request, Response } from "express";
+import {
+  registerSchema,
+  loginSchema
+} from "../validation/auth.validation.js";
+import {
+  registerUser,
+  loginUser
+} from "../services/auth.service.js";
+
+export async function register(
+  req: Request,
+  res: Response
+) {
+  const input = registerSchema.parse(req.body);
+
+  const result = await registerUser(input);
+
+  res.status(201).json({
+    success: true,
+    data: {
+      user: {
+        id: result.user._id,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        role: result.user.role
+      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken
+    }
+  });
+}
+
+export async function login(
+  req: Request,
+  res: Response
+) {
+  const input = loginSchema.parse(req.body);
+
+  const result = await loginUser(
+    input.email,
+    input.password
+  );
+
+  res.json({
+    success: true,
+    data: {
+      user: {
+        id: result.user._id,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        role: result.user.role
+      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken
+    }
+  });
+}
+
+11. Auth Routes
+Create:
+src/routes/auth.routes.ts
+import { Router } from "express";
+import {
+  register,
+  login
+} from "../controllers/auth.controller.js";
+
+const router = Router();
+
+router.post("/register", register);
+router.post("/login", login);
+
+export default router;
+
+12. Attach Routes
+In app.ts:
+import authRoutes from "./routes/auth.routes.js";
+
+app.use("/api/v1/auth", authRoutes);
+Now:
+POST /api/v1/auth/register
+
+POST /api/v1/auth/login
+
+13. Register Request
+{
+  "email": "alex@example.com",
+  "password": "strongpassword",
+  "firstName": "Alex",
+  "lastName": "Sharma",
+  "role": "athlete"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "...",
+      "email": "alex@example.com",
+      "firstName": "Alex",
+      "lastName": "Sharma",
+      "role": "athlete"
+    },
+    "accessToken": "...",
+    "refreshToken": "..."
+  }
+}
+
+14. Authentication Middleware
+Now we protect routes.
+Create:
+src/middleware/auth.middleware.ts
+import { NextFunction, Request, Response } from "express";
+import { verifyAccessToken } from "../utils/tokens.js";
+
+export interface AuthenticatedRequest
+  extends Request {
+  user?: {
+    id: string;
+    role: string;
+  };
+}
+
+export function authenticate(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  const header = req.headers.authorization;
+
+  if (!header?.startsWith("Bearer ")) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required"
+    });
+  }
+
+  const token = header.substring(7);
+
+  try {
+    const payload = verifyAccessToken(token);
+
+    req.user = {
+      id: payload.sub,
+      role: payload.role
+    };
+
+    next();
+  } catch {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token"
+    });
+  }
+}
+
+15. Role-Based Access Control
+Create:
+src/middleware/role.middleware.ts
+import { NextFunction, Response } from "express";
+import { AuthenticatedRequest } from "./auth.middleware.js";
+
+export function requireRole(
+  ...roles: string[]
+) {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required"
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Insufficient permissions"
+      });
+    }
+
+    next();
+  };
+}
+
+16. Example Protected Routes
+Athlete-only:
+router.get(
+  "/dashboard",
+  authenticate,
+  requireRole("athlete"),
+  getDashboard
+);
+Coach-only:
+router.get(
+  "/dashboard",
+  authenticate,
+  requireRole("coach"),
+  getCoachDashboard
+);
+Admin:
+router.get(
+  "/users",
+  authenticate,
+  requireRole("admin"),
+  getUsers
+);
+
+17. Why RBAC Must Be Backend-Enforced
+Never do this:
+Frontend:
+if (user.role === "coach") {
+   show coach dashboard
+}
+and assume security is handled.
+A malicious user can modify frontend code or directly call the API.
+The actual protection must happen here:
+Request
+ ↓
+JWT verification
+ ↓
+User identity
+ ↓
+Role verification
+ ↓
+Controller
+Frontend role checks are purely for UI.
+
+18. /me Endpoint
+We need one simple endpoint for the mobile app.
+/api/v1/users/me
+Request:
+Authorization: Bearer ACCESS_TOKEN
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "email": "alex@example.com",
+    "firstName": "Alex",
+    "lastName": "Sharma",
+    "role": "athlete",
+    "isEmailVerified": false
+  }
+}
+This becomes the foundation of the mobile app's authentication state.
+
+19. Refresh Token Endpoint
+Add:
+POST /api/v1/auth/refresh
+Flow:
+Access token expired
+       ↓
+Mobile sends refresh token
+       ↓
+Backend validates refresh session
+       ↓
+New access token
+       ↓
+Mobile continues
+
+20. Logout
+POST /api/v1/auth/logout
+Don't just delete the mobile token.
+Eventually:
+RefreshSession
+       ↓
+revokedAt = now
+Then the refresh token cannot be reused.
+
+21. Session Management
+I recommend adding this model now.
+RefreshSession
+│
+├── userId
+├── tokenHash
+├── expiresAt
+├── revokedAt
+├── deviceId
+├── userAgent
+├── ipAddress
+└── createdAt
+Don't store raw refresh tokens in MongoDB.
+Store a hash.
+Then:
+Refresh Token
+      ↓
+Hash
+      ↓
+Compare database hash
+This limits damage if your database is compromised.
+
+22. Authentication State in React Native
+The mobile app will eventually maintain:
+AuthProvider
+│
+├── user
+├── accessToken
+├── isLoading
+├── isAuthenticated
+│
+├── login()
+├── register()
+├── logout()
+└── refreshToken()
+Navigation:
+isAuthenticated?
+       │
+   ┌───┴───┐
+   ▼       ▼
+ FALSE     TRUE
+   │        │
+ Auth     role?
+            │
+      ┌─────┴─────┐
+      ▼           ▼
+   Athlete       Coach
+
+23. Security Improvements Before Production
+We're intentionally starting simple, but before production we'll add:
+✓ Refresh token rotation
+✓ Token revocation
+✓ Rate limiting
+✓ Account lockout / abuse protection
+✓ Email verification
+✓ Password reset
+✓ Secure mobile token storage
+✓ CORS restrictions
+✓ Request size limits
+✓ Audit logging
+✓ Security headers
+✓ Input validation
+✓ Error sanitization
+Do not expose stack traces or database errors to clients.
+
+24. API Error Format
+Standardize this now.
+Success:
+{
+  "success": true,
+  "data": {}
+}
+Error:
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_CREDENTIALS",
+    "message": "Invalid email or password"
+  }
+}
+This makes frontend error handling predictable.
+
+25. Central Error Handler
+Add:
+src/middleware/error.middleware.ts
+Eventually:
+export function errorHandler(
+  error: unknown,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) {
+  console.error(error);
+
+  res.status(500).json({
+    success: false,
+    error: {
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong"
+    }
+  });
+}
+Then:
+app.use(errorHandler);
+We'll expand this when we add Zod and MongoDB-specific error handling.
+
+26. Test the Authentication Flow
+Before continuing, test these cases.
+Registration
+POST /api/v1/auth/register
+        ↓
+201
+Duplicate email
+POST /register
+        ↓
+409 USER_ALREADY_EXISTS
+Login
+POST /login
+        ↓
+200 + tokens
+Wrong password
+POST /login
+        ↓
+401 INVALID_CREDENTIALS
+Missing token
+GET /protected
+        ↓
+401
+Invalid token
+GET /protected
+        ↓
+401
+Wrong role
+Athlete → Coach endpoint
+        ↓
+403
+
+27. Phase 3B Architecture
+We now have:
+                    REQUEST
+                       │
+                       ▼
+                  Express
+                       │
+                       ▼
+                Authentication
+                       │
+                  JWT Verify
+                       │
+                       ▼
+                     User
+                       │
+                 ┌─────┴─────┐
+                 ▼           ▼
+              Athlete       Coach
+                 │           │
+                 ▼           ▼
+             Controller   Controller
+                 │           │
+                 └─────┬─────┘
+                       ▼
+                    Service
+                       │
+                       ▼
+                   MongoDB
+
+28. Current Backend Structure
+After 3A + 3B:
+backend/
+│
+├── src/
+│   ├── config/
+│   │   ├── database.ts
+│   │   └── env.ts
+│   │
+│   ├── controllers/
+│   │   └── auth.controller.ts
+│   │
+│   ├── middleware/
+│   │   ├── auth.middleware.ts
+│   │   ├── role.middleware.ts
+│   │   └── error.middleware.ts
+│   │
+│   ├── models/
+│   │   ├── User.ts
+│   │   └── AthleteProfile.ts
+│   │
+│   ├── routes/
+│   │   └── auth.routes.ts
+│   │
+│   ├── services/
+│   │   └── auth.service.ts
+│   │
+│   ├── utils/
+│   │   ├── password.ts
+│   │   └── tokens.ts
+│   │
+│   ├── validation/
+│   │   └── auth.validation.ts
+│   │
+│   ├── app.ts
+│   └── server.ts
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+└── tsconfig.json
+Phase 3B Complete
+The backend now has the foundation for:
+✓ User identity
+✓ Password hashing
+✓ Registration
+✓ Login
+✓ JWT authentication
+✓ Refresh tokens
+✓ Logout architecture
+✓ Role-based access
+✓ Athlete/Coach/Admin separation
+✓ API error structure
+✓ Backend validation
+Next — Phase 3C: Profiles + Coach/Athlete Relationship
+We'll implement:
+User
+ │
+ ├── AthleteProfile
+ │
+ └── CoachProfile
+        │
+        ▼
+   CoachAthlete
+   Relationship
+        │
+   ┌────┴─────┐
+   ▼          ▼
+ Coach      Athlete
+This phase will establish who coaches whom, athlete onboarding persistence, coach invitations, profile APIs, and the authorization rules that prevent one coach from accessing another coach's athletes.
+Phase 3C — Profiles + Coach–Athlete Relationship
+This phase establishes the actual relationship layer of the app:
+User
+ │
+ ├── AthleteProfile
+ │
+ └── CoachProfile
+        │
+        ▼
+ CoachAthleteRelationship
+        │
+        ├── Coach
+        └── Athlete
+This is critical because later programs, feedback, analytics, AI recommendations, and messaging all depend on knowing exactly which coach is authorized to access which athlete.
+
+1. Final Relationship Model
+Do not put this directly inside the User document:
+{
+  "coachId": "...",
+  "athletes": ["...", "..."]
+}
+Instead create a dedicated relationship collection:
+CoachAthleteRelationship
+│
+├── coachId
+├── athleteId
+├── status
+├── startedAt
+├── endedAt
+├── invitedBy
+└── createdAt
+This gives us room for multiple coaches, historical relationships, invitations, and future permissions.
+
+2. Relationship States
+PENDING
+   │
+   ├── ACCEPTED
+   │      │
+   │      ▼
+   │    ACTIVE
+   │      │
+   │      ▼
+   │    ENDED
+   │
+   └── DECLINED
+For V1:
+pending
+active
+ended
+declined
+
+3. Coach Profile Model
+Create:
+src/models/CoachProfile.ts
+import mongoose, { Document, Schema } from "mongoose";
+
+export type VerificationStatus =
+  | "pending"
+  | "verified"
+  | "rejected";
+
+export interface ICoachProfile extends Document {
+  userId: mongoose.Types.ObjectId;
+  bio?: string;
+  specializations: string[];
+  experienceYears?: number;
+  certifications: string[];
+  verificationStatus: VerificationStatus;
+}
+
+const coachProfileSchema = new Schema<ICoachProfile>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true
+    },
+
+    bio: {
+      type: String,
+      maxlength: 1000
+    },
+
+    specializations: {
+      type: [String],
+      default: []
+    },
+
+    experienceYears: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
+
+    certifications: {
+      type: [String],
+      default: []
+    },
+
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected"],
+      default: "pending"
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+export const CoachProfile =
+  mongoose.model<ICoachProfile>(
+    "CoachProfile",
+    coachProfileSchema
+  );
+
+4. Coach–Athlete Relationship Model
+Create:
+src/models/CoachAthlete.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type RelationshipStatus =
+  | "pending"
+  | "active"
+  | "ended"
+  | "declined";
+
+export interface ICoachAthlete extends Document {
+  coachId: mongoose.Types.ObjectId;
+  athleteId: mongoose.Types.ObjectId;
+  status: RelationshipStatus;
+  invitedBy: mongoose.Types.ObjectId;
+  startedAt?: Date;
+  endedAt?: Date;
+}
+
+const coachAthleteSchema =
+  new Schema<ICoachAthlete>(
+    {
+      coachId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      status: {
+        type: String,
+        enum: [
+          "pending",
+          "active",
+          "ended",
+          "declined"
+        ],
+        default: "pending"
+      },
+
+      invitedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      startedAt: Date,
+
+      endedAt: Date
+    },
+    {
+      timestamps: true
+    }
+  );
+
+coachAthleteSchema.index(
+  {
+    coachId: 1,
+    athleteId: 1
+  },
+  {
+    unique: true
+  }
+);
+
+export const CoachAthlete =
+  mongoose.model<ICoachAthlete>(
+    "CoachAthlete",
+    coachAthleteSchema
+  );
+
+5. Why the Unique Index Matters
+Without it, you could accidentally create:
+Coach A → Athlete B
+Coach A → Athlete B
+Coach A → Athlete B
+multiple times.
+The unique compound index prevents duplicate relationships.
+
+6. Athlete Profile Expansion
+Our AthleteProfile should now contain actual onboarding information.
+AthleteProfile
+│
+├── userId
+├── heightCm
+├── weightKg
+├── experienceLevel
+├── primaryGoal
+├── trainingDaysPerWeek
+├── sessionDurationMinutes
+├── trainingLocation
+├── equipment
+├── preferences
+└── onboardingCompleted
+Add:
+onboardingCompleted: {
+  type: Boolean,
+  default: false
+}
+This is useful because:
+New account
+   ↓
+onboardingCompleted = false
+   ↓
+Show onboarding
+while:
+Existing account
+   ↓
+onboardingCompleted = true
+   ↓
+Show Home
+
+7. Profile Creation
+After registration:
+POST /auth/register
+       ↓
+User created
+       ↓
+role?
+   ┌───┴────┐
+   ▼        ▼
+athlete   coach
+   │        │
+   ▼        ▼
+Athlete   Coach
+Profile   Profile
+This means a newly registered athlete immediately has a profile document.
+
+8. Don't Put Everything in Registration
+Registration should remain small:
+{
+  "email": "...",
+  "password": "...",
+  "firstName": "...",
+  "lastName": "...",
+  "role": "athlete"
+}
+Then onboarding handles:
+height
+weight
+goal
+experience
+training availability
+equipment
+preferences
+This keeps registration fast.
+
+9. Athlete Profile API
+Create:
+GET /api/v1/athletes/me/profile
+Response:
+{
+  "success": true,
+  "data": {
+    "user": {
+      "firstName": "Alex",
+      "lastName": "Sharma",
+      "email": "alex@example.com"
+    },
+
+    "profile": {
+      "heightCm": 178,
+      "weightKg": 74,
+      "experienceLevel": "intermediate",
+      "primaryGoal": "muscle_gain",
+      "trainingDaysPerWeek": 5,
+      "sessionDurationMinutes": 60,
+      "trainingLocation": "gym",
+      "equipment": [
+        "barbell",
+        "dumbbell",
+        "cables"
+      ],
+      "onboardingCompleted": true
+    }
+  }
+}
+
+10. Update Athlete Profile
+PATCH /api/v1/athletes/me/profile
+Example:
+{
+  "weightKg": 75,
+  "trainingDaysPerWeek": 5
+}
+Only fields provided should change.
+Don't require the entire profile for every update.
+
+11. Coach Profile API
+GET /api/v1/coaches/me/profile
+PATCH /api/v1/coaches/me/profile
+Example:
+{
+  "bio": "Strength and hypertrophy coach",
+  "specializations": [
+    "strength",
+    "hypertrophy"
+  ],
+  "experienceYears": 6
+}
+
+12. Coach–Athlete Invitation
+We need a controlled relationship creation flow.
+Coach:
+Coach
+ ↓
+Add Athlete
+ ↓
+Search email / invite
+ ↓
+Create pending relationship
+ ↓
+Athlete receives notification
+API:
+POST /api/v1/coaches/me/athletes/invite
+Request:
+{
+  "email": "alex@example.com"
+}
+
+13. Invitation Logic
+Backend:
+Find email
+   ↓
+Does user exist?
+ ┌─┴──────────┐
+NO           YES
+ │             │
+ ▼             ▼
+Invitation   Is athlete?
+email           │
+                ▼
+          Existing relationship?
+             │
+         ┌───┴────┐
+        YES       NO
+         │         │
+         ▼         ▼
+       Reject    Create
+                 pending
+For V1, invitations to non-existent users can simply return:
+Athlete not found.
+Later we can support email invitations for users who haven't registered.
+
+14. Athlete Accepts
+API:
+POST /api/v1/athletes/me/coaches/:relationshipId/accept
+Then:
+pending
+   ↓
+active
+Set:
+startedAt = now
+
+15. Athlete Declines
+POST /api/v1/athletes/me/coaches/:relationshipId/decline
+Status:
+pending → declined
+
+16. Ending a Coaching Relationship
+Either side can potentially end the relationship depending on business rules.
+For V1:
+DELETE /api/v1/athletes/me/coaches/:relationshipId
+Backend doesn't physically delete it.
+Instead:
+status = ended
+endedAt = now
+Historical data remains intact.
+
+17. Why We Don't Delete Relationships
+Suppose:
+January
+Coach A → Athlete X
+Then:
+June
+relationship ends
+If we delete the record, historical queries become difficult.
+Instead:
+Relationship
+Jan → Jun
+status = ended
+This lets us answer:
+Who coached this athlete when this workout happened?
+That's important for historical auditing.
+
+18. Coach Athlete List
+GET /api/v1/coaches/me/athletes
+Return only:
+coachId = authenticatedUserId
+AND
+status = active
+Never:
+GET /athletes
+and filter the result in React Native.
+The database query itself must enforce ownership.
+
+19. Critical Authorization Rule
+Suppose:
+Coach A
+ ├── Rahul
+ └── Sarah
+
+Coach B
+ └── Mike
+Coach A requests:
+GET /api/v1/coaches/me/athletes/Mike
+Backend must return:
+403 Forbidden
+or preferably a non-disclosing 404 depending on endpoint semantics.
+It must never return Mike's data.
+
+20. Relationship Authorization Middleware
+Eventually create:
+src/middleware/relationship.middleware.ts
+Conceptually:
+const relationship =
+  await CoachAthlete.findOne({
+    coachId: req.user.id,
+    athleteId: req.params.athleteId,
+    status: "active"
+  });
+
+if (!relationship) {
+  return res.status(404).json({
+    success: false,
+    message: "Athlete not found"
+  });
+}
+Then:
+Coach
+ ↓
+Authenticated
+ ↓
+Relationship exists?
+ ↓
+Yes
+ ↓
+Allow
+This middleware will become extremely useful later.
+
+21. Athlete's Coach
+The athlete needs:
+GET /api/v1/athletes/me/coaches
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "relationshipId": "...",
+      "coach": {
+        "id": "...",
+        "firstName": "Sarah",
+        "lastName": "Patel"
+      },
+      "status": "active",
+      "startedAt": "2026-08-01"
+    }
+  ]
+}
+For V1, you can restrict athletes to one active coach if that's the intended product model.
+The database design still supports multiple relationships.
+
+22. Coach Dashboard Data
+Now the coach dashboard can finally query:
+Coach
+ ↓
+Active relationships
+ ↓
+Athletes
+ ↓
+Their:
+ ├── workout status
+ ├── adherence
+ ├── goals
+ └── performance
+So the dashboard isn't just mocked data anymore.
+
+23. Permissions Matrix
+This is worth defining before adding more APIs.
+Resource
+Athlete
+Coach
+Admin
+Own profile
+Read/Write
+Read/Write
+Read
+Own workouts
+Read/Write
+Read if assigned
+Read
+Own progress
+Read
+Read if assigned
+Read
+Athlete program
+Read
+Write if assigned
+Read/Write
+Coach program
+—
+Read/Write
+Read/Write
+Athlete feedback
+Read
+Write if assigned
+Read
+Private coach notes
+—
+Read/Write
+Restricted
+Other athlete data
+No
+No
+Controlled
+AI trainer
+Yes
+—
+—
+AI coach copilot
+—
+Yes
+—
+This becomes the foundation for our authorization layer.
+
+24. Data Ownership Rules
+The backend should enforce:
+Athlete
+→ can modify own athlete profile
+
+Coach
+→ can modify own coach profile
+
+Coach
+→ can modify programs they own
+
+Coach
+→ can access athletes with active relationship
+
+Athlete
+→ can access own workout data
+
+Athlete
+→ cannot modify coach-created prescription directly
+That last rule becomes especially important once programs are implemented.
+
+25. Profile API Structure
+Our routes now become:
+/api/v1
+│
+├── auth
+│   ├── register
+│   ├── login
+│   ├── refresh
+│   └── logout
+│
+├── users
+│   └── me
+│
+├── athletes
+│   ├── me/profile
+│   ├── me/coaches
+│   └── me/coaches/:relationshipId
+│
+└── coaches
+    ├── me/profile
+    └── me/athletes
+        ├── invite
+        └── :athleteId
+
+26. Important Database Indexes
+As we build the system, indexing needs to be intentional.
+User
+email → unique
+AthleteProfile
+userId → unique
+CoachProfile
+userId → unique
+CoachAthlete
+coachId + athleteId → unique
+coachId + status
+athleteId + status
+These will support our most common queries.
+
+27. Profile Data Flow
+                 USER
+                  │
+           ┌──────┴──────┐
+           ▼             ▼
+       ATHLETE          COACH
+           │             │
+           ▼             ▼
+      AthleteProfile CoachProfile
+           │             │
+           └──────┬──────┘
+                  ▼
+         CoachAthleteRelationship
+                  │
+           ┌──────┴──────┐
+           ▼             ▼
+        Programs      Workouts
+           │             │
+           └──────┬──────┘
+                  ▼
+               Progress
+                  │
+                  ▼
+                  AI
+This is the foundation for the rest of the backend.
+
+28. Phase 3C Complete
+We now have:
+✓ Athlete Profile
+✓ Coach Profile
+✓ Onboarding persistence
+✓ Coach–Athlete relationship
+✓ Invitation system
+✓ Accept / decline
+✓ Relationship history
+✓ Ownership rules
+✓ Role permissions
+✓ Profile APIs
+✓ Relationship authorization
+✓ Database indexes
+Next — Phase 3D: Exercise + Workout Data Model
+Now we build the actual fitness database.
+We'll create:
+Exercise
+   ↓
+Exercise Library
+   ↓
+Program
+   ↓
+Workout
+   ↓
+Exercise Prescription
+   ↓
+Workout Session
+   ↓
+Exercise Performance
+   ↓
+Set Performance
+This is where we'll define the MongoDB schemas for exercises, sets, reps, weight, RIR/RPE, rest periods, workout prescriptions, workout sessions, PRs, and historical performance.
+The important decision in 3D will be separating what the coach prescribed from what the athlete actually did. That separation will make the Progress, AI, and Coach systems dramatically easier to build correctly.
+Phase 3D — Exercise + Workout Data Model
+This is the point where the backend starts representing the actual gym.
+The most important distinction is:
+PRESCRIPTION ≠ PERFORMANCE
+A coach may prescribe:
+Bench Press
+3 × 8–12
+60 kg
+RIR 2
+The athlete might actually do:
+60 × 10
+60 × 10
+62.5 × 8
+RIR 2
+We must preserve both.
+
+1. Data Architecture
+The core relationship becomes:
+Exercise
+   │
+   ▼
+Exercise Definition
+   │
+   ▼
+Program
+   │
+   ▼
+Workout Template
+   │
+   ▼
+Exercise Prescription
+   │
+   │ athlete executes
+   ▼
+Workout Session
+   │
+   ▼
+Exercise Performance
+   │
+   ▼
+Set Performance
+So:
+WHAT SHOULD HAPPEN?
+        ↓
+Prescription
+
+WHAT ACTUALLY HAPPENED?
+        ↓
+Performance
+
+2. Exercise Collection
+An exercise is a reusable definition.
+Example:
+{
+  "name": "Barbell Bench Press",
+  "category": "strength",
+  "muscleGroups": [
+    "chest",
+    "triceps",
+    "shoulders"
+  ],
+  "equipment": [
+    "barbell",
+    "bench"
+  ],
+  "movementPattern": "horizontal_push"
+}
+It should not contain:
+60kg
+3 sets
+10 reps
+Those belong to a workout prescription/performance.
+
+3. Exercise Model
+Create:
+src/models/Exercise.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type ExerciseCategory =
+  | "strength"
+  | "hypertrophy"
+  | "cardio"
+  | "mobility"
+  | "recovery";
+
+export interface IExercise extends Document {
+  name: string;
+  description?: string;
+  category: ExerciseCategory;
+  muscleGroups: string[];
+  equipment: string[];
+  movementPattern?: string;
+  instructions?: string[];
+  mediaUrls: string[];
+  isSystemExercise: boolean;
+  createdBy?: mongoose.Types.ObjectId;
+  isActive: boolean;
+}
+
+const exerciseSchema = new Schema<IExercise>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    description: String,
+
+    category: {
+      type: String,
+      enum: [
+        "strength",
+        "hypertrophy",
+        "cardio",
+        "mobility",
+        "recovery"
+      ],
+      required: true
+    },
+
+    muscleGroups: {
+      type: [String],
+      default: []
+    },
+
+    equipment: {
+      type: [String],
+      default: []
+    },
+
+    movementPattern: String,
+
+    instructions: {
+      type: [String],
+      default: []
+    },
+
+    mediaUrls: {
+      type: [String],
+      default: []
+    },
+
+    isSystemExercise: {
+      type: Boolean,
+      default: true
+    },
+
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+exerciseSchema.index({
+  name: "text"
+});
+
+exerciseSchema.index({
+  muscleGroups: 1
+});
+
+export const Exercise =
+  mongoose.model<IExercise>(
+    "Exercise",
+    exerciseSchema
+  );
+
+4. System vs Custom Exercises
+We need two types.
+System exercise
+Created by us:
+Barbell Bench Press
+Squat
+Deadlift
+Pull-up
+isSystemExercise = true
+Coach-created exercise
+Coach's Custom Machine Press
+isSystemExercise = false
+createdBy = coachId
+A coach shouldn't be able to modify the global system exercise.
+
+5. Exercise Ownership
+System Exercise
+       │
+       ├── Coach A
+       ├── Coach B
+       └── Coach C
+Everyone can use it.
+But:
+Coach A Custom Exercise
+       │
+       └── Coach A's athletes
+Coach B should not automatically see or modify it.
+
+6. Workout Template
+A workout template represents the planned workout.
+Example:
+Push Day
+
+1. Bench Press
+2. Incline DB Press
+3. Shoulder Press
+4. Cable Fly
+Create:
+src/models/Workout.ts
+Conceptually:
+interface IWorkoutExercise {
+  exerciseId: mongoose.Types.ObjectId;
+
+  order: number;
+
+  sets: number;
+
+  repRange?: {
+    min: number;
+    max: number;
+  };
+
+  targetWeight?: number;
+
+  targetRir?: number;
+
+  targetRpe?: number;
+
+  restSeconds?: number;
+
+  tempo?: string;
+
+  notes?: string;
+}
+And:
+interface IWorkout {
+  name: string;
+  description?: string;
+
+  programId: mongoose.Types.ObjectId;
+
+  dayNumber: number;
+
+  exercises: IWorkoutExercise[];
+
+  estimatedDurationMinutes?: number;
+}
+
+7. Embedded vs Separate Exercise Prescription
+Here I recommend embedding the exercises inside the workout.
+Workout
+│
+├── Bench Press
+├── Incline Press
+├── Shoulder Press
+└── Cable Fly
+rather than:
+WorkoutExercise collection
+for every single prescription.
+Why?
+Because a workout is naturally a bounded document.
+It makes retrieving:
+"Give me today's Push workout"
+very efficient.
+
+8. Program
+The Program sits above workouts.
+Program
+│
+├── Week 1
+│   ├── Push
+│   ├── Pull
+│   ├── Legs
+│
+├── Week 2
+│   ├── Push
+│   ├── Pull
+│   ├── Legs
+│
+└── Week 12
+We should not embed all 12 weeks directly into one enormous MongoDB document if programs become complex.
+Instead:
+Program
+   │
+   └── ProgramWeeks
+           │
+           └── Workouts
+We'll implement the Program model fully in Phase 3E.
+For 3D, we only need the workout representation.
+
+9. Workout Session
+This represents what happened on a particular day.
+Example:
+August 28
+
+Alex
+Push Workout
+Started 18:42
+Completed 19:34
+Create:
+src/models/WorkoutSession.ts
+Structure:
+WorkoutSession
+│
+├── athleteId
+├── workoutId
+├── programId
+├── status
+├── startedAt
+├── completedAt
+├── exercises[]
+└── notes
+
+10. Session Status
+export type WorkoutSessionStatus =
+  | "in_progress"
+  | "completed"
+  | "abandoned";
+This corresponds directly to the state machine we designed earlier.
+
+11. Session Exercise
+The session should contain a snapshot of the relevant prescription.
+Why?
+Suppose the coach changes the program tomorrow.
+We don't want yesterday's workout to suddenly display the new prescription.
+So:
+Workout
+   ↓
+Snapshot
+   ↓
+WorkoutSession
+The session becomes historically stable.
+
+12. Session Exercise Model
+interface ISessionExercise {
+  exerciseId: mongoose.Types.ObjectId;
+
+  order: number;
+
+  prescribed?: {
+    sets: number;
+    repRange?: {
+      min: number;
+      max: number;
+    };
+    targetWeight?: number;
+    targetRir?: number;
+    targetRpe?: number;
+    restSeconds?: number;
+  };
+
+  sets: ISetPerformance[];
+
+  notes?: string;
+
+  status: "pending" | "in_progress" | "completed" | "skipped";
+}
+
+13. Set Performance
+This is the most important piece of workout data.
+SetPerformance
+│
+├── setNumber
+├── weight
+├── reps
+├── rir
+├── rpe
+├── duration
+├── completedAt
+└── status
+Example:
+{
+  "setNumber": 1,
+  "weight": 60,
+  "reps": 10,
+  "rir": 2,
+  "completedAt": "2026-08-28T18:52:00Z"
+}
+
+14. Set Model
+We can embed sets inside the session exercise.
+interface ISetPerformance {
+  setNumber: number;
+
+  weight?: number;
+
+  reps?: number;
+
+  durationSeconds?: number;
+
+  distanceMeters?: number;
+
+  rir?: number;
+
+  rpe?: number;
+
+  completedAt?: Date;
+
+  status: "completed" | "skipped";
+}
+Why optional weight/reps?
+Because cardio and other exercises may not use the same metrics.
+Example:
+Running
+20 minutes
+3.2 km
+instead of:
+Weight × Reps
+This gives the model room to grow.
+
+15. Full Workout Session Example
+{
+  "athleteId": "...",
+  "workoutId": "...",
+  "programId": "...",
+
+  "status": "completed",
+
+  "startedAt": "2026-08-28T18:42:00Z",
+
+  "completedAt": "2026-08-28T19:34:00Z",
+
+  "exercises": [
+    {
+      "exerciseId": "...",
+
+      "order": 1,
+
+      "prescribed": {
+        "sets": 3,
+        "repRange": {
+          "min": 8,
+          "max": 12
+        },
+        "targetRir": 2,
+        "restSeconds": 120
+      },
+
+      "sets": [
+        {
+          "setNumber": 1,
+          "weight": 60,
+          "reps": 10,
+          "rir": 2,
+          "status": "completed"
+        },
+        {
+          "setNumber": 2,
+          "weight": 60,
+          "reps": 10,
+          "rir": 2,
+          "status": "completed"
+        },
+        {
+          "setNumber": 3,
+          "weight": 62.5,
+          "reps": 8,
+          "rir": 1,
+          "status": "completed"
+        }
+      ],
+
+      "status": "completed"
+    }
+  ]
+}
+This is the core fitness record.
+
+16. Why Sets Should Be Embedded
+A workout session might have:
+6 exercises
+18 sets
+That's still a small document.
+Retrieving:
+GET /workout-sessions/:id
+can return the entire workout history in one query.
+For our use case, that's preferable to making 20 database queries.
+
+17. But Don't Embed Everything
+Avoid putting:
+All historical workouts
+All progress
+All PRs
+All body measurements
+inside the Athlete document.
+That would create a massive document.
+Instead:
+Athlete
+   │
+   ├── Profile
+   ├── WorkoutSessions
+   ├── Progress
+   ├── Goals
+   └── Measurements
+
+18. Workout Session Indexes
+We'll need:
+workoutSessionSchema.index({
+  athleteId: 1,
+  startedAt: -1
+});
+
+workoutSessionSchema.index({
+  athleteId: 1,
+  status: 1
+});
+
+workoutSessionSchema.index({
+  programId: 1
+});
+This makes common queries efficient.
+
+19. Previous Performance Query
+When Alex opens Bench Press:
+Find recent sessions
+WHERE
+athleteId = Alex
+AND
+exerciseId = Bench Press
+ORDER BY
+completedAt DESC
+LIMIT 5
+Result:
+Last session
+60 × 10
+60 × 9
+57.5 × 10
+
+Previous
+60 × 10
+60 × 8
+57.5 × 10
+This is what powers the workout UI.
+
+20. PR Detection
+When a new set arrives:
+New Set
+  ↓
+Retrieve previous best
+  ↓
+Compare
+  ↓
+PR?
+ ┌─┴──┐
+YES   NO
+ │
+ ▼
+Create PR Event
+Don't make PR detection dependent on the LLM.
+This should be deterministic code.
+
+21. PR Model
+Create later:
+PersonalRecord
+│
+├── athleteId
+├── exerciseId
+├── type
+├── weight
+├── reps
+├── estimated1RM
+├── achievedAt
+└── sessionId
+Types:
+weight
+reps
+estimated_1rm
+volume
+We'll implement this with the Progress engine.
+
+22. Workout APIs
+Now define the REST structure.
+Exercise library
+GET /api/v1/exercises
+GET /api/v1/exercises/:id
+Coach:
+POST /api/v1/exercises
+PATCH /api/v1/exercises/:id
+with ownership checks for custom exercises.
+
+Workout
+GET /api/v1/workouts/:id
+
+Workout sessions
+POST /api/v1/workouts/sessions
+GET /api/v1/workouts/sessions/:id
+PATCH /api/v1/workouts/sessions/:id
+POST /api/v1/workouts/sessions/:id/sets
+POST /api/v1/workouts/sessions/:id/complete
+POST /api/v1/workouts/sessions/:id/abandon
+
+23. Starting a Session
+Request:
+{
+  "workoutId": "..."
+}
+Backend:
+Authenticate athlete
+        ↓
+Check workout assigned
+        ↓
+Check no conflicting active session
+        ↓
+Load workout
+        ↓
+Create session
+        ↓
+Snapshot prescription
+        ↓
+Return session
+
+24. Important: One Active Session
+An athlete shouldn't accidentally have:
+Push Session → in_progress
+Pull Session → in_progress
+Legs Session → in_progress
+unless we intentionally support it.
+For V1:
+ONE ACTIVE WORKOUT SESSION
+PER ATHLETE
+Enforce this in application logic, and ideally reinforce it with an appropriate database strategy.
+
+25. Adding a Set
+POST /workouts/sessions/:id/sets
+Request:
+{
+  "exerciseId": "...",
+  "setNumber": 2,
+  "weight": 60,
+  "reps": 10,
+  "rir": 2
+}
+Backend validates:
+Session belongs to athlete?
+Exercise exists in session?
+Set number valid?
+Weight valid?
+Reps valid?
+RIR valid?
+Session still active?
+Then save.
+
+26. Don't Trust the Client
+A malicious client could send:
+{
+  "weight": 999999,
+  "reps": -100
+}
+Backend rejects it.
+Validation belongs on:
+Mobile
++
+Backend
+The mobile validation improves UX.
+The backend validation provides security and data integrity.
+
+27. Exercise Schema Should Be Extensible
+Don't hard-code:
+bench
+squat
+deadlift
+into TypeScript enums everywhere.
+The Exercise collection should remain data-driven.
+Then adding:
+Machine Chest Press
+doesn't require a backend deployment.
+
+28. Exercise Categories
+Initially:
+Strength
+Hypertrophy
+Cardio
+Mobility
+Recovery
+Later we can expand.
+
+29. Units
+Don't assume everything is kilograms.
+Store numeric values with a unit strategy.
+For example:
+weight
+value: 60
+unit: kg
+or normalize internally to a standard unit.
+For V1, I recommend storing weight in kilograms internally, then converting for display.
+Same principle for:
+distance
+duration
+height
+body weight
+
+30. Workout Notes
+Session-level:
+notes:
+"Good session. Energy was high."
+Exercise-level:
+notes:
+"Left shoulder felt tight."
+These later become valuable context for:
+AI
+Coach
+Progress analysis
+
+31. Phase 3D Data Model
+The final structure:
+USER
+ │
+ └── ATHLETE
+       │
+       └── PROGRAM
+             │
+             └── WORKOUT
+                   │
+                   ├── Exercise Prescription
+                   │
+                   └── Exercise Prescription
+                           │
+                           ▼
+                     WORKOUT SESSION
+                           │
+                     ┌─────┴─────┐
+                     ▼           ▼
+                 Exercise      Exercise
+                 Performance   Performance
+                     │
+                     ▼
+                  SETS
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+        Weight      Reps       RIR
+
+32. What We Have Now
+After Phase 3A–3D:
+Backend
+│
+├── Express
+├── TypeScript
+├── MongoDB
+├── Mongoose
+│
+├── Authentication
+│   ├── Registration
+│   ├── Login
+│   ├── JWT
+│   ├── Refresh
+│   └── RBAC
+│
+├── Profiles
+│   ├── Athlete
+│   └── Coach
+│
+├── Relationships
+│   └── Coach ↔ Athlete
+│
+└── Fitness Data
+    ├── Exercises
+    ├── Workouts
+    ├── Prescriptions
+    ├── Sessions
+    └── Sets
+We're now at the point where the database actually represents the core product.
+
+Phase 3E — Programs + Assignment
+Next we build the program engine:
+PROGRAM
+ │
+ ├── Program Metadata
+ │
+ ├── Weeks
+ │    ├── Week 1
+ │    ├── Week 2
+ │    └── ...
+ │
+ ├── Workouts
+ │
+ └── Exercise Prescriptions
+          │
+          ▼
+     ASSIGNMENT
+          │
+     ┌────┴─────┐
+     ▼          ▼
+  Athlete A   Athlete B
+We'll implement program creation, weekly structure, workout templates, assigning programs to one/many athletes, program versioning, scheduled workouts, progression rules, drafts, publishing, and historical snapshots.
+That phase is where the Coach dashboard starts becoming a genuinely usable coaching platform rather than just a collection of CRUD screens.
+Phase 3E — Program Engine + Assignment
+Now we build the system that connects the coach's programming workflow to the athlete's actual calendar.
+The key distinction remains:
+PROGRAM
+   ↓
+WHAT THE COACH DESIGNED
+
+ASSIGNMENT
+   ↓
+WHO SHOULD FOLLOW IT
+
+WORKOUT SESSION
+   ↓
+WHAT THE ATHLETE ACTUALLY DID
+
+1. Program Architecture
+The hierarchy should be:
+Program
+│
+├── Program Version
+│   │
+│   ├── Week 1
+│   │   ├── Push
+│   │   ├── Pull
+│   │   └── Legs
+│   │
+│   ├── Week 2
+│   │   ├── Push
+│   │   ├── Pull
+│   │   └── Legs
+│   │
+│   └── Week N
+│
+└── Assignments
+    ├── Athlete A
+    ├── Athlete B
+    └── Athlete C
+
+2. Program Model
+Create:
+src/models/Program.ts
+A program should contain metadata, not the entire workout tree.
+import mongoose, { Document, Schema } from "mongoose";
+
+export type ProgramStatus =
+  | "draft"
+  | "active"
+  | "archived";
+
+export interface IProgram extends Document {
+  name: string;
+  description?: string;
+
+  ownerId: mongoose.Types.ObjectId;
+
+  status: ProgramStatus;
+
+  durationWeeks: number;
+
+  daysPerWeek: number;
+
+  currentVersion: number;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const programSchema = new Schema<IProgram>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 150
+    },
+
+    description: {
+      type: String,
+      maxlength: 2000
+    },
+
+    ownerId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+
+    status: {
+      type: String,
+      enum: ["draft", "active", "archived"],
+      default: "draft"
+    },
+
+    durationWeeks: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 104
+    },
+
+    daysPerWeek: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 7
+    },
+
+    currentVersion: {
+      type: Number,
+      default: 1
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+programSchema.index({
+  ownerId: 1,
+  status: 1
+});
+
+export const Program =
+  mongoose.model<IProgram>(
+    "Program",
+    programSchema
+  );
+
+3. Why Versioning Is Separate
+Suppose:
+Program
+Version 1
+is assigned to Rahul.
+Two weeks later the coach changes:
+Bench
+60kg → 62.5kg
+We should not modify Version 1.
+Instead:
+Version 1
+      ↓
+Version 2
+New assignments use Version 2.
+Old workout history still references Version 1.
+
+4. Program Version Model
+Create:
+src/models/ProgramVersion.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export interface IProgramVersion
+  extends Document {
+  programId: mongoose.Types.ObjectId;
+
+  version: number;
+
+  createdBy: mongoose.Types.ObjectId;
+
+  changeNote?: string;
+
+  publishedAt?: Date;
+}
+
+const programVersionSchema =
+  new Schema<IProgramVersion>(
+    {
+      programId: {
+        type: Schema.Types.ObjectId,
+        ref: "Program",
+        required: true
+      },
+
+      version: {
+        type: Number,
+        required: true,
+        min: 1
+      },
+
+      createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      changeNote: String,
+
+      publishedAt: Date
+    },
+    {
+      timestamps: true
+    }
+  );
+
+programVersionSchema.index(
+  {
+    programId: 1,
+    version: 1
+  },
+  {
+    unique: true
+  }
+);
+
+export const ProgramVersion =
+  mongoose.model<IProgramVersion>(
+    "ProgramVersion",
+    programVersionSchema
+  );
+
+5. Program Week
+Create:
+src/models/ProgramWeek.ts
+ProgramWeek
+│
+├── programVersionId
+├── weekNumber
+└── workouts
+But don't embed entire workouts here.
+Use:
+ProgramVersion
+      │
+      ▼
+ProgramWeek
+      │
+      ▼
+Workout
+
+6. Program Week Schema
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export interface IProgramWeek
+  extends Document {
+  programVersionId: mongoose.Types.ObjectId;
+  weekNumber: number;
+}
+
+const programWeekSchema =
+  new Schema<IProgramWeek>(
+    {
+      programVersionId: {
+        type: Schema.Types.ObjectId,
+        ref: "ProgramVersion",
+        required: true
+      },
+
+      weekNumber: {
+        type: Number,
+        required: true,
+        min: 1
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+
+programWeekSchema.index(
+  {
+    programVersionId: 1,
+    weekNumber: 1
+  },
+  {
+    unique: true
+  }
+);
+
+export const ProgramWeek =
+  mongoose.model<IProgramWeek>(
+    "ProgramWeek",
+    programWeekSchema
+  );
+
+7. Update Workout Model
+Our Workout should now reference:
+programVersionId
+programWeekId
+rather than only programId.
+Conceptually:
+Workout
+│
+├── programId
+├── programVersionId
+├── programWeekId
+├── name
+├── dayNumber
+└── exercises[]
+This gives us historical traceability.
+
+8. Program Assignment
+Now create:
+src/models/ProgramAssignment.ts
+ProgramAssignment
+│
+├── programId
+├── programVersionId
+├── athleteId
+├── assignedBy
+├── startDate
+├── endDate
+├── status
+└── createdAt
+
+9. Assignment Model
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type AssignmentStatus =
+  | "scheduled"
+  | "active"
+  | "completed"
+  | "cancelled";
+
+export interface IProgramAssignment
+  extends Document {
+  programId: mongoose.Types.ObjectId;
+  programVersionId: mongoose.Types.ObjectId;
+  athleteId: mongoose.Types.ObjectId;
+  assignedBy: mongoose.Types.ObjectId;
+  startDate: Date;
+  endDate?: Date;
+  status: AssignmentStatus;
+}
+
+const assignmentSchema =
+  new Schema<IProgramAssignment>(
+    {
+      programId: {
+        type: Schema.Types.ObjectId,
+        ref: "Program",
+        required: true
+      },
+
+      programVersionId: {
+        type: Schema.Types.ObjectId,
+        ref: "ProgramVersion",
+        required: true
+      },
+
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      assignedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      startDate: {
+        type: Date,
+        required: true
+      },
+
+      endDate: Date,
+
+      status: {
+        type: String,
+        enum: [
+          "scheduled",
+          "active",
+          "completed",
+          "cancelled"
+        ],
+        default: "scheduled"
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+
+assignmentSchema.index({
+  athleteId: 1,
+  status: 1
+});
+
+assignmentSchema.index({
+  programId: 1,
+  athleteId: 1
+});
+
+export const ProgramAssignment =
+  mongoose.model<IProgramAssignment>(
+    "ProgramAssignment",
+    assignmentSchema
+  );
+
+10. Assignment Flow
+Coach:
+Create Program
+      ↓
+Save Draft
+      ↓
+Publish Version 1
+      ↓
+Select Athlete
+      ↓
+Select Start Date
+      ↓
+Assign
+Database:
+Program
+   ↓
+Version 1
+   ↓
+Assignment
+   ↓
+Athlete
+
+11. Multiple Athletes
+Coach can assign:
+12 Week Hypertrophy
+        │
+        ├── Rahul
+        ├── Sarah
+        ├── Alex
+        └── Mike
+But each assignment remains independent.
+If Rahul later gets a modified program:
+Rahul → Version 2
+Sarah → Version 1
+Alex  → Version 1
+Mike  → Version 1
+No unintended changes occur to everyone else.
+
+12. Program Publishing
+A draft should not be assignable.
+DRAFT
+  │
+  ▼
+VALIDATE
+  │
+  ▼
+PUBLISHED
+  │
+  ▼
+ASSIGNABLE
+Validation should check:
+Program name exists
+Duration valid
+Weeks exist
+Each week has valid workouts
+Exercises exist
+Set/repetition prescriptions valid
+No duplicate workout days
+
+13. Program Status
+draft
+  ↓
+active
+  ↓
+archived
+Don't delete programs that have historical assignments.
+Archive them.
+
+14. Workout Scheduling
+An assigned program needs to produce actual calendar dates.
+Example:
+Start date:
+Sep 1
+
+Week 1:
+
+Sep 1 → Push
+Sep 2 → Pull
+Sep 3 → Rest
+Sep 4 → Legs
+Sep 5 → Upper
+Sep 6 → Lower
+Sep 7 → Rest
+We need a scheduled date associated with each planned workout.
+
+15. Workout Schedule
+Add to Workout or create a separate schedule entity.
+For our V1, I recommend a separate:
+ScheduledWorkout
+Structure:
+ScheduledWorkout
+│
+├── assignmentId
+├── workoutId
+├── athleteId
+├── scheduledDate
+├── status
+└── sessionId
+
+16. Scheduled Workout Status
+scheduled
+   │
+   ├── completed
+   │
+   ├── skipped
+   │
+   └── missed
+If the athlete completes it:
+ScheduledWorkout
+       ↓
+completed
+       ↓
+sessionId = XYZ
+
+17. Why Scheduling Is Important
+Now the Home screen can query:
+What workout is scheduled
+for today?
+instead of calculating it from scratch.
+It also gives us:
+Adherence
+Missed workouts
+Upcoming workouts
+Calendar
+Coach dashboard
+Notifications
+all from the same underlying system.
+
+18. Scheduled Workout Model
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type ScheduledWorkoutStatus =
+  | "scheduled"
+  | "completed"
+  | "skipped"
+  | "missed";
+
+export interface IScheduledWorkout
+  extends Document {
+  assignmentId: mongoose.Types.ObjectId;
+  workoutId: mongoose.Types.ObjectId;
+  athleteId: mongoose.Types.ObjectId;
+  scheduledDate: Date;
+  status: ScheduledWorkoutStatus;
+  sessionId?: mongoose.Types.ObjectId;
+}
+
+const scheduledWorkoutSchema =
+  new Schema<IScheduledWorkout>(
+    {
+      assignmentId: {
+        type: Schema.Types.ObjectId,
+        ref: "ProgramAssignment",
+        required: true
+      },
+
+      workoutId: {
+        type: Schema.Types.ObjectId,
+        ref: "Workout",
+        required: true
+      },
+
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      scheduledDate: {
+        type: Date,
+        required: true
+      },
+
+      status: {
+        type: String,
+        enum: [
+          "scheduled",
+          "completed",
+          "skipped",
+          "missed"
+        ],
+        default: "scheduled"
+      },
+
+      sessionId: {
+        type: Schema.Types.ObjectId,
+        ref: "WorkoutSession"
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+
+scheduledWorkoutSchema.index({
+  athleteId: 1,
+  scheduledDate: 1
+});
+
+scheduledWorkoutSchema.index({
+  assignmentId: 1,
+  scheduledDate: 1
+});
+
+export const ScheduledWorkout =
+  mongoose.model<IScheduledWorkout>(
+    "ScheduledWorkout",
+    scheduledWorkoutSchema
+  );
+
+19. Athlete Home Becomes Simple
+Now:
+GET /api/v1/athletes/me/dashboard
+can do:
+Authenticated Athlete
+       ↓
+Find today's ScheduledWorkout
+       ↓
+Find associated Workout
+       ↓
+Return
+Result:
+{
+  "today": {
+    "status": "scheduled",
+    "workout": {
+      "name": "Push",
+      "exerciseCount": 6
+    }
+  }
+}
+
+20. Program API
+Coach routes:
+POST   /api/v1/coaches/me/programs
+GET    /api/v1/coaches/me/programs
+GET    /api/v1/coaches/me/programs/:id
+PATCH  /api/v1/coaches/me/programs/:id
+POST   /api/v1/coaches/me/programs/:id/publish
+POST   /api/v1/coaches/me/programs/:id/archive
+
+21. Program Version API
+POST /programs/:id/versions
+
+GET /programs/:id/versions
+
+GET /programs/:id/versions/:version
+
+POST /programs/:id/versions/:version/publish
+
+22. Assignment API
+POST /api/v1/coaches/me/programs/:id/assign
+
+GET /api/v1/coaches/me/assignments
+
+PATCH /api/v1/coaches/me/assignments/:id
+
+POST /api/v1/coaches/me/assignments/:id/cancel
+Athlete:
+GET /api/v1/athletes/me/program
+
+GET /api/v1/athletes/me/schedule
+
+23. Program Builder Backend Flow
+When the coach clicks:
+SAVE PROGRAM
+Frontend sends:
+{
+  "name": "12 Week Hypertrophy",
+  "durationWeeks": 12,
+  "daysPerWeek": 5
+}
+Backend:
+Validate
+ ↓
+Create Program
+ ↓
+Create ProgramVersion
+ ↓
+Create ProgramWeeks
+ ↓
+Create Workouts
+ ↓
+Create Exercise Prescriptions
+This should ideally happen in a MongoDB transaction.
+
+24. MongoDB Transactions
+For operations such as:
+Publish Program
+Assign Program
+Complete Workout
+where several collections must remain consistent, use transactions.
+Example conceptually:
+START TRANSACTION
+
+Create Version
+Create Weeks
+Create Workouts
+Update Program
+
+COMMIT
+If anything fails:
+ROLLBACK
+This prevents half-created programs.
+
+25. Program Assignment Transaction
+Assignment can involve:
+Create Assignment
+        +
+Create ScheduledWorkouts
+Both should succeed or fail together.
+START
+ ↓
+Assignment
+ ↓
+Scheduled workouts
+ ↓
+COMMIT
+
+26. Program Progression
+We should support prescription types beyond fixed weights.
+Example:
+Fixed
+60kg
+
+Percentage
+75% 1RM
+
+RPE
+RPE 8
+
+RIR
+RIR 2
+
+Range
+8–12 reps
+
+Auto
+Based on previous performance
+But don't implement every type immediately.
+For V1:
+Sets
+Rep Range
+Target Weight
+RIR
+RPE
+Rest
+Then add advanced progression later.
+
+27. Automatic Progression
+Don't let the LLM directly change prescriptions.
+Use:
+Performance
+   ↓
+Progression Rules
+   ↓
+Recommendation
+   ↓
+Coach/User Approval
+   ↓
+New Prescription
+Example:
+3 × 8–12
+60kg
+RIR 2
+
+Actual:
+10
+10
+12
+
+Average RIR = 3
+
+→ Recommend 62.5kg
+This logic belongs in code.
+
+28. Program Ownership
+A coach should only modify programs they own.
+Coach A
+   │
+   ├── Program 1 ✓
+   └── Program 2 ✓
+
+Coach B
+   │
+   └── Program 3 ✓
+Coach B cannot:
+PATCH /programs/Program1
+even if they know the ID.
+Backend checks:
+program.ownerId === req.user.id
+
+29. Assignment Authorization
+Coach can assign a program only to an athlete with an active relationship:
+Coach
+ ↓
+Program owned?
+ ↓
+Athlete relationship active?
+ ↓
+YES
+ ↓
+Assign
+This prevents:
+Coach A
+   ↓
+Program
+   ↓
+Random Athlete
+
+30. Historical Integrity
+This is one of our strongest architectural rules:
+PROGRAM
+   │
+   ├── VERSION 1
+   │      │
+   │      └── Historical Sessions
+   │
+   └── VERSION 2
+          │
+          └── New Sessions
+Never rewrite history.
+If the coach changes:
+Bench
+3 × 10
+to:
+Bench
+4 × 8
+yesterday's workout should still show:
+3 × 10
+
+31. Phase 3E Architecture
+At this point:
+                   PROGRAM
+                      │
+                ┌─────┴─────┐
+                ▼           ▼
+            VERSION       OWNER
+                │
+                ▼
+              WEEKS
+                │
+                ▼
+            WORKOUTS
+                │
+                ▼
+           PRESCRIPTIONS
+                │
+                ▼
+          ASSIGNMENT
+                │
+                ▼
+             ATHLETE
+                │
+                ▼
+       SCHEDULED WORKOUT
+                │
+                ▼
+          WORKOUT SESSION
+                │
+                ▼
+          ACTUAL PERFORMANCE
+This is the backbone of the entire training platform.
+
+32. Phase 3E Complete
+We now have:
+✓ Programs
+✓ Program versions
+✓ Program weeks
+✓ Workout templates
+✓ Exercise prescriptions
+✓ Program publishing
+✓ Program archiving
+✓ Program assignments
+✓ Multi-athlete assignment
+✓ Scheduled workouts
+✓ Historical integrity
+✓ Program ownership
+✓ Assignment authorization
+✓ Program transactions
+✓ Progression architecture
+
+Next — Phase 3F: Workout Sessions + Offline Sync
+Now we connect the models we built in 3D and 3E into the actual workout engine:
+Scheduled Workout
+       ↓
+START
+       ↓
+Workout Session
+       ↓
+Local Database
+       ↓
+Set Logging
+       ↓
+Sync Queue
+       ↓
+Backend
+       ↓
+MongoDB
+       ↓
+Performance Engine
+       ↓
+PR Detection
+       ↓
+Workout Complete
+This is where we'll implement the actual APIs for starting workouts, logging sets, resuming interrupted workouts, offline-first storage, idempotency, conflict resolution, sync retries, session completion, and preventing duplicate workout records.
+Phase 3F — Workout Sessions + Offline Sync
+Now we build the actual workout execution engine.
+This is one of the most important backend phases because the athlete will interact with it repeatedly during training. It needs to work even when the gym has poor/no internet.
+The architecture we're implementing is:
+Scheduled Workout
+       ↓
+   Start Workout
+       ↓
+ Workout Session
+       ↓
+ Local Database
+       ↓
+   Log Sets
+       ↓
+   Sync Queue
+       ↓
+    Backend
+       ↓
+    MongoDB
+       ↓
+Performance / PR Engine
+       ↓
+ Workout Completed
+This follows the architecture established in the project plan: planned programming is separate from actual workout performance, and historical workout data must remain stable.
+
+1. The Core Rule
+There are three different things:
+Workout
+    = template
+
+ScheduledWorkout
+    = calendar occurrence
+
+WorkoutSession
+    = actual workout attempt
+Example:
+Workout
+"Push Day"
+
+       ↓
+
+ScheduledWorkout
+"Push Day — September 1"
+
+       ↓
+
+WorkoutSession
+"Alex actually performed Push Day
+on September 1 from 6:42–7:34 PM"
+Never mix these together.
+
+2. Workout Session State Machine
+The session lifecycle:
+                  START
+                    │
+                    ▼
+              IN_PROGRESS
+               │    │    │
+               │    │    │
+               ▼    ▼    ▼
+          COMPLETED SKIPPED ABANDONED
+For V1:
+type WorkoutSessionStatus =
+  | "in_progress"
+  | "completed"
+  | "abandoned";
+The scheduled workout has its own state:
+type ScheduledWorkoutStatus =
+  | "scheduled"
+  | "completed"
+  | "skipped"
+  | "missed";
+
+3. Important: Session Snapshot
+When the athlete starts:
+Workout
+  ↓
+COPY PRESCRIPTION
+  ↓
+WorkoutSession
+For example, the workout currently says:
+Bench Press
+3 × 8–12
+60 kg
+RIR 2
+The session stores that prescription.
+Then the coach changes the program tomorrow:
+Bench Press
+4 × 6–8
+65 kg
+The old session still says:
+3 × 8–12
+60 kg
+That is exactly what we want.
+
+4. WorkoutSession Model
+Update/create:
+src/models/WorkoutSession.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type WorkoutSessionStatus =
+  | "in_progress"
+  | "completed"
+  | "abandoned";
+
+export type SetStatus =
+  | "completed"
+  | "skipped";
+
+export interface ISetPerformance {
+  setNumber: number;
+  weight?: number;
+  reps?: number;
+  durationSeconds?: number;
+  distanceMeters?: number;
+  rir?: number;
+  rpe?: number;
+  completedAt?: Date;
+  status: SetStatus;
+}
+
+export interface ISessionExercise {
+  exerciseId: mongoose.Types.ObjectId;
+
+  order: number;
+
+  prescribed?: {
+    sets: number;
+    repRange?: {
+      min: number;
+      max: number;
+    };
+    targetWeight?: number;
+    targetRir?: number;
+    targetRpe?: number;
+    restSeconds?: number;
+  };
+
+  sets: ISetPerformance[];
+
+  notes?: string;
+
+  status:
+    | "pending"
+    | "in_progress"
+    | "completed"
+    | "skipped";
+}
+
+export interface IWorkoutSession
+  extends Document {
+  athleteId: mongoose.Types.ObjectId;
+
+  workoutId: mongoose.Types.ObjectId;
+
+  programId: mongoose.Types.ObjectId;
+
+  programVersionId: mongoose.Types.ObjectId;
+
+  scheduledWorkoutId?: mongoose.Types.ObjectId;
+
+  status: WorkoutSessionStatus;
+
+  startedAt: Date;
+
+  completedAt?: Date;
+
+  exercises: ISessionExercise[];
+
+  notes?: string;
+
+  clientSessionId: string;
+}
+
+5. Why clientSessionId Matters
+This is extremely important for offline sync.
+Suppose the athlete presses:
+Complete Workout
+The app sends the request.
+Internet fails.
+The app retries.
+Without an idempotency identifier:
+Request 1 → creates session
+Request 2 → creates another session
+Now we have duplicate data.
+Instead:
+clientSessionId
+=
+"mobile-generated-UUID"
+The backend recognizes:
+"This session already exists."
+and returns the existing record.
+
+6. Complete Schema
+Add:
+const workoutSessionSchema =
+  new Schema<IWorkoutSession>(
+    {
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+        index: true
+      },
+
+      workoutId: {
+        type: Schema.Types.ObjectId,
+        ref: "Workout",
+        required: true
+      },
+
+      programId: {
+        type: Schema.Types.ObjectId,
+        ref: "Program",
+        required: true
+      },
+
+      programVersionId: {
+        type: Schema.Types.ObjectId,
+        ref: "ProgramVersion",
+        required: true
+      },
+
+      scheduledWorkoutId: {
+        type: Schema.Types.ObjectId,
+        ref: "ScheduledWorkout"
+      },
+
+      status: {
+        type: String,
+        enum: [
+          "in_progress",
+          "completed",
+          "abandoned"
+        ],
+        default: "in_progress"
+      },
+
+      startedAt: {
+        type: Date,
+        required: true
+      },
+
+      completedAt: Date,
+
+      exercises: {
+        type: [Schema.Types.Mixed],
+        default: []
+      },
+
+      notes: String,
+
+      clientSessionId: {
+        type: String,
+        required: true
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+Add indexes:
+workoutSessionSchema.index({
+  athleteId: 1,
+  startedAt: -1
+});
+
+workoutSessionSchema.index({
+  athleteId: 1,
+  status: 1
+});
+
+workoutSessionSchema.index(
+  {
+    athleteId: 1,
+    clientSessionId: 1
+  },
+  {
+    unique: true
+  }
+);
+Then:
+export const WorkoutSession =
+  mongoose.model<IWorkoutSession>(
+    "WorkoutSession",
+    workoutSessionSchema
+  );
+
+7. One Active Session
+We don't want:
+Alex
+ ├── Push → in_progress
+ ├── Pull → in_progress
+ └── Legs → in_progress
+For V1:
+1 active session / athlete
+When starting:
+Find:
+athleteId = currentUser
+status = in_progress
+If one exists:
+409 ACTIVE_SESSION_EXISTS
+The mobile app can then ask:
+Resume your existing workout?
+
+8. Start Workout API
+POST /api/v1/workouts/sessions
+Request:
+{
+  "scheduledWorkoutId": "...",
+  "clientSessionId": "550e8400-e29b-41d4-a716-446655440000"
+}
+
+9. Start Workout Flow
+Backend:
+Authenticate
+    ↓
+Verify athlete
+    ↓
+Find ScheduledWorkout
+    ↓
+Verify ownership
+    ↓
+Verify assignment
+    ↓
+Check active session
+    ↓
+Load Workout
+    ↓
+Snapshot prescription
+    ↓
+Create WorkoutSession
+    ↓
+Return session
+
+10. Critical Authorization
+An athlete must not be able to start:
+Someone else's scheduled workout
+The backend must verify:
+scheduledWorkout.athleteId
+        ===
+req.user.id
+Never trust an athleteId supplied by the mobile app.
+
+11. Session Response
+Return:
+{
+  "success": true,
+  "data": {
+    "sessionId": "...",
+    "status": "in_progress",
+    "startedAt": "...",
+    "workout": {
+      "name": "Push",
+      "exercises": []
+    }
+  }
+}
+
+12. Logging a Set
+API:
+POST /api/v1/workouts/sessions/:sessionId/sets
+Request:
+{
+  "exerciseId": "...",
+  "setNumber": 1,
+  "weight": 60,
+  "reps": 10,
+  "rir": 2
+}
+Backend checks:
+Session belongs to athlete?
+       ↓
+Session still active?
+       ↓
+Exercise exists in session?
+       ↓
+Set number valid?
+       ↓
+Values valid?
+       ↓
+Save
+
+13. Set Validation
+Use Zod.
+Create:
+src/validation/workout.validation.ts
+import { z } from "zod";
+
+export const addSetSchema = z.object({
+  exerciseId: z.string().min(1),
+
+  setNumber: z
+    .number()
+    .int()
+    .min(1)
+    .max(100),
+
+  weight: z
+    .number()
+    .min(0)
+    .max(1000)
+    .optional(),
+
+  reps: z
+    .number()
+    .int()
+    .min(0)
+    .max(1000)
+    .optional(),
+
+  durationSeconds: z
+    .number()
+    .int()
+    .min(0)
+    .optional(),
+
+  distanceMeters: z
+    .number()
+    .min(0)
+    .optional(),
+
+  rir: z
+    .number()
+    .min(0)
+    .max(10)
+    .optional(),
+
+  rpe: z
+    .number()
+    .min(0)
+    .max(10)
+    .optional()
+});
+
+14. Set Idempotency
+We also need protection against duplicate set submissions.
+A mobile request can contain:
+{
+  "operationId": "uuid"
+}
+For example:
+operationId:
+7c9e...
+The server records processed operations.
+Then:
+same operationId
+       ↓
+already processed
+       ↓
+return previous result
+This is particularly important when the athlete is in a basement gym with unstable connectivity.
+
+15. Sync Architecture
+The mobile app should maintain:
+Local Workout
+      │
+      ▼
+Local Database
+      │
+      ▼
+Sync Queue
+      │
+      ▼
+Internet available?
+   ┌──┴──┐
+  NO    YES
+   │      │
+   │      ▼
+   │    Upload
+   │      │
+   │      ▼
+   │    Server
+   │      │
+   └──────┤
+          ▼
+       MongoDB
+The workout should never depend on a constant internet connection.
+
+16. Local Database
+For React Native, I'd use a local persistence layer rather than keeping an active workout only in React state.
+Conceptually:
+Local DB
+│
+├── activeWorkout
+├── exercises
+├── sets
+├── workoutState
+└── syncOperations
+The exact library can be selected during the mobile implementation phase.
+
+17. Sync Queue
+Each offline operation becomes:
+SyncOperation
+│
+├── id
+├── type
+├── entityId
+├── payload
+├── createdAt
+├── retryCount
+├── status
+└── lastError
+Example:
+{
+  "id": "abc",
+  "type": "ADD_SET",
+  "entityId": "session123",
+  "payload": {
+    "exerciseId": "bench",
+    "setNumber": 2,
+    "weight": 60,
+    "reps": 10
+  },
+  "retryCount": 0,
+  "status": "pending"
+}
+
+18. Sync States
+pending
+   ↓
+syncing
+   ↓
+synced
+Failure:
+syncing
+   ↓
+failed
+   ↓
+pending
+   ↓
+retry
+After repeated failures:
+failed
+   ↓
+needs_attention
+The user should never lose their workout because synchronization failed.
+
+19. Retry Strategy
+Don't hammer the server:
+retry
+retry
+retry
+retry
+retry
+Use exponential backoff:
+1 sec
+2 sec
+4 sec
+8 sec
+16 sec
+30 sec
+60 sec
+with a maximum retry interval.
+
+20. What Happens When Internet Returns
+Suppose the athlete logged:
+Bench
+Set 1
+Set 2
+Set 3
+
+Squat
+Set 1
+Set 2
+while offline.
+When connection returns:
+Local DB
+   ↓
+Sync Queue
+   ↓
+Upload operations
+   ↓
+Server
+   ↓
+MongoDB
+   ↓
+ACK
+   ↓
+Mark synced
+The athlete shouldn't have to press a "Save" button.
+
+21. Conflict Resolution
+This is where things can get complicated.
+Suppose:
+Phone:
+Bench Set 3 = 60kg × 10
+
+Server:
+Bench Set 3 = 60kg × 8
+For workout sets, we should not blindly use last-write-wins.
+Instead, every set gets a unique operation identifier.
+Set
+   +
+operationId
+   +
+timestamp
+If the exact operation already exists:
+idempotent success
+If two different operations modify the same set:
+conflict
+The app can resolve it explicitly.
+
+22. Better Model: Append Performance
+Instead of treating:
+Set 3 = mutable record
+as the primary event, think:
+Athlete performed:
+Bench
+60kg
+10 reps
+at 18:53
+That's an event.
+Corrections can then be represented separately.
+This makes workout history much safer.
+
+23. Workout Completion
+API:
+POST /api/v1/workouts/sessions/:id/complete
+Backend:
+Authenticate
+      ↓
+Verify ownership
+      ↓
+Verify session active
+      ↓
+Validate session
+      ↓
+Calculate summary
+      ↓
+Save completion
+      ↓
+Update ScheduledWorkout
+      ↓
+Run PR detection
+      ↓
+Queue analytics
+      ↓
+Return summary
+
+24. Completion Validation
+We should not force every prescribed set to be completed.
+An athlete may legitimately:
+Skip exercise
+Stop early
+Modify weight
+Perform fewer sets
+Therefore:
+Prescription = target
+Performance = reality
+The system records the difference.
+
+25. Workout Summary
+Completion response:
+{
+  "success": true,
+  "data": {
+    "sessionId": "...",
+    "durationSeconds": 3120,
+    "exercisesCompleted": 5,
+    "setsCompleted": 16,
+    "totalVolumeKg": 8420,
+    "personalRecords": 1
+  }
+}
+This feeds the workout summary screen.
+
+26. Volume Calculation
+For standard resistance training:
+Volume =
+Σ(weight × reps)
+Example:
+60 × 10
+60 × 10
+62.5 × 8
+Volume:
+600 + 600 + 500
+= 1700 kg
+This calculation should be deterministic backend logic.
+Not AI.
+
+27. PR Detection
+After completion:
+Performance
+     ↓
+Previous Best
+     ↓
+Compare
+     ↓
+New PR?
+   ┌─┴─┐
+ YES  NO
+  │
+  ▼
+PR Record
+Example:
+Previous:
+60kg × 10
+
+Current:
+62.5kg × 8
+
+→ Weight PR
+
+28. Scheduled Workout Update
+On completion:
+ScheduledWorkout
+status:
+scheduled → completed
+
+sessionId:
+XYZ
+Then:
+Coach Dashboard
+        ↓
+Alex completed Push
+can be generated automatically.
+
+29. Missed Workout Detection
+Don't immediately mark:
+scheduled → missed
+at midnight if the athlete has a flexible training schedule.
+We should define a grace period.
+For example:
+Scheduled:
+Monday
+
+Grace:
+until Tuesday morning
+The exact business rule can be configured later.
+The important point is that missed status should be derived from scheduling rules, not simply from a clock check.
+
+30. Resume Workout
+If the app crashes:
+App closes
+     ↓
+Reopen
+     ↓
+Local DB
+     ↓
+Active workout exists
+     ↓
+Resume
+The user shouldn't lose:
+sets
+timer
+exercise position
+notes
+
+31. Rest Timer
+The rest timer doesn't need backend involvement.
+Set completed
+     ↓
+Local timer
+     ↓
+120 seconds
+     ↓
+Next Set
+If the app closes, we can reconstruct remaining time from:
+restStartedAt
++
+restDuration
+rather than storing a constantly changing countdown.
+
+32. Workout State
+Local state might look like:
+{
+  "sessionId": "...",
+  "currentExerciseIndex": 2,
+  "currentSetNumber": 3,
+  "restStartedAt": "...",
+  "restDurationSeconds": 120,
+  "isPaused": false
+}
+This makes the workout resumable.
+
+33. Offline Rules
+During an offline workout the athlete can:
+✓ Start workout
+✓ View workout
+✓ Log sets
+✓ Edit current workout
+✓ Complete workout
+✓ Add notes
+✓ Use timer
+✓ See previous cached performance
+They should not need internet for any of these.
+
+34. Offline Restrictions
+Features that require server access:
+AI analysis
+Real-time coach messaging
+New program retrieval
+Cross-device synchronization
+Server-side analytics
+These can show:
+"Available when you're back online."
+rather than blocking the workout.
+
+35. Workout API Set
+At the end of this phase:
+POST   /api/v1/workouts/sessions
+GET    /api/v1/workouts/sessions/:id
+
+POST   /api/v1/workouts/sessions/:id/sets
+
+PATCH  /api/v1/workouts/sessions/:id
+
+POST   /api/v1/workouts/sessions/:id/complete
+
+POST   /api/v1/workouts/sessions/:id/abandon
+
+GET    /api/v1/athletes/me/workout-history
+GET    /api/v1/athletes/me/today-workout
+
+36. Sync API
+We'll also expose:
+POST /api/v1/sync
+Request:
+{
+  "operations": [
+    {
+      "operationId": "...",
+      "type": "ADD_SET",
+      "createdAt": "...",
+      "payload": {}
+    }
+  ]
+}
+Response:
+{
+  "success": true,
+  "results": [
+    {
+      "operationId": "...",
+      "status": "synced"
+    }
+  ]
+}
+The endpoint should process operations idempotently.
+
+37. Don't Build One Giant Sync Endpoint
+The /sync endpoint is a transport mechanism.
+The business logic should still call services:
+Sync Controller
+      ↓
+Sync Service
+      ↓
+Workout Service
+      ↓
+Performance Service
+      ↓
+MongoDB
+Don't put 1,000 lines of workout logic inside /sync.
+
+38. Service Architecture
+Add:
+src/services/
+│
+├── workout.service.ts
+├── session.service.ts
+├── performance.service.ts
+├── sync.service.ts
+└── pr.service.ts
+Responsibilities:
+workout.service
+→ workout templates
+
+session.service
+→ start/resume/complete sessions
+
+performance.service
+→ sets and actual performance
+
+sync.service
+→ offline operations
+
+pr.service
+→ deterministic PR detection
+This separation will matter when AI gets added later.
+
+39. The Complete Workout Flow
+                 COACH
+                   │
+             Creates Program
+                   │
+                   ▼
+                WORKOUT
+                   │
+                   ▼
+             ASSIGNED ATHLETE
+                   │
+                   ▼
+          SCHEDULED WORKOUT
+                   │
+                   ▼
+              START SESSION
+                   │
+                   ▼
+             LOCAL DATABASE
+                   │
+             ┌─────┴─────┐
+             │           │
+          ONLINE       OFFLINE
+             │           │
+             ▼           ▼
+          SERVER      LOCAL QUEUE
+             │           │
+             │        INTERNET
+             │           │
+             └─────┬─────┘
+                   ▼
+                MONGODB
+                   │
+                   ▼
+            PERFORMANCE DATA
+                   │
+          ┌────────┼────────┐
+          ▼        ▼        ▼
+         PR      Volume   Adherence
+          │        │        │
+          └────────┼────────┘
+                   ▼
+             Coach + AI
+
+40. Phase 3F Complete
+We have now defined:
+✓ Workout session lifecycle
+✓ Prescription snapshots
+✓ Session ownership
+✓ Active-session protection
+✓ Set logging
+✓ Set validation
+✓ Idempotency
+✓ Offline-first architecture
+✓ Local persistence
+✓ Sync queue
+✓ Retry strategy
+✓ Conflict strategy
+✓ Workout completion
+✓ Volume calculation
+✓ PR detection
+✓ Scheduled workout updates
+✓ Workout resume
+✓ Rest timer persistence
+✓ Workout history
+✓ Sync API
+The most important architectural principle is:
+The athlete's workout should never be held hostage by the internet.
+
+Phase 3G — Progress + Analytics Engine
+Next we turn all those sets into useful information:
+Workout Sessions
+       ↓
+Performance Events
+       ↓
+Aggregation Engine
+       ↓
+┌──────────┬──────────┬──────────┐
+▼          ▼          ▼          ▼
+Strength   Volume   Consistency   PRs
+   │          │          │         │
+   └──────────┴──────────┴─────────┘
+                    ↓
+             Progress Engine
+                    ↓
+          ┌─────────┴─────────┐
+          ▼                   ▼
+       ATHLETE              COACH
+       Dashboard            Analytics
+In 3G, we'll implement the MongoDB progress structures, personal records, strength trends, training volume, adherence calculations, body measurements, progress photos metadata, goal progress, aggregation strategies, and the data layer that the future AI system will consume.
+Phase 3G — Progress + Analytics Engine
+We now turn raw workout data into measurable progress.
+The data flow becomes:
+Workout Sessions
+       ↓
+Set Performance
+       ↓
+Performance Engine
+       ↓
+┌────────────┬─────────────┬──────────────┐
+│ Strength   │ Volume      │ Consistency  │
+└────────────┴─────────────┴──────────────┘
+       ↓             ↓             ↓
+       └─────────────┼─────────────┘
+                     ↓
+              Progress Engine
+                     ↓
+          ┌──────────┴──────────┐
+          ▼                     ▼
+       ATHLETE                 COACH
+       Progress                Analytics
+The existing project design also calls for progress tracking across strength, volume, consistency, body measurements, photos, PRs, and goals, so this phase establishes the backend foundation for all of those.
+
+1. Don't Store Every Metric
+A common mistake would be creating a document like:
+Athlete
+ ├── totalVolume
+ ├── weeklyVolume
+ ├── monthlyVolume
+ ├── benchProgress
+ ├── squatProgress
+ ├── streak
+ ├── adherence
+ ├── PRs
+ └── ...
+Don't do that.
+Workout sessions are the source of truth.
+Analytics are derived from them.
+WorkoutSession
+      ↓
+Raw Performance
+      ↓
+Aggregation
+      ↓
+Analytics
+
+2. Progress Domains
+We'll track:
+PROGRESS
+│
+├── Strength
+├── Volume
+├── Consistency
+├── Personal Records
+├── Body Measurements
+├── Progress Photos
+└── Goals
+Each has a different data model.
+
+3. Strength Tracking
+For resistance exercises, useful metrics include:
+Best Weight
+Best Reps
+Best Set
+Estimated 1RM
+Volume
+Example:
+Bench Press
+
+Jan
+60kg × 8
+
+Feb
+65kg × 8
+
+Mar
+70kg × 8
+The chart can then show:
+70kg ┤                ●
+65kg ┤          ●
+60kg ┤    ●
+55kg ┤
+     └────────────────────
+       Jan   Feb   Mar
+
+4. Estimated 1RM
+We can calculate estimated 1RM for applicable resistance exercises.
+For example, Epley:
+1RM = weight × (1 + reps / 30)
+For:
+70kg × 8
+estimated 1RM:
+≈ 88.7kg
+This is an estimate, not a measured maximum.
+The API should label it accordingly.
+
+5. Never Let AI Calculate Core Metrics
+This:
+70kg × 8
+should be processed by deterministic code.
+Not:
+LLM → "I think the 1RM is..."
+AI can later interpret the data:
+"Your estimated bench strength has increased approximately 12%."
+But the underlying number comes from our calculation engine.
+
+6. Personal Record Model
+Create:
+src/models/PersonalRecord.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type PRType =
+  | "weight"
+  | "reps"
+  | "estimated_1rm"
+  | "volume";
+
+export interface IPersonalRecord
+  extends Document {
+  athleteId: mongoose.Types.ObjectId;
+
+  exerciseId: mongoose.Types.ObjectId;
+
+  type: PRType;
+
+  value: number;
+
+  weight?: number;
+
+  reps?: number;
+
+  sessionId: mongoose.Types.ObjectId;
+
+  achievedAt: Date;
+}
+
+const personalRecordSchema =
+  new Schema<IPersonalRecord>(
+    {
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      exerciseId: {
+        type: Schema.Types.ObjectId,
+        ref: "Exercise",
+        required: true
+      },
+
+      type: {
+        type: String,
+        enum: [
+          "weight",
+          "reps",
+          "estimated_1rm",
+          "volume"
+        ],
+        required: true
+      },
+
+      value: {
+        type: Number,
+        required: true
+      },
+
+      weight: Number,
+
+      reps: Number,
+
+      sessionId: {
+        type: Schema.Types.ObjectId,
+        ref: "WorkoutSession",
+        required: true
+      },
+
+      achievedAt: {
+        type: Date,
+        required: true
+      }
+    },
+    {
+      timestamps: true
+    }
+  );
+
+personalRecordSchema.index({
+  athleteId: 1,
+  exerciseId: 1,
+  type: 1
+});
+
+personalRecordSchema.index({
+  athleteId: 1,
+  achievedAt: -1
+});
+
+export const PersonalRecord =
+  mongoose.model<IPersonalRecord>(
+    "PersonalRecord",
+    personalRecordSchema
+  );
+
+7. PR Detection
+When a session is completed:
+New Performance
+       ↓
+Calculate metrics
+       ↓
+Find athlete's existing best
+       ↓
+Compare
+       ↓
+New record?
+   ┌───┴───┐
+  YES      NO
+   │
+   ▼
+Create PR
+Example:
+Previous estimated 1RM:
+82kg
+
+New:
+88kg
+
+→ New PR
+
+8. Don't Delete Old PRs
+Suppose:
+Jan → 70kg
+Feb → 75kg
+Mar → 80kg
+Keep the history.
+The latest record is:
+80kg
+But historical records remain useful for charts and analysis.
+
+9. Volume Tracking
+Basic resistance-training volume:
+Volume = Σ(weight × reps)
+Example:
+Bench:
+60 × 10 = 600
+60 × 10 = 600
+62.5 × 8 = 500
+
+Total = 1700kg
+For a workout:
+Chest
+1700kg
+
+Shoulders
+900kg
+
+Triceps
+600kg
+
+Workout
+3200kg
+
+10. Volume by Time Period
+The backend should support:
+Daily
+Weekly
+Monthly
+Custom range
+Example:
+GET /api/v1/athletes/me/progress/volume
+  ?from=2026-08-01
+  &to=2026-08-28
+Response:
+{
+  "success": true,
+  "data": {
+    "totalVolume": 42350,
+    "unit": "kg"
+  }
+}
+
+11. Weekly Volume
+For charts:
+{
+  "data": [
+    {
+      "week": "2026-W31",
+      "volume": 10200
+    },
+    {
+      "week": "2026-W32",
+      "volume": 11400
+    },
+    {
+      "week": "2026-W33",
+      "volume": 12100
+    }
+  ]
+}
+The frontend can render the chart.
+
+12. Consistency
+Consistency should not simply mean:
+Number of workouts
+We have planned workouts and actual workouts.
+So:
+Adherence =
+completed scheduled workouts
+÷
+expected scheduled workouts
+× 100
+Example:
+20 scheduled
+17 completed
+
+17 / 20 × 100
+= 85%
+
+13. Adherence Model
+We don't necessarily need a permanent Adherence collection initially.
+Calculate it from:
+ScheduledWorkout
++
+WorkoutSession
+This prevents duplicated sources of truth.
+Later, if analytics scale becomes large, we can maintain aggregated daily/weekly statistics.
+
+14. Streak
+A workout streak can be calculated from scheduled/completed workouts.
+Example:
+Mon ✓
+Tue ✓
+Wed ✓
+Thu ✓
+Fri ✓
+Sat Rest
+Sun Rest
+Current streak:
+5 workouts
+Don't simply count consecutive calendar days because rest days are valid.
+The streak algorithm should understand the athlete's schedule.
+
+15. Body Measurements
+Create:
+src/models/BodyMeasurement.ts
+BodyMeasurement
+│
+├── athleteId
+├── recordedAt
+├── weightKg
+├── bodyFatPercentage?
+├── chestCm?
+├── waistCm?
+├── hipsCm?
+├── armCm?
+├── thighCm?
+└── notes?
+Not every measurement needs to exist.
+
+16. Measurement Schema
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export interface IBodyMeasurement
+  extends Document {
+  athleteId: mongoose.Types.ObjectId;
+  recordedAt: Date;
+
+  weightKg?: number;
+  bodyFatPercentage?: number;
+
+  chestCm?: number;
+  waistCm?: number;
+  hipsCm?: number;
+  armCm?: number;
+  thighCm?: number;
+
+  notes?: string;
+}
+
+const bodyMeasurementSchema =
+  new Schema<IBodyMeasurement>(
+    {
+      athleteId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      recordedAt: {
+        type: Date,
+        required: true
+      },
+
+      weightKg: Number,
+
+      bodyFatPercentage: Number,
+
+      chestCm: Number,
+
+      waistCm: Number,
+
+      hipsCm: Number,
+
+      armCm: Number,
+
+      thighCm: Number,
+
+      notes: String
+    },
+    {
+      timestamps: true
+    }
+  );
+
+bodyMeasurementSchema.index({
+  athleteId: 1,
+  recordedAt: -1
+});
+
+export const BodyMeasurement =
+  mongoose.model<IBodyMeasurement>(
+    "BodyMeasurement",
+    bodyMeasurementSchema
+  );
+
+17. Progress Photos
+Don't store the actual image binary inside MongoDB.
+Store metadata:
+ProgressPhoto
+│
+├── athleteId
+├── storageKey
+├── url
+├── takenAt
+├── category
+└── visibility
+Actual file:
+Object Storage
+     │
+     └── image
+MongoDB:
+metadata
+
+18. Photo Categories
+front
+back
+side
+other
+Later:
+progress comparison
+can display:
+August 1       August 28
+   Photo          Photo
+
+19. Goal Model
+We already identified goals as a core progress feature.
+Create:
+src/models/Goal.ts
+Structure:
+Goal
+│
+├── athleteId
+├── type
+├── title
+├── targetValue
+├── currentValue
+├── unit
+├── startDate
+├── targetDate
+├── status
+└── completedAt
+
+20. Goal Types
+Initial types:
+strength
+body_weight
+consistency
+volume
+custom
+Example:
+{
+  "type": "strength",
+  "title": "Bench Press",
+  "targetValue": 100,
+  "currentValue": 82.5,
+  "unit": "kg"
+}
+
+21. Goal Progress
+Don't require the athlete to manually update:
+currentValue
+where possible.
+For a strength goal:
+Goal
+100kg Bench
+
+        ↓
+
+Latest Bench PR
+82.5kg
+
+        ↓
+
+currentValue = 82.5
+This can be calculated automatically.
+
+22. Goal Completion
+When:
+currentValue >= targetValue
+then:
+status:
+active → completed
+and:
+completedAt = now
+This can trigger a notification.
+
+23. Progress API
+Athlete:
+GET /api/v1/athletes/me/progress
+Strength:
+GET /api/v1/athletes/me/progress/strength
+Volume:
+GET /api/v1/athletes/me/progress/volume
+Consistency:
+GET /api/v1/athletes/me/progress/consistency
+PRs:
+GET /api/v1/athletes/me/progress/prs
+Measurements:
+GET /api/v1/athletes/me/measurements
+POST /api/v1/athletes/me/measurements
+Goals:
+GET /api/v1/athletes/me/goals
+POST /api/v1/athletes/me/goals
+PATCH /api/v1/athletes/me/goals/:id
+
+24. Exercise-Specific Progress
+This will be one of the most frequently used endpoints:
+GET /api/v1/athletes/me/progress/exercises/:exerciseId
+Response:
+{
+  "success": true,
+  "data": {
+    "exercise": {
+      "name": "Barbell Bench Press"
+    },
+
+    "bestWeight": 82.5,
+
+    "bestReps": 12,
+
+    "estimated1RM": 115.5,
+
+    "history": []
+  }
+}
+
+25. Progress Aggregation
+MongoDB aggregation pipelines will handle many of these calculations.
+Example conceptual flow:
+WorkoutSession
+      ↓
+Match athlete
+      ↓
+Unwind exercises
+      ↓
+Unwind sets
+      ↓
+Calculate volume
+      ↓
+Group by week
+      ↓
+Return analytics
+This is much better than downloading every workout to the phone and calculating everything there.
+
+26. Analytics Caching
+If an athlete has:
+3 years
+1000+ workouts
+we don't want every dashboard request to process every set ever recorded.
+Eventually we'll use:
+Raw Data
+   ↓
+Aggregation Job
+   ↓
+Daily / Weekly Summary
+For example:
+AthleteWeeklyStats
+│
+├── athleteId
+├── weekStart
+├── workoutsCompleted
+├── workoutsScheduled
+├── totalVolume
+├── totalSets
+├── totalReps
+└── prs
+For now, we can calculate on demand and introduce aggregation documents when scale requires them.
+
+27. Don't Prematurely Cache Everything
+Initial version:
+MongoDB
+   ↓
+Aggregation
+   ↓
+API
+Later:
+MongoDB
+   ↓
+Aggregation Jobs
+   ↓
+Analytics Collection
+   ↓
+API
+Start simple.
+Measure first.
+
+28. Coach Analytics
+Coach requests:
+GET /api/v1/coaches/me/athletes/:athleteId/progress
+The backend first verifies:
+Coach
+ ↓
+Active relationship
+ ↓
+Athlete
+Then returns:
+Adherence
+Volume
+Strength
+PRs
+Goals
+Recent sessions
+
+29. Coach Group Analytics
+Later:
+GET /api/v1/coaches/me/analytics
+Could return:
+42 athletes
+
+Average adherence
+87%
+
+Athletes progressing
+31
+
+Athletes plateaued
+6
+
+Athletes inactive
+5
+This will eventually power the Coach Dashboard's attention engine.
+
+30. Progress Engine Architecture
+Create:
+src/services/
+│
+├── progress.service.ts
+├── strength.service.ts
+├── volume.service.ts
+├── consistency.service.ts
+├── pr.service.ts
+└── goal.service.ts
+Responsibilities:
+strength.service
+→ strength metrics
+
+volume.service
+→ volume calculations
+
+consistency.service
+→ adherence/streaks
+
+pr.service
+→ PR detection
+
+goal.service
+→ goal progress
+
+progress.service
+→ orchestration
+
+31. Completion Pipeline
+When a workout is completed:
+Workout Complete
+       │
+       ▼
+Calculate Volume
+       │
+       ├──────────────┐
+       ▼              ▼
+Calculate PRs     Update Goals
+       │              │
+       └───────┬──────┘
+               ▼
+       Update Analytics
+               │
+               ▼
+        Notification Event
+               │
+               ▼
+             Coach
+This is the correct place to connect the systems.
+
+32. Event-Driven Thinking
+We don't necessarily need a full message broker yet.
+But architect the services as if events exist.
+Example:
+WORKOUT_COMPLETED
+could trigger:
+PR Detection
+Goal Update
+Analytics
+Notification
+Coach Activity
+AI Context Update
+This keeps the system modular.
+
+33. AI Will Consume This Layer
+This becomes particularly important later.
+The AI shouldn't query raw MongoDB collections randomly.
+Instead:
+MongoDB
+   ↓
+Progress Engine
+   ↓
+Structured Athlete Context
+   ↓
+AI
+Example AI context:
+{
+  "adherence": 87,
+  "recentVolumeTrend": "+8%",
+  "strengthTrend": "+5%",
+  "recentPRs": 2,
+  "plateaus": [
+    "deadlift"
+  ],
+  "recentNotes": []
+}
+Now the AI can reason over structured, trustworthy data.
+
+34. Important AI Boundary
+The AI can say:
+"Deadlift performance appears to have plateaued."
+But the underlying plateau detection should come from deterministic analytics.
+Raw Sets
+ ↓
+Analytics Algorithm
+ ↓
+Plateau Detected
+ ↓
+AI Interpretation
+Not:
+Raw Sets
+ ↓
+LLM guesses plateau
+
+35. Phase 3G Complete
+We now have the architecture for:
+✓ Strength tracking
+✓ Estimated 1RM
+✓ Volume
+✓ Weekly/monthly analytics
+✓ Consistency
+✓ Adherence
+✓ Streaks
+✓ Personal records
+✓ Body measurements
+✓ Progress photo metadata
+✓ Goals
+✓ Goal completion
+✓ Exercise-specific progress
+✓ Coach analytics
+✓ Aggregation architecture
+✓ AI-ready athlete context
+The complete backend flow is now:
+PROGRAM
+   ↓
+ASSIGNMENT
+   ↓
+SCHEDULE
+   ↓
+WORKOUT
+   ↓
+SESSION
+   ↓
+SETS
+   ↓
+PERFORMANCE ENGINE
+   │
+   ├── PR
+   ├── Strength
+   ├── Volume
+   ├── Consistency
+   └── Goals
+          │
+          ▼
+      ANALYTICS
+          │
+      ┌───┴────┐
+      ▼        ▼
+   ATHLETE   COACH
+      │        │
+      └───┬────┘
+          ▼
+          AI
+Next — Phase 3H: Communication
+We'll build:
+Coach ↔ Athlete
+      │
+      ├── Conversations
+      ├── Messages
+      ├── Feedback
+      ├── Coach Notes
+      ├── Read receipts
+      ├── Message permissions
+      └── Notification events
+We'll also decide whether to use REST + polling initially or WebSockets for real-time messaging, design the MongoDB message model, conversation authorization, unread counts, pagination, message delivery states, and how workout/PR/AI events feed into notifications.
+Phase 3H — Coach ↔ Athlete Communication
+Now we build the communication layer.
+The goal is not simply "chat." It needs to support coaching workflows:
+Coach
+  │
+  ├── Direct message
+  ├── Workout feedback
+  ├── Coach notes
+  ├── Program updates
+  └── Notifications
+          │
+          ▼
+       Athlete
+And later:
+Workout completed
+      ↓
+PR detected
+      ↓
+Coach notification
+
+Athlete sends message
+      ↓
+Coach notification
+
+Coach updates program
+      ↓
+Athlete notification
+
+1. Architecture Decision
+For V1:
+REST API
++
+WebSocket
+Use REST for:
+message history
+conversation creation
+read receipts
+pagination
+search
+Use WebSocket for:
+new messages
+typing indicators
+read events
+online status
+real-time notifications
+So:
+REST
+  │
+  ├── Load history
+  ├── Send fallback
+  └── Manage data
+
+WebSocket
+  │
+  ├── Real-time messages
+  ├── Typing
+  └── Presence
+
+2. Conversation Model
+Create:
+src/models/Conversation.ts
+A conversation represents the relationship between participants.
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type ConversationType =
+  | "coach_athlete"
+  | "support"
+  | "system";
+
+export interface IConversation
+  extends Document {
+  type: ConversationType;
+
+  participants: mongoose.Types.ObjectId[];
+
+  relationshipId?: mongoose.Types.ObjectId;
+
+  lastMessageId?: mongoose.Types.ObjectId;
+
+  lastMessageAt?: Date;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const conversationSchema =
+  new Schema<IConversation>(
+    {
+      type: {
+        type: String,
+        enum: [
+          "coach_athlete",
+          "support",
+          "system"
+        ],
+        required: true
+      },
+
+      participants: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        }
+      ],
+
+      relationshipId: {
+        type: Schema.Types.ObjectId,
+        ref: "CoachAthlete"
+      },
+
+      lastMessageId: {
+        type: Schema.Types.ObjectId,
+        ref: "Message"
+      },
+
+      lastMessageAt: Date
+    },
+    {
+      timestamps: true
+    }
+  );
+
+conversationSchema.index({
+  participants: 1,
+  lastMessageAt: -1
+});
+
+conversationSchema.index({
+  relationshipId: 1
+});
+
+export const Conversation =
+  mongoose.model<IConversation>(
+    "Conversation",
+    conversationSchema
+  );
+
+3. Why Store relationshipId
+This is important.
+Don't merely say:
+Coach A ↔ Athlete B
+Instead:
+Conversation
+     ↓
+relationshipId
+     ↓
+CoachAthleteRelationship
+Then authorization becomes:
+Is this relationship active?
+Is this user part of it?
+This prevents someone from accessing an old or unauthorized conversation.
+
+4. Message Model
+Create:
+src/models/Message.ts
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type MessageType =
+  | "text"
+  | "image"
+  | "file"
+  | "system";
+
+export interface IMessage
+  extends Document {
+  conversationId: mongoose.Types.ObjectId;
+
+  senderId: mongoose.Types.ObjectId;
+
+  type: MessageType;
+
+  text?: string;
+
+  attachment?: {
+    storageKey: string;
+    fileName: string;
+    mimeType: string;
+    sizeBytes: number;
+  };
+
+  clientMessageId: string;
+
+  sentAt: Date;
+
+  editedAt?: Date;
+
+  deletedAt?: Date;
+}
+
+const messageSchema =
+  new Schema<IMessage>(
+    {
+      conversationId: {
+        type: Schema.Types.ObjectId,
+        ref: "Conversation",
+        required: true,
+        index: true
+      },
+
+      senderId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      type: {
+        type: String,
+        enum: [
+          "text",
+          "image",
+          "file",
+          "system"
+        ],
+        required: true
+      },
+
+      text: {
+        type: String,
+        maxlength: 5000
+      },
+
+      attachment: {
+        storageKey: String,
+        fileName: String,
+        mimeType: String,
+        sizeBytes: Number
+      },
+
+      clientMessageId: {
+        type: String,
+        required: true
+      },
+
+      sentAt: {
+        type: Date,
+        default: Date.now
+      },
+
+      editedAt: Date,
+
+      deletedAt: Date
+    },
+    {
+      timestamps: true
+    }
+  );
+
+messageSchema.index({
+  conversationId: 1,
+  sentAt: -1
+});
+
+messageSchema.index(
+  {
+    senderId: 1,
+    clientMessageId: 1
+  },
+  {
+    unique: true
+  }
+);
+
+export const Message =
+  mongoose.model<IMessage>(
+    "Message",
+    messageSchema
+  );
+
+5. Message Types
+Initially:
+text
+image
+file
+system
+Examples:
+Text
+"How did today's workout feel?"
+Image
+Athlete sends a progress photo.
+File
+Coach sends a document.
+System
+"Coach assigned a new program."
+System messages should be generated by the backend, not manually typed by the user.
+
+6. Message Idempotency
+Just like workouts, messages need:
+clientMessageId
+Suppose:
+Mobile
+ ↓
+Send message
+ ↓
+Network fails
+ ↓
+Retry
+Without idempotency:
+"Good workout!"
+
+"Good workout!"
+With:
+clientMessageId = UUID
+the server knows the second request is a retry.
+
+7. Sending a Message
+REST fallback:
+POST /api/v1/conversations/:conversationId/messages
+Request:
+{
+  "clientMessageId": "uuid",
+  "type": "text",
+  "text": "How should I approach tomorrow's workout?"
+}
+Backend:
+Authenticate
+      ↓
+Find conversation
+      ↓
+Verify participant
+      ↓
+Verify relationship
+      ↓
+Check idempotency
+      ↓
+Create message
+      ↓
+Update conversation
+      ↓
+Emit WebSocket event
+      ↓
+Create notification
+
+8. Conversation Authorization
+This is critical.
+Coach A should only access:
+Coach A ↔ Athlete A
+not:
+Coach B ↔ Athlete B
+Backend:
+conversation.participants
+contains req.user.id
+AND, for coach-athlete conversations:
+relationshipId
+        ↓
+active relationship
+Both checks should happen server-side.
+
+9. Message History
+API:
+GET /api/v1/conversations/:conversationId/messages
+Use cursor pagination rather than:
+?page=100
+For chat, cursor pagination scales better.
+Example:
+GET /messages?before=2026-08-28T18:30:00Z&limit=30
+Return:
+{
+  "success": true,
+  "data": {
+    "messages": [],
+    "nextCursor": "..."
+  }
+}
+
+10. Why Not Load All Messages
+A conversation could eventually have:
+10,000 messages
+The app should initially load:
+30 messages
+Then:
+scroll upward
+      ↓
+load older 30
+
+11. Read Receipts
+We need to know:
+Sent
+Delivered
+Read
+For V1, don't store delivery status separately on every message.
+Instead maintain a conversation read cursor.
+
+12. Conversation Participant State
+Create:
+ConversationParticipant
+│
+├── conversationId
+├── userId
+├── lastReadAt
+└── unreadCount
+This is more efficient.
+Example:
+Coach
+lastReadAt:
+18:40
+
+Athlete
+lastReadAt:
+18:55
+
+13. Unread Count
+When athlete receives:
+Message at 19:00
+and hasn't read it:
+unreadCount += 1
+When conversation is opened:
+lastReadAt = now
+unreadCount = 0
+
+14. Read API
+POST /api/v1/conversations/:id/read
+Backend:
+Verify participant
+      ↓
+Update lastReadAt
+      ↓
+Reset unread count
+      ↓
+Emit read event
+
+15. WebSocket Architecture
+We'll create:
+src/realtime/
+│
+├── socket.ts
+├── auth.ts
+├── handlers/
+│   ├── message.handler.ts
+│   ├── typing.handler.ts
+│   └── presence.handler.ts
+└── rooms.ts
+
+16. Socket Authentication
+Never allow:
+connect WebSocket
+     ↓
+access everything
+Instead:
+WebSocket connection
+       ↓
+JWT authentication
+       ↓
+User identified
+       ↓
+Authorized rooms
+The WebSocket should use the same authentication identity as REST.
+
+17. Conversation Rooms
+When connected:
+User
+ ↓
+Join authorized conversation rooms
+Example:
+conversation:abc123
+Only participants can join.
+
+18. New Message Event
+Sender
+ ↓
+WebSocket
+ ↓
+Server
+ ↓
+Save MongoDB
+ ↓
+Emit:
+message:new
+ ↓
+Recipient
+Event:
+{
+  "event": "message:new",
+  "data": {
+    "messageId": "...",
+    "conversationId": "...",
+    "senderId": "...",
+    "type": "text",
+    "text": "Great session today."
+  }
+}
+
+19. Message Ordering
+Don't trust client timestamps.
+The server determines:
+sentAt
+The client can send:
+clientCreatedAt
+for offline reconciliation, but server time remains authoritative for ordering.
+
+20. Typing Indicators
+Typing shouldn't be saved in MongoDB.
+Use WebSocket only:
+typing:start
+typing:stop
+Example:
+{
+  "conversationId": "...",
+  "userId": "..."
+}
+These are ephemeral.
+
+21. Online Presence
+Similarly:
+online
+offline
+Don't continuously write:
+User online
+User online
+User online
+to MongoDB.
+Maintain presence in memory/Redis when we scale.
+
+22. Notifications
+Communication isn't complete without notifications.
+We'll create:
+Notification
+│
+├── recipientId
+├── type
+├── title
+├── body
+├── data
+├── readAt
+└── createdAt
+
+23. Notification Types
+Initially:
+NEW_MESSAGE
+WORKOUT_COMPLETED
+NEW_PROGRAM
+PROGRAM_UPDATED
+NEW_PR
+COACH_INVITATION
+GOAL_COMPLETED
+Later:
+AI_INSIGHT
+MISSED_WORKOUT
+CHECK_IN
+
+24. Notification Model
+import mongoose, {
+  Document,
+  Schema
+} from "mongoose";
+
+export type NotificationType =
+  | "new_message"
+  | "workout_completed"
+  | "new_program"
+  | "program_updated"
+  | "new_pr"
+  | "coach_invitation"
+  | "goal_completed";
+
+export interface INotification
+  extends Document {
+  recipientId: mongoose.Types.ObjectId;
+
+  type: NotificationType;
+
+  title: string;
+
+  body: string;
+
+  data?: Record<string, unknown>;
+
+  readAt?: Date;
+}
+
+const notificationSchema =
+  new Schema<INotification>(
+    {
+      recipientId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+
+      type: {
+        type: String,
+        enum: [
+          "new_message",
+          "workout_completed",
+          "new_program",
+          "program_updated",
+          "new_pr",
+          "coach_invitation",
+          "goal_completed"
+        ],
+        required: true
+      },
+
+      title: {
+        type: String,
+        required: true
+      },
+
+      body: {
+        type: String,
+        required: true
+      },
+
+      data: Schema.Types.Mixed,
+
+      readAt: Date
+    },
+    {
+      timestamps: true
+    }
+  );
+
+notificationSchema.index({
+  recipientId: 1,
+  createdAt: -1
+});
+
+notificationSchema.index({
+  recipientId: 1,
+  readAt: 1
+});
+
+export const Notification =
+  mongoose.model<INotification>(
+    "Notification",
+    notificationSchema
+  );
+
+25. Notification Flow
+Example:
+Athlete completes workout
+        ↓
+Workout service
+        ↓
+Performance engine
+        ↓
+PR detected
+        ↓
+Notification service
+        ↓
+Create notification
+        ↓
+Push notification
+        ↓
+Coach
+This is better than having the workout controller directly send notifications.
+
+26. Notification Service
+Create:
+src/services/notification.service.ts
+Conceptually:
+export async function createNotification(
+  recipientId: string,
+  type: NotificationType,
+  title: string,
+  body: string,
+  data?: Record<string, unknown>
+) {
+  return Notification.create({
+    recipientId,
+    type,
+    title,
+    body,
+    data
+  });
+}
+Later this service can trigger:
+MongoDB notification
++
+WebSocket event
++
+Push notification
+without changing calling services.
+
+27. Push Notifications
+For mobile:
+Backend
+   ↓
+Push Provider
+   ↓
+iOS / Android
+We should store device tokens separately.
+Create later:
+DeviceToken
+│
+├── userId
+├── token
+├── platform
+├── deviceId
+├── lastUsedAt
+└── revokedAt
+Don't put push tokens directly on User.
+A user can have:
+iPhone
+iPad
+Android
+
+28. Coach Notes
+Messages and private notes are different.
+A coach may write:
+"Increase volume next week.
+Watch right knee during squats."
+This should not automatically be visible to the athlete.
+Create:
+CoachNote
+│
+├── coachId
+├── athleteId
+├── content
+├── createdAt
+└── updatedAt
+Authorization:
+Coach only
+unless explicitly shared.
+This becomes useful later for the Coach Copilot.
+
+29. Workout Feedback
+Feedback is different from chat.
+Example:
+Workout completed
+       ↓
+Coach reviews session
+       ↓
+Coach writes:
+"Great work. Increase load next time."
+This should be linked directly to:
+WorkoutSession
+Create:
+WorkoutFeedback
+│
+├── sessionId
+├── coachId
+├── athleteId
+├── rating?
+├── comment
+└── createdAt
+
+30. Why Feedback Is Separate
+Chat:
+"How are you feeling?"
+Feedback:
+Workout #123
+Coach feedback:
+"Your squat depth looked better."
+Feedback becomes part of the workout record and can later be analyzed.
+
+31. Communication APIs
+Conversations
+GET  /api/v1/conversations
+GET  /api/v1/conversations/:id
+Messages
+GET  /api/v1/conversations/:id/messages
+POST /api/v1/conversations/:id/messages
+Read
+POST /api/v1/conversations/:id/read
+Notifications
+GET  /api/v1/notifications
+POST /api/v1/notifications/:id/read
+POST /api/v1/notifications/read-all
+Feedback
+POST /api/v1/workout-sessions/:id/feedback
+GET  /api/v1/workout-sessions/:id/feedback
+
+32. Coach Notes APIs
+GET
+/api/v1/coaches/me/athletes/:athleteId/notes
+
+POST
+/api/v1/coaches/me/athletes/:athleteId/notes
+
+PATCH
+/api/v1/coaches/me/notes/:noteId
+
+DELETE
+/api/v1/coaches/me/notes/:noteId
+Every route must verify the coach-athlete relationship.
+
+33. Communication Architecture
+At the end:
+                    USER
+                      │
+              Authentication
+                      │
+            ┌─────────┴─────────┐
+            ▼                   ▼
+       REST API             WebSocket
+            │                   │
+            ├─────────┬─────────┤
+            ▼         ▼         ▼
+       Conversation Message   Presence
+            │         │
+            ▼         ▼
+         MongoDB    MongoDB
+            │
+            ▼
+      Notification Service
+            │
+       ┌────┴────┐
+       ▼         ▼
+    In-App      Push
+
+34. Event Architecture
+We're now ready for a lightweight internal event system.
+Events:
+COACH_INVITED
+PROGRAM_ASSIGNED
+PROGRAM_UPDATED
+WORKOUT_STARTED
+WORKOUT_COMPLETED
+PR_ACHIEVED
+GOAL_COMPLETED
+MESSAGE_SENT
+FEEDBACK_CREATED
+Services react to these events.
+Example:
+WORKOUT_COMPLETED
+       │
+       ├── Analytics
+       ├── PR Engine
+       ├── Goal Engine
+       ├── Notification
+       └── AI Context
+This is the architectural bridge between our core fitness engine and the intelligent layer we'll build later.
+
+35. Phase 3H Complete
+We now have the foundation for:
+✓ Coach ↔ Athlete conversations
+✓ Message persistence
+✓ Cursor pagination
+✓ Message idempotency
+✓ Read receipts
+✓ Unread counts
+✓ WebSocket architecture
+✓ Typing indicators
+✓ Presence
+✓ Notifications
+✓ Push notification architecture
+✓ Coach private notes
+✓ Workout feedback
+✓ Communication authorization
+✓ Internal event architecture
+
+Phase 3I — Backend Hardening + Production Infrastructure
+We've now built almost all of the core domain model.
+The next phase should not add another major feature yet.
+We need to make what we've built reliable.
+Phase 3I
+│
+├── Security
+├── Rate limiting
+├── Validation
+├── Logging
+├── Error handling
+├── Transactions
+├── Database indexes
+├── Background jobs
+├── File storage
+├── Push notifications
+├── Environment configuration
+├── API documentation
+├── Testing
+└── Deployment
+We'll also establish:
+Development
+      ↓
+Testing
+      ↓
+Staging
+      ↓
+Production
+before moving into Phase 4 — the React Native athlete and coach applications.
+At that point, the backend won't just be a collection of endpoints; we'll have a stable API contract that the mobile apps can safely build against.
+Phase 3I — Backend Hardening + Production Infrastructure
+At this point, the core gym backend is architecturally complete:
+Auth
+Profiles
+Coach ↔ Athlete
+Exercises
+Programs
+Assignments
+Scheduling
+Workout Sessions
+Offline Sync
+Progress
+Analytics
+Communication
+Notifications
+Now we make it production-grade.
+The goal of Phase 3I is:
+              CLIENT
+                 │
+                 ▼
+            API Gateway
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+    Security          Rate Limit
+        │                 │
+        └────────┬────────┘
+                 ▼
+             Express
+                 │
+        ┌────────┼────────┐
+        ▼        ▼        ▼
+     Routes   Services  WebSocket
+        │        │        │
+        └────────┼────────┘
+                 ▼
+              MongoDB
+                 │
+                 ▼
+          Background Jobs
+
+1. Production Folder Structure
+The backend should now look like:
+backend/
+│
+├── src/
+│   │
+│   ├── config/
+│   │   ├── database.ts
+│   │   ├── env.ts
+│   │   ├── logger.ts
+│   │   └── storage.ts
+│   │
+│   ├── controllers/
+│   │
+│   ├── middleware/
+│   │   ├── auth.middleware.ts
+│   │   ├── role.middleware.ts
+│   │   ├── error.middleware.ts
+│   │   ├── rate-limit.middleware.ts
+│   │   └── validation.middleware.ts
+│   │
+│   ├── models/
+│   │
+│   ├── routes/
+│   │
+│   ├── services/
+│   │
+│   ├── validation/
+│   │
+│   ├── realtime/
+│   │
+│   ├── jobs/
+│   │
+│   ├── utils/
+│   │
+│   ├── types/
+│   │
+│   ├── app.ts
+│   └── server.ts
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+└── tsconfig.json
+This gives us clear separation between:
+HTTP
+Business Logic
+Database
+Background Jobs
+Realtime
+Testing
+
+2. Environment Configuration
+Never hard-code:
+MongoDB URL
+JWT secrets
+API keys
+Push credentials
+Storage credentials
+into source code.
+Use:
+.env
+Example:
+NODE_ENV=development
+
+PORT=5000
+
+MONGODB_URI=mongodb://localhost:27017/gym_app
+
+JWT_ACCESS_SECRET=change_me
+JWT_REFRESH_SECRET=change_me
+
+ACCESS_TOKEN_EXPIRES_IN=15m
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+CLIENT_URL=http://localhost:3000
+Production will have completely different secrets.
+
+3. Environment Validation
+The application shouldn't start if required environment variables are missing.
+Create:
+src/config/env.ts
+import { z } from "zod";
+
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.coerce
+    .number()
+    .default(5000),
+
+  MONGODB_URI: z
+    .string()
+    .min(1),
+
+  JWT_ACCESS_SECRET: z
+    .string()
+    .min(32),
+
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32)
+});
+
+export const env =
+  envSchema.parse(process.env);
+Now:
+Missing secret
+     ↓
+Application refuses to start
+instead of discovering the problem after deployment.
+
+4. Security Headers
+Use a security middleware such as Helmet.
+npm install helmet
+Then:
+import helmet from "helmet";
+
+app.use(helmet());
+This adds appropriate HTTP security headers.
+
+5. CORS
+Don't use:
+app.use(cors());
+in production.
+That effectively allows arbitrary origins.
+Instead:
+import cors from "cors";
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+  })
+);
+Later, when we have multiple clients:
+iOS
+Android
+Web
+Admin Dashboard
+we can maintain an allowlist.
+
+6. Request Size Limits
+Don't allow unlimited request bodies.
+app.use(
+  express.json({
+    limit: "1mb"
+  })
+);
+For file uploads, use separate limits.
+This prevents someone from sending enormous payloads to the API.
+
+7. Rate Limiting
+Authentication endpoints are particularly important.
+For example:
+POST /auth/login
+POST /auth/register
+POST /auth/refresh
+POST /auth/password-reset
+should have stricter limits than normal APIs.
+Conceptually:
+Login
+  ↓
+5 attempts / minute
+  ↓
+temporary rate limit
+The exact values should be tuned after observing legitimate traffic.
+
+8. Different Rate Limits
+Don't use one global number.
+Use categories:
+Authentication
+→ strict
+
+Messaging
+→ moderate
+
+Workout logging
+→ high
+
+Read APIs
+→ high
+
+Admin
+→ strict
+This matters because workout logging could legitimately produce many requests during a session.
+
+9. Password Security
+We already use:
+bcrypt
+with a strong work factor.
+We should also enforce:
+minimum password length
+maximum password length
+Avoid silly requirements like:
+must contain exactly:
+1 uppercase
+1 symbol
+1 number
+Length is more useful.
+
+10. Never Return Password Hash
+The User model should make:
+passwordHash
+excluded by default.
+For example:
+passwordHash: {
+  type: String,
+  required: true,
+  select: false
+}
+Then explicitly request it only during login:
+.select("+passwordHash")
+This reduces accidental leakage.
+
+11. Error Handling
+Every API should return predictable errors.
+Success:
+{
+  "success": true,
+  "data": {}
+}
+Error:
+{
+  "success": false,
+  "error": {
+    "code": "ATHLETE_NOT_FOUND",
+    "message": "Athlete not found"
+  }
+}
+Don't return:
+{
+  "stack": "...",
+  "mongooseError": "...",
+  "database": "..."
+}
+to clients.
+
+12. Central Error Classes
+Create:
+src/utils/AppError.ts
+export class AppError extends Error {
+  statusCode: number;
+  code: string;
+
+  constructor(
+    statusCode: number,
+    code: string,
+    message: string
+  ) {
+    super(message);
+
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+}
+Now:
+throw new AppError(
+  404,
+  "ATHLETE_NOT_FOUND",
+  "Athlete not found"
+);
+
+13. Async Controller Handling
+Don't litter controllers with:
+try {
+  ...
+} catch {
+  ...
+}
+for every function.
+Use an async wrapper:
+export function asyncHandler(
+  fn: Function
+) {
+  return (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) =>
+    Promise
+      .resolve(fn(req, res, next))
+      .catch(next);
+}
+Then:
+router.post(
+  "/login",
+  asyncHandler(login)
+);
+Errors automatically reach:
+error.middleware
+
+14. Structured Logging
+Use structured logs rather than random:
+console.log("something happened");
+Production logs should contain:
+timestamp
+level
+requestId
+userId
+route
+status
+duration
+error code
+Example:
+{
+  "level": "info",
+  "requestId": "abc123",
+  "userId": "user123",
+  "route": "/api/v1/workouts/sessions",
+  "status": 201,
+  "durationMs": 87
+}
+This becomes invaluable when debugging production issues.
+
+15. Request IDs
+Every request gets:
+requestId
+Example:
+abc-123
+Then the same ID appears in:
+API log
+database log
+error log
+background job
+If an athlete reports:
+"My workout disappeared."
+we can trace the request through the system.
+
+16. Health Check
+Create:
+GET /health
+Response:
+{
+  "status": "ok",
+  "timestamp": "2026-08-28T15:00:00Z"
+}
+This is used by:
+deployment platform
+load balancer
+monitoring system
+
+17. Database Health Check
+We can also expose:
+GET /health/ready
+which checks:
+API running?
+MongoDB connected?
+Required dependencies available?
+Example:
+{
+  "status": "ready",
+  "database": "connected"
+}
+If MongoDB is unavailable:
+503 Service Unavailable
+
+18. MongoDB Connection Handling
+Don't let the server pretend everything is okay if MongoDB disconnects.
+Implement:
+MongoDB connected
+MongoDB disconnected
+MongoDB reconnecting
+MongoDB error
+with logging.
+
+19. Transactions
+We identified several transactional operations:
+Program creation
+Program publishing
+Program assignment
+Workout completion
+Example:
+START TRANSACTION
+       │
+       ├── Create Assignment
+       ├── Create Schedule
+       └── Update Program
+       │
+     COMMIT
+If any operation fails:
+ROLLBACK
+This prevents partial data.
+
+20. Background Jobs
+Some work shouldn't happen during the API request.
+For example:
+Workout completed
+       ↓
+API response
+       ↓
+Background:
+ ├── PR calculation
+ ├── Analytics
+ ├── Notifications
+ └── AI context update
+The athlete shouldn't wait five seconds for all of this.
+
+21. Job Queue
+Introduce a job queue.
+Architecture:
+API
+ │
+ ▼
+Queue
+ │
+ ├── PR Job
+ ├── Analytics Job
+ ├── Notification Job
+ ├── Email Job
+ └── AI Context Job
+Redis + a queue library is a good future implementation.
+For V1, keep the interface abstract:
+queue.add("WORKOUT_COMPLETED", {
+  sessionId
+});
+Then we can change the underlying queue without changing business logic.
+
+22. Job Retry
+If push notification fails:
+attempt 1
+ ↓
+failure
+ ↓
+attempt 2
+ ↓
+failure
+ ↓
+attempt 3
+ ↓
+dead-letter / manual inspection
+Never let one failed notification break workout completion.
+
+23. File Storage
+We need storage for:
+Progress photos
+Profile pictures
+Exercise videos
+Chat attachments
+Documents
+Don't put these binary files in MongoDB.
+Use object storage:
+Mobile
+  ↓
+Storage
+  ↓
+Object
+  ↓
+MongoDB stores metadata
+
+24. Signed URLs
+Private images should not have permanently public URLs.
+Instead:
+Client
+ ↓
+Request file
+ ↓
+Backend authorizes
+ ↓
+Generate signed URL
+ ↓
+Client downloads
+This is especially important for:
+progress photos
+private coach files
+private conversations
+
+25. API Versioning
+We're already using:
+/api/v1
+Keep it.
+Eventually:
+/api/v1
+/api/v2
+can coexist.
+This prevents breaking an older mobile app when we change the API.
+
+26. Database Migration Strategy
+MongoDB is flexible, but that doesn't mean schema changes should be random.
+Whenever we change a model:
+Old schema
+    ↓
+Migration / backfill
+    ↓
+New schema
+For example:
+weight
+might eventually need:
+weight.value
+weight.unit
+We should migrate existing documents deliberately.
+
+27. Testing Strategy
+Now we add tests at three levels.
+Unit
+ ↓
+Integration
+ ↓
+End-to-End
+
+28. Unit Tests
+Test isolated business logic.
+Examples:
+calculateVolume()
+calculateEstimated1RM()
+detectPR()
+calculateAdherence()
+calculateStreak()
+progressGoal()
+Example:
+60kg × 10
++
+60kg × 10
+
+= 1200kg
+The test should verify exactly that.
+
+29. Integration Tests
+Test:
+API
+ ↓
+Service
+ ↓
+MongoDB
+Examples:
+register user
+login
+create program
+assign program
+start workout
+log set
+complete workout
+
+30. Authorization Tests
+These are particularly important.
+Test:
+Coach A → Athlete A ✓
+Coach A → Athlete B ✗
+
+Athlete A → Own session ✓
+Athlete A → Athlete B session ✗
+
+Coach A → Own program ✓
+Coach A → Coach B program ✗
+These tests prevent security regressions.
+
+31. Offline Sync Tests
+Test:
+Operation
+ ↓
+Upload
+ ↓
+Retry
+ ↓
+Same operation
+Expected:
+ONE database change
+not:
+TWO database changes
+This is essential.
+
+32. Workout Tests
+At minimum:
+Start session
+Resume session
+Log set
+Duplicate set request
+Complete session
+Abandon session
+Invalid exercise
+Invalid athlete
+Concurrent active session
+
+33. Communication Tests
+Test:
+Send message
+Receive message
+Duplicate message
+Read message
+Unread count
+Unauthorized conversation
+Pagination
+
+34. API Documentation
+Document every endpoint.
+We should use OpenAPI/Swagger.
+Structure:
+/api/v1/auth/*
+/api/v1/users/*
+/api/v1/athletes/*
+/api/v1/coaches/*
+/api/v1/exercises/*
+/api/v1/programs/*
+/api/v1/workouts/*
+/api/v1/progress/*
+/api/v1/conversations/*
+/api/v1/notifications/*
+For each endpoint:
+Request
+Response
+Authentication
+Roles
+Errors
+Example
+This will become extremely useful once we start building the React Native apps.
+
+35. API Contract
+We should treat the API as a contract between:
+Backend
+      ↕
+Athlete App
+      ↕
+Coach App
+For example:
+{
+  "success": true,
+  "data": {
+    "sessionId": "...",
+    "status": "in_progress"
+  }
+}
+The mobile app should not depend on random backend internals.
+
+36. Deployment Architecture
+For the first production version:
+                 Internet
+                    │
+                    ▼
+              Backend API
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+       MongoDB              Redis
+          │                   │
+          │              Background
+          │                 Jobs
+          │
+          ▼
+      Object Storage
+Then:
+Mobile Apps
+   │
+   ▼
+Backend
+
+37. Environment Separation
+We should have:
+Development
+Staging
+Production
+Development
+Local MongoDB / dev cluster
+Debug logging
+Test push
+Staging
+Production-like environment
+Test data
+Real API configuration
+Production
+Real users
+Real database
+Monitoring
+Backups
+Strict security
+Never test destructive migrations against production.
+
+38. Database Backups
+MongoDB production data needs automated backups.
+At minimum:
+Daily backup
++
+Retention policy
+For serious production:
+Point-in-time recovery
+The exact backup mechanism depends on the MongoDB deployment we're using.
+
+39. Monitoring
+We should monitor:
+API latency
+Error rate
+MongoDB latency
+Database connections
+Queue failures
+WebSocket connections
+Push failures
+Sync failures
+The most important metrics initially:
+5xx rate
+p95 API latency
+database errors
+failed sync operations
+
+40. Critical Product Metrics
+Separately from infrastructure metrics, the gym app should eventually measure:
+DAU / WAU
+Workout completion rate
+Program adherence
+Average workouts/week
+Coach response time
+Athlete retention
+PR frequency
+These are product analytics, not server monitoring.
+Keep them separate.
+
+41. Security Checklist
+Before production:
+✓ HTTPS
+✓ Secure JWT secrets
+✓ Password hashing
+✓ Refresh token rotation
+✓ Token revocation
+✓ Rate limiting
+✓ CORS restrictions
+✓ Helmet/security headers
+✓ Input validation
+✓ Request size limits
+✓ Authorization checks
+✓ No password leakage
+✓ No stack traces
+✓ Database backups
+✓ Audit logs
+✓ Secure file storage
+✓ Signed URLs
+✓ Dependency auditing
+
+42. Audit Logging
+For sensitive actions, record:
+Coach changed athlete program
+Coach ended relationship
+Athlete changed profile
+Admin changed user role
+Program published
+Program archived
+Example:
+AuditLog
+│
+├── actorId
+├── action
+├── entityType
+├── entityId
+├── metadata
+├── ipAddress
+└── createdAt
+This is particularly valuable when investigating disputes.
+
+43. Don't Audit Everything
+We don't need:
+GET /exercises
+creating an audit record every time.
+Audit events should focus on:
+security
+permissions
+data changes
+important business events
+
+44. Admin Role
+We've referenced admin throughout the architecture.
+Now define exactly what that means.
+Admin can:
+Manage users
+Manage system exercises
+Review coaches
+Review reports
+Moderate content
+View system analytics
+But admin access should still be explicit.
+Don't make:
+admin = unrestricted database access
+part of application logic.
+
+45. Coach Verification
+We already added:
+verificationStatus
+to CoachProfile.
+The lifecycle:
+pending
+   ↓
+verified
+or:
+pending
+   ↓
+rejected
+Only verified coaches should eventually be allowed to perform certain coaching actions.
+For development, we can bypass this requirement.
+
+46. Production Request Flow
+The final request lifecycle is:
+                    REQUEST
+                       │
+                       ▼
+                    HTTPS
+                       │
+                       ▼
+                 Rate Limiter
+                       │
+                       ▼
+                  Security
+                       │
+                       ▼
+                Request ID
+                       │
+                       ▼
+                   Express
+                       │
+                       ▼
+                 Validation
+                       │
+                       ▼
+              Authentication
+                       │
+                       ▼
+              Authorization
+                       │
+                       ▼
+                 Controller
+                       │
+                       ▼
+                  Service
+                       │
+                ┌──────┴──────┐
+                ▼             ▼
+             MongoDB       Job Queue
+                │             │
+                └──────┬──────┘
+                       ▼
+                   Response
+                       │
+                       ▼
+                  Structured Log
+
+47. Phase 3 Is Now Complete
+The entire backend foundation is now:
+PHASE 3
+│
+├── 3A Architecture + MongoDB
+│
+├── 3B Authentication
+│
+├── 3C Profiles + Relationships
+│
+├── 3D Exercise + Workout Data
+│
+├── 3E Programs + Assignments
+│
+├── 3F Workout Sessions + Offline Sync
+│
+├── 3G Progress + Analytics
+│
+├── 3H Communication
+│
+└── 3I Production Hardening
+The backend domain is now:
+                    USER
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+       ATHLETE                 COACH
+          │                     │
+     Profile                Profile
+          │                     │
+          └──────────┬──────────┘
+                     ▼
+             RELATIONSHIP
+                     │
+                     ▼
+                  PROGRAM
+                     │
+                  VERSION
+                     │
+                    WEEK
+                     │
+                  WORKOUT
+                     │
+               PRESCRIPTION
+                     │
+                ASSIGNMENT
+                     │
+                  SCHEDULE
+                     │
+                  SESSION
+                     │
+                    SETS
+                     │
+               PERFORMANCE
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+      STRENGTH     VOLUME      CONSISTENCY
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+                  PROGRESS
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+       ATHLETE                 COACH
+          │                     │
+          └──────────┬──────────┘
+                     ▼
+                     AI
+Phase 4 — Mobile Applications
+Now we move out of backend architecture and start building the actual product.
+The next phase should be split into two applications sharing the same backend:
+                    BACKEND
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+       ATHLETE APP          COACH APP
+              │                 │
+              ▼                 ▼
+        Athlete UX          Coach UX
+Phase 4A — React Native Foundation
+We'll set up:
+React Native
+TypeScript
+Navigation
+Authentication state
+API client
+Secure token storage
+Local database
+Offline sync
+WebSocket client
+Theme/design system
+Reusable components
+Then:
+Phase 4B → Athlete onboarding
+Phase 4C → Athlete Home
+Phase 4D → Workout execution UI
+Phase 4E → Progress
+Phase 4F → Coach dashboard
+Phase 4G → Program builder
+Phase 4H → Messaging
+Phase 4I → Notifications
+Phase 4J → Polish + testing
+The most important thing in Phase 4 is not to build screens independently of the backend. Each screen should be tied to the API/data model we've just established so we don't end up with a beautiful frontend that has to be rewritten when real data is connected.

@@ -1,0 +1,8994 @@
+Phase 4 — Mobile Applications
+We now start building the actual gym app.
+I recommend one React Native codebase with role-specific experiences rather than two completely separate apps:
+                    React Native App
+                           │
+                  ┌────────┴────────┐
+                  ▼                 ▼
+               ATHLETE             COACH
+                  │                 │
+                  ▼                 ▼
+             Athlete UX         Coach UX
+                  │                 │
+                  └────────┬────────┘
+                           ▼
+                       Backend
+                           │
+                       MongoDB
+This gives us shared components, authentication, networking, storage, notifications, and design while keeping the two dashboards properly separated.
+
+Phase 4A — React Native Foundation
+Before building any screens, we establish the mobile architecture.
+1. Tech Stack
+Use:
+React Native
+TypeScript
+React Navigation
+Axios
+TanStack Query
+Zustand
+Secure Storage
+Local Database
+WebSocket
+The responsibilities should be:
+Technology
+Responsibility
+React Native
+UI
+TypeScript
+Type safety
+React Navigation
+Navigation
+Axios
+API communication
+TanStack Query
+Server state/cache
+Zustand
+Local application state
+Secure Storage
+Tokens/secrets
+Local DB
+Offline workout data
+WebSocket
+Real-time communication
+The key distinction:
+Server state
+→ TanStack Query
+
+UI/application state
+→ Zustand
+
+Sensitive credentials
+→ Secure Storage
+
+Workout/offline data
+→ Local Database
+Don't put everything into one global store.
+
+2. Project Structure
+Create:
+mobile/
+│
+├── src/
+│   │
+│   ├── api/
+│   │   ├── client.ts
+│   │   ├── auth.api.ts
+│   │   ├── athlete.api.ts
+│   │   ├── coach.api.ts
+│   │   ├── workout.api.ts
+│   │   ├── progress.api.ts
+│   │   ├── program.api.ts
+│   │   ├── message.api.ts
+│   │   └── notification.api.ts
+│   │
+│   ├── components/
+│   │   ├── Button/
+│   │   ├── Input/
+│   │   ├── Card/
+│   │   ├── Avatar/
+│   │   ├── ProgressBar/
+│   │   └── Loading/
+│   │
+│   ├── navigation/
+│   │   ├── RootNavigator.tsx
+│   │   ├── AuthNavigator.tsx
+│   │   ├── AthleteNavigator.tsx
+│   │   └── CoachNavigator.tsx
+│   │
+│   ├── screens/
+│   │   ├── auth/
+│   │   ├── athlete/
+│   │   ├── coach/
+│   │   └── shared/
+│   │
+│   ├── hooks/
+│   │
+│   ├── stores/
+│   │   ├── auth.store.ts
+│   │   ├── workout.store.ts
+│   │   └── app.store.ts
+│   │
+│   ├── database/
+│   │   ├── schema/
+│   │   ├── repositories/
+│   │   └── sync/
+│   │
+│   ├── websocket/
+│   │   └── socket.ts
+│   │
+│   ├── theme/
+│   │   ├── colors.ts
+│   │   ├── typography.ts
+│   │   ├── spacing.ts
+│   │   └── index.ts
+│   │
+│   ├── types/
+│   │
+│   ├── utils/
+│   │
+│   └── App.tsx
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── fonts/
+│
+├── package.json
+└── tsconfig.json
+This will prevent the project from turning into:
+screens/
+  Screen1.tsx
+  Screen2.tsx
+  Screen3.tsx
+  ...
+  Screen47.tsx
+with business logic scattered everywhere.
+
+3. Root Navigation
+The navigation hierarchy should be:
+RootNavigator
+│
+├── Loading
+│
+├── AuthNavigator
+│   ├── Login
+│   ├── Register
+│   └── ForgotPassword
+│
+├── AthleteNavigator
+│   ├── Home
+│   ├── Workout
+│   ├── Progress
+│   ├── Programs
+│   ├── Messages
+│   └── Profile
+│
+└── CoachNavigator
+    ├── Dashboard
+    ├── Athletes
+    ├── Programs
+    ├── Calendar
+    ├── Messages
+    └── Profile
+The root navigator determines which branch to show.
+
+4. Authentication Flow
+The app starts:
+App Launch
+    ↓
+Load stored session
+    ↓
+Access token?
+    │
+ ┌──┴───┐
+ NO    YES
+ │       │
+ ▼       ▼
+Login   Validate
+          │
+       ┌──┴──┐
+      FAIL   OK
+       │      │
+       ▼      ▼
+     Login   User
+              │
+        ┌─────┴─────┐
+        ▼           ▼
+     Athlete       Coach
+        │           │
+        ▼           ▼
+    Athlete UI   Coach UI
+
+5. Auth Store
+Create:
+src/stores/auth.store.ts
+Structure:
+interface AuthState {
+  user: User | null;
+
+  accessToken: string | null;
+
+  isAuthenticated: boolean;
+
+  isLoading: boolean;
+
+  initialize: () => Promise<void>;
+
+  login: (
+    email: string,
+    password: string
+  ) => Promise<void>;
+
+  logout: () => Promise<void>;
+}
+The refresh token should not be exposed throughout the application state.
+Keep sensitive tokens inside secure storage.
+
+6. Secure Token Storage
+Conceptually:
+Secure Storage
+│
+├── access token
+└── refresh token
+Don't use:
+AsyncStorage
+for long-lived authentication secrets.
+AsyncStorage is not intended to be your secure credential vault.
+
+7. API Client
+Create:
+src/api/client.ts
+The client should automatically attach:
+Authorization: Bearer ACCESS_TOKEN
+to authenticated requests.
+Conceptually:
+API Request
+     ↓
+Axios interceptor
+     ↓
+Access token
+     ↓
+Backend
+
+8. Automatic Token Refresh
+When API returns:
+401
+the client should:
+Request
+ ↓
+401
+ ↓
+Refresh token
+ ↓
+New access token
+ ↓
+Retry original request
+Important:
+If 10 requests fail simultaneously, don't send:
+10 refresh requests
+Instead use a single refresh operation and queue the failed requests behind it.
+Request A ─┐
+Request B ─┤
+Request C ─┤
+           ▼
+      One refresh
+           │
+           ▼
+      New token
+           │
+      ┌────┼────┐
+      ▼    ▼    ▼
+      A    B    C
+This avoids race conditions.
+
+9. API Modules
+Don't write:
+axios.get(...)
+inside every screen.
+Instead:
+auth.api.ts
+athlete.api.ts
+workout.api.ts
+progress.api.ts
+program.api.ts
+message.api.ts
+For example:
+export async function getTodayWorkout() {
+  const response =
+    await apiClient.get(
+      "/athletes/me/today-workout"
+    );
+
+  return response.data.data;
+}
+Then the screen doesn't care about HTTP implementation.
+
+10. Server State
+Use TanStack Query for:
+Today's workout
+Profile
+Programs
+Progress
+Messages
+Notifications
+Athlete list
+Coach data
+Example:
+useQuery
+   ↓
+API
+   ↓
+Cache
+   ↓
+UI
+This gives us:
+loading
+error
+cached
+refetch
+stale
+retry
+without manually implementing all of it.
+
+11. Local Application State
+Use Zustand for things like:
+current workout UI state
+selected tab
+temporary filters
+modal state
+app preferences
+Don't use Zustand as a replacement for the server cache.
+
+12. Design System
+Before building screens, establish the design tokens.
+Create:
+src/theme/
+├── colors.ts
+├── typography.ts
+├── spacing.ts
+├── radius.ts
+└── shadows.ts
+Example:
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48
+};
+Then screens consistently use:
+padding: spacing.md
+instead of random values everywhere.
+
+13. Typography
+Define:
+Display
+Heading 1
+Heading 2
+Heading 3
+Body
+Body Small
+Caption
+Button
+Label
+Don't manually configure font sizes in every component.
+
+14. Component System
+Build reusable primitives first:
+Button
+Input
+Text
+Card
+Avatar
+Badge
+Modal
+BottomSheet
+Divider
+ProgressBar
+IconButton
+EmptyState
+ErrorState
+Skeleton
+Then higher-level components:
+WorkoutCard
+ExerciseCard
+ProgressChart
+AthleteCard
+ProgramCard
+MessageBubble
+NotificationItem
+
+15. Athlete and Coach Must Not Look Identical
+This addresses an important product requirement.
+The two experiences should share:
+Brand
+Typography
+Colors
+Components
+Navigation conventions
+but have different information architecture.
+Athlete
+Home
+Workout
+Progress
+Programs
+Messages
+Profile
+Coach
+Dashboard
+Athletes
+Programs
+Calendar
+Messages
+Profile
+Don't simply switch a few buttons on the same dashboard.
+
+16. Athlete Bottom Navigation
+Recommended:
+┌─────────────────────────────────┐
+│                                 │
+│          Screen Content         │
+│                                 │
+├─────────────────────────────────┤
+│ Home │ Workout │ Progress │ More│
+└─────────────────────────────────┘
+Messages can be accessible from Home and More, or have its own tab if messaging is a major product feature.
+
+17. Coach Navigation
+┌─────────────────────────────────┐
+│                                 │
+│          Dashboard              │
+│                                 │
+├─────────────────────────────────┤
+│ Home │ Athletes │ Programs │ More│
+└─────────────────────────────────┘
+The Coach Dashboard should immediately answer:
+Who needs attention?
+What happened today?
+What needs action?
+rather than simply displaying generic statistics.
+
+18. Loading States
+Every API-driven screen needs:
+Loading
+Success
+Empty
+Error
+Not just:
+if (data) ...
+Example:
+Loading:
+Skeleton
+
+Empty:
+"No workouts scheduled."
+
+Error:
+"Couldn't load your workout.
+Try again."
+This should be standardized through reusable components.
+
+19. Offline Indicator
+Because workouts are offline-first:
+Online
+and:
+Offline
+should be reflected in the app.
+For example:
+● Offline
+The user should know:
+Your workout is saved on this device and will sync when you're back online.
+
+20. Network Layer
+Create:
+src/utils/network.ts
+The app should know:
+online
+offline
+reconnecting
+This will communicate with the sync engine.
+
+21. Local Database
+The local database should contain only data that benefits from offline access.
+For example:
+WorkoutSession
+Workout
+Exercise
+SetPerformance
+SyncOperation
+Potentially:
+Today's scheduled workout
+Previous exercise performance
+This allows:
+Gym
+ ↓
+No signal
+ ↓
+Open workout
+ ↓
+Log everything
+
+22. Sync Engine
+The mobile architecture becomes:
+                  WORKOUT UI
+                      │
+                      ▼
+                 Local DB
+                      │
+                Sync Queue
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+       Offline                  Online
+          │                       │
+          │                       ▼
+          │                    Backend
+          │                       │
+          └───────────────────────┘
+The UI should primarily interact with the local workout repository.
+Not directly with Axios.
+
+23. Workout Repository
+Create:
+src/database/repositories/workout.repository.ts
+The UI calls:
+startWorkout()
+addSet()
+updateSet()
+completeWorkout()
+resumeWorkout()
+The repository handles:
+Local DB
++
+Sync Queue
+This is a major architectural decision.
+It means the UI doesn't care whether the user is online.
+
+24. Example
+The athlete taps:
++ Add Set
+UI:
+addSet(...)
+Repository:
+Save locally
+     ↓
+Add sync operation
+     ↓
+If online → sync
+If offline → wait
+The UI updates immediately.
+That's what makes the workout experience feel fast.
+
+25. WebSocket Client
+Create:
+src/websocket/socket.ts
+Responsibilities:
+connect
+disconnect
+reconnect
+authenticate
+join rooms
+listen for messages
+listen for notifications
+Don't connect a WebSocket independently from every screen.
+Use one managed connection.
+
+26. Reconnection
+If:
+Wi-Fi disappears
+the socket should:
+disconnect
+ ↓
+retry
+ ↓
+retry
+ ↓
+connection restored
+ ↓
+reconnect
+ ↓
+resubscribe
+The messaging layer should recover automatically.
+
+27. Push Notifications
+Mobile needs to register:
+device
+ ↓
+push token
+ ↓
+backend
+Backend stores:
+DeviceToken
+Then:
+Coach sends message
+ ↓
+Backend
+ ↓
+Push provider
+ ↓
+Athlete phone
+The notification should deep-link into the correct screen.
+Example:
+NEW_MESSAGE
+      ↓
+Open conversation
+or:
+NEW_PR
+   ↓
+Open Progress
+
+28. Deep Linking Architecture
+Define routes such as:
+gymapp://workout/:sessionId
+
+gymapp://conversation/:conversationId
+
+gymapp://progress/:exerciseId
+
+gymapp://program/:programId
+This becomes useful for push notifications and external navigation.
+
+29. Phase 4A Deliverable
+At the end of 4A, we should have:
+✓ React Native project
+✓ TypeScript
+✓ Navigation
+✓ Auth architecture
+✓ Secure token storage
+✓ API client
+✓ Token refresh
+✓ TanStack Query
+✓ Zustand
+✓ Local database foundation
+✓ Offline sync foundation
+✓ WebSocket foundation
+✓ Push notification foundation
+✓ Design system
+✓ Reusable components
+✓ Athlete navigation
+✓ Coach navigation
+✓ Deep linking architecture
+
+Phase 4B — Authentication + Onboarding
+Now we'll actually build the first screens.
+Authentication
+Splash
+ ↓
+Login
+ ↓
+Register
+ ↓
+Forgot Password
+Registration
+Choose Role
+     │
+ ┌───┴────┐
+ ▼        ▼
+Athlete  Coach
+Then role-specific onboarding.
+Athlete
+Basic Info
+ ↓
+Fitness Level
+ ↓
+Goal
+ ↓
+Training Schedule
+ ↓
+Equipment
+ ↓
+Preferences
+ ↓
+Complete
+Coach
+Basic Info
+ ↓
+Experience
+ ↓
+Specializations
+ ↓
+Certifications
+ ↓
+Profile Setup
+ ↓
+Complete
+After that:
+Athlete → Athlete Home
+Coach   → Coach Dashboard
+The first real milestone of Phase 4 will therefore be a working login/register flow connected to our Phase 3 backend, with role-based navigation and persisted authentication.
+Phase 4B — Authentication + Onboarding
+Now we build the first fully functional mobile flow connected to the backend.
+The target is:
+┌──────────────┐
+│   App Start  │
+└──────┬───────┘
+       ↓
+   Splash Screen
+       ↓
+ Check Stored Auth
+       │
+   ┌───┴────┐
+   │        │
+  No       Yes
+   │        │
+   ▼        ▼
+ Login    Validate
+   │        │
+   │    ┌───┴────┐
+   │    │        │
+   │   Valid   Invalid
+   │    │        │
+   │    ▼        ▼
+   │  Role     Login
+   │    │
+   └────┤
+        ▼
+   ┌────┴────┐
+   ▼         ▼
+Athlete     Coach
+Onboarding  Onboarding
+   │         │
+   └────┬────┘
+        ▼
+      App
+
+1. Screen Structure
+Create:
+src/screens/auth/
+│
+├── SplashScreen.tsx
+├── LoginScreen.tsx
+├── RegisterScreen.tsx
+├── ForgotPasswordScreen.tsx
+├── VerifyEmailScreen.tsx
+│
+├── athlete/
+│   ├── AthleteBasicInfoScreen.tsx
+│   ├── AthleteGoalsScreen.tsx
+│   ├── AthleteScheduleScreen.tsx
+│   ├── AthleteEquipmentScreen.tsx
+│   └── AthleteOnboardingCompleteScreen.tsx
+│
+└── coach/
+    ├── CoachBasicInfoScreen.tsx
+    ├── CoachExperienceScreen.tsx
+    ├── CoachSpecializationScreen.tsx
+    ├── CoachCertificationScreen.tsx
+    └── CoachOnboardingCompleteScreen.tsx
+
+2. Splash Screen
+The splash screen should do actual work.
+App launches
+     ↓
+Initialize authentication
+     ↓
+Load secure tokens
+     ↓
+Check session
+     ↓
+Load current user
+     ↓
+Determine onboarding status
+Don't leave the user staring at a splash screen while unnecessary requests happen.
+
+3. Root Navigation Logic
+The root navigator should effectively do:
+if (loading) {
+  return <SplashScreen />;
+}
+
+if (!authenticated) {
+  return <AuthNavigator />;
+}
+
+if (!user.onboardingCompleted) {
+  return <OnboardingNavigator />;
+}
+
+if (user.role === "athlete") {
+  return <AthleteNavigator />;
+}
+
+return <CoachNavigator />;
+This should be centralized.
+Don't make individual screens decide whether another screen should be shown.
+
+4. Login Screen
+The first production-quality screen:
+        Welcome Back
+
+Email
+┌──────────────────────────┐
+│                          │
+└──────────────────────────┘
+
+Password
+┌──────────────────────────┐
+│ •••••••••••              │
+└──────────────────────────┘
+
+        Forgot password?
+
+┌──────────────────────────┐
+│          LOGIN           │
+└──────────────────────────┘
+
+        ─── OR ───
+
+ Continue with Google
+
+Don't have an account?
+        Create account
+Keep it simple.
+The login screen is not where we show a huge amount of product information.
+
+5. Login API
+POST /api/v1/auth/login
+Request:
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+Response:
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "...",
+      "email": "...",
+      "role": "athlete",
+      "onboardingCompleted": false
+    },
+    "accessToken": "..."
+  }
+}
+The refresh token should be handled through the secure authentication mechanism established in Phase 3 rather than being exposed to ordinary application state.
+
+6. Login Flow
+User enters credentials
+        ↓
+Client validation
+        ↓
+POST /auth/login
+        ↓
+Backend validates
+        ↓
+Token returned
+        ↓
+Store securely
+        ↓
+Set authenticated user
+        ↓
+Check onboarding
+        ↓
+Navigate
+
+7. Client-Side Validation
+Before calling the API:
+Email
+→ valid email
+
+Password
+→ non-empty
+But remember:
+Client validation is for UX. Backend validation is for security.
+The backend must always validate again.
+
+8. Error States
+Login should distinguish useful errors.
+For example:
+INVALID_CREDENTIALS
+EMAIL_NOT_VERIFIED
+ACCOUNT_DISABLED
+RATE_LIMITED
+NETWORK_ERROR
+Don't show the user:
+AxiosError: Request failed with status code 401
+Instead:
+Incorrect email or password.
+
+9. Register Screen
+Registration starts with:
+Create your account
+
+Name
+Email
+Password
+Confirm Password
+
+I am a...
+
+┌─────────────┐ ┌─────────────┐
+│   ATHLETE   │ │    COACH    │
+└─────────────┘ └─────────────┘
+
+        CONTINUE
+Role should be explicit.
+
+10. Role Selection
+Once selected:
+ATHLETE
+   ↓
+Athlete onboarding
+
+COACH
+   ↓
+Coach onboarding
+Do not allow the user to simply change:
+{
+  "role": "admin"
+}
+The backend must restrict allowed registration roles.
+
+11. Registration API
+POST /api/v1/auth/register
+Request:
+{
+  "name": "Alex",
+  "email": "alex@example.com",
+  "password": "..."
+  "role": "athlete"
+}
+Backend:
+Validate
+ ↓
+Check email uniqueness
+ ↓
+Hash password
+ ↓
+Create User
+ ↓
+Create role profile
+ ↓
+Create verification token
+ ↓
+Return registration result
+
+12. Email Verification
+After registration:
+Registration
+     ↓
+Verify Email
+     ↓
+Onboarding
+The app can show:
+Check your email
+
+We sent a verification link to:
+
+alex@example.com
+Then:
+Open email
+ ↓
+Verification link
+ ↓
+Backend verifies token
+ ↓
+Account verified
+
+13. Don't Put Verification Tokens in User
+Use a dedicated model:
+EmailVerification
+│
+├── userId
+├── tokenHash
+├── expiresAt
+└── usedAt
+Store a hash of the token rather than the raw token.
+
+14. Forgot Password
+Flow:
+Forgot Password
+      ↓
+Enter email
+      ↓
+Backend
+      ↓
+Password reset email
+      ↓
+Reset Password
+      ↓
+New password
+      ↓
+Invalidate old sessions
+The response should not reveal whether an email exists.
+Instead:
+"If an account exists for that email,
+you'll receive reset instructions."
+This avoids account enumeration.
+
+15. Athlete Onboarding
+Now the interesting part.
+The athlete shouldn't be forced through 15 screens.
+Aim for:
+1. About You
+2. Goals
+3. Training
+4. Equipment
+5. Finish
+Five stages.
+
+16. Athlete — About You
+Collect:
+Name
+Age / DOB
+Height
+Weight
+Gender (if the product needs it)
+Training experience
+Keep optional information optional.
+Don't create unnecessary onboarding friction.
+
+17. Training Experience
+Example:
+What's your training experience?
+
+○ Beginner
+○ Intermediate
+○ Advanced
+Potentially:
+Training for:
+○ < 6 months
+○ 6–24 months
+○ 2+ years
+This helps program personalization.
+
+18. Goals
+The user can select multiple:
+What are your goals?
+
+☐ Build muscle
+☐ Lose fat
+☐ Get stronger
+☐ Improve fitness
+☐ Improve endurance
+☐ General health
+☐ Sport performance
+Then optionally prioritize:
+Primary goal
+Secondary goals
+This becomes useful later for the recommendation engine.
+
+19. Training Schedule
+Ask:
+How many days can you train?
+
+3 days
+4 days
+5 days
+6 days
+7 days
+Then:
+Preferred training days
+
+Mon
+Tue
+Wed
+Thu
+Fri
+Sat
+Sun
+This feeds program scheduling.
+
+20. Equipment
+What equipment do you have?
+
+☐ Full gym
+☐ Dumbbells
+☐ Barbell
+☐ Machines
+☐ Cable
+☐ Home equipment
+☐ Bodyweight
+This is particularly useful for future workout recommendations.
+
+21. Athlete Onboarding Completion
+At the end:
+Profile
+Goals
+Schedule
+Equipment
+        ↓
+POST /athletes/me/onboarding
+        ↓
+Backend validates
+        ↓
+onboardingCompleted = true
+Then:
+Athlete Home
+
+22. Coach Onboarding
+Coach onboarding should be substantially different.
+1. Professional Profile
+2. Experience
+3. Specializations
+4. Certifications
+5. Coaching Setup
+
+23. Coach Professional Profile
+Collect:
+Name
+Profile photo
+Bio
+Location
+Years coaching
+Bio should have a reasonable maximum length.
+
+24. Specializations
+Example:
+☐ Strength
+☐ Hypertrophy
+☐ Weight Loss
+☐ Powerlifting
+☐ Bodybuilding
+☐ Athletic Performance
+☐ Mobility
+☐ General Fitness
+This becomes part of the coach profile.
+
+25. Certifications
+Coach can add:
+Certification name
+Issuing organization
+Year
+Credential ID
+For example:
+Certification
+NSCA-CPT
+
+Issuing Organization
+NSCA
+
+Year
+2025
+If verification is required, the coach profile remains:
+verificationStatus = pending
+until reviewed.
+
+26. Coaching Setup
+Ask:
+How do you coach?
+
+○ In-person
+○ Online
+○ Hybrid
+And optionally:
+Typical athlete capacity
+Preferred communication
+Training specialties
+This helps configure the coach dashboard.
+
+27. Coach Onboarding Completion
+POST /coaches/me/onboarding
+Backend:
+Validate
+ ↓
+Update CoachProfile
+ ↓
+Set onboardingCompleted
+ ↓
+Coach Dashboard
+
+28. Onboarding State
+Do not store onboarding progress only on the device.
+The backend should know:
+onboardingStatus
+For example:
+{
+  "completed": false,
+  "step": "goals"
+}
+Why?
+Because the user may:
+Start onboarding
+ ↓
+Close app
+ ↓
+Open on another device
+and should continue from the correct state.
+
+29. Onboarding Persistence
+Every meaningful step can be saved.
+For example:
+Goals selected
+ ↓
+Save
+ ↓
+Next screen
+If the app crashes:
+Reopen
+ ↓
+Load onboarding state
+ ↓
+Resume
+Don't make onboarding one giant unsaved form.
+
+30. Progress Indicator
+Show:
+●────○────○────○────○
+1    2    3    4    5
+The user should always know where they are.
+Avoid:
+Page 4 of 11
+unless there are actually 11 meaningful steps.
+
+31. Skip vs Required
+Separate fields into:
+Required
+Name
+Email
+Password
+Role
+Primary goal
+Recommended
+Height
+Weight
+Training experience
+Schedule
+Equipment
+Optional
+Bio
+Certifications
+Profile photo
+Secondary goals
+Don't block users from entering the actual app because they haven't uploaded a profile photo.
+
+32. Authentication Persistence
+After successful login:
+Access token
+      ↓
+Secure storage
+
+User
+      ↓
+Auth store
+
+Server state
+      ↓
+TanStack Query
+On app restart:
+Secure storage
+      ↓
+Refresh session
+      ↓
+Fetch /me
+      ↓
+Restore app
+
+33. Logout
+Logout should:
+Clear access token
+Clear refresh credentials
+Clear auth store
+Clear sensitive cached data
+Disconnect WebSocket
+Return to AuthNavigator
+Be careful with local workout data.
+If an unsynced workout exists:
+LOGOUT
+   ↓
+Unsynced workout?
+   │
+ ┌─┴──┐
+YES   NO
+ │
+ ▼
+Warn user
+Never silently delete unsynced workout data.
+
+34. Cache Security
+On logout, don't leave private data accessible to the next user on the same device.
+Clear:
+Athlete profile cache
+Coach profile cache
+Messages
+Notifications
+Program data
+But local workout recovery needs special handling if synchronization is pending.
+
+35. Navigation Guard
+The app should never allow:
+Athlete
+ ↓
+Manually navigate
+ ↓
+Coach Dashboard
+Navigation is not security, but the backend also independently enforces role authorization.
+Both layers matter:
+Frontend
+→ UX protection
+
+Backend
+→ Actual security
+
+36. Authentication Tests
+Before moving on, test:
+✓ Register athlete
+✓ Register coach
+✓ Login
+✓ Wrong password
+✓ Invalid email
+✓ Logout
+✓ App restart
+✓ Token refresh
+✓ Expired session
+✓ Forgot password
+✓ Email verification
+✓ Resume onboarding
+✓ Complete athlete onboarding
+✓ Complete coach onboarding
+✓ Role-specific navigation
+
+37. Phase 4B Completion Criteria
+We don't move forward until this works:
+Fresh Install
+     ↓
+Register
+     ↓
+Email verification
+     ↓
+Role selection
+     ↓
+Role onboarding
+     ↓
+Home/Dashboard
+     ↓
+Close app
+     ↓
+Reopen
+     ↓
+Still authenticated
+And:
+Athlete account
+     ↓
+Athlete UI
+
+Coach account
+     ↓
+Coach UI
+with no role leakage.
+
+Phase 4C — Athlete Home + Workout
+Once 4B is working, we build the first core product experience rather than another setup layer.
+The athlete flow becomes:
+                    ATHLETE HOME
+                         │
+        ┌────────────────┼────────────────┐
+        ▼                ▼                ▼
+    Today's           Progress         Program
+    Workout
+        │
+        ▼
+   START WORKOUT
+        │
+        ▼
+  Workout Session
+        │
+        ▼
+   Log Sets
+        │
+        ▼
+  Complete Workout
+        │
+        ├───────────────┐
+        ▼               ▼
+      PRs            Progress
+        │
+        └───────┬───────┘
+                ▼
+            Home Update
+The next step will be to build Athlete Home and the actual workout execution UI, including the exercise cards, set logging interface, rest timer, previous-performance display, offline state, session persistence, and connection to the Phase 3 workout/session APIs.
+Phase 4C — Athlete Home + Workout Execution
+Now we build the core athlete experience.
+The first version of the athlete app should make one thing extremely easy:
+Open the app → immediately know what to do → start training → log everything → finish → see the result.
+The flow is:
+ATHLETE HOME
+     │
+     ▼
+TODAY'S WORKOUT
+     │
+     ▼
+START WORKOUT
+     │
+     ▼
+WORKOUT SESSION
+     │
+     ├── Exercise 1
+     │      ├── Set 1
+     │      ├── Set 2
+     │      └── Set 3
+     │
+     ├── Exercise 2
+     │      ├── Set 1
+     │      └── Set 2
+     │
+     └── Exercise N
+            │
+            ▼
+       COMPLETE
+            │
+      ┌─────┴─────┐
+      ▼           ▼
+   SUMMARY       PRs
+
+1. Athlete Home
+The home screen should not be a generic dashboard full of statistics.
+Its hierarchy should be:
+┌──────────────────────────────┐
+│ Good morning, Alex           │
+│ Let's get today's work done. │
+│                              │
+│ ┌──────────────────────────┐ │
+│ │ TODAY                    │ │
+│ │ Push                     │ │
+│ │ 6 exercises • ~55 min   │ │
+│ │                          │ │
+│ │        START WORKOUT     │ │
+│ └──────────────────────────┘ │
+│                              │
+│ Your Progress                │
+│ ┌─────────┐ ┌─────────┐      │
+│ │ 87%     │ │ 3       │      │
+│ │Adherence│ │ PRs     │      │
+│ └─────────┘ └─────────┘      │
+│                              │
+│ Recent Activity              │
+│ ...                          │
+│                              │
+├──────────────────────────────┤
+│ Home Workout Progress More   │
+└──────────────────────────────┘
+The most important CTA is:
+START WORKOUT
+
+2. Home API
+Use the backend endpoint we created:
+GET /api/v1/athletes/me/today-workout
+The home screen should use TanStack Query:
+const {
+  data,
+  isLoading,
+  isError,
+  refetch
+} = useQuery({
+  queryKey: ["today-workout"],
+  queryFn: getTodayWorkout
+});
+
+3. Don't Fetch Everything
+Home doesn't need:
+all historical sessions
+all exercises
+all messages
+all programs
+all analytics
+Request only what the screen needs.
+For example:
+{
+  "today": {
+    "scheduledWorkoutId": "...",
+    "workoutId": "...",
+    "name": "Push",
+    "exerciseCount": 6,
+    "estimatedDurationMinutes": 55,
+    "status": "scheduled"
+  },
+  "summary": {
+    "adherence": 87,
+    "recentPRs": 3
+  }
+}
+
+4. Home States
+There are four major states.
+Workout scheduled
+Today's Workout
+Push
+6 exercises
+START
+Workout completed
+Today's Workout
+
+✓ Completed
+
+View Summary
+Rest day
+REST DAY
+
+Recovery is part of the program.
+
+Next workout:
+Pull — Tomorrow
+No program
+No workout scheduled.
+
+Your coach hasn't assigned
+a program yet.
+Don't show an empty dashboard with no explanation.
+
+5. Active Workout Banner
+If an unfinished session exists:
+┌──────────────────────────────┐
+│ WORKOUT IN PROGRESS           │
+│ Push                         │
+│ 3 / 6 exercises              │
+│                              │
+│        RESUME WORKOUT        │
+└──────────────────────────────┘
+This takes priority over "Start Workout."
+
+6. Start Workout
+When the athlete taps:
+START WORKOUT
+the app calls:
+POST /api/v1/workouts/sessions
+with:
+{
+  "scheduledWorkoutId": "...",
+  "clientSessionId": "uuid"
+}
+But importantly, the app should immediately create the local session state.
+
+7. Local-First Start
+Flow:
+Tap START
+   ↓
+Create local session
+   ↓
+Open workout screen immediately
+   ↓
+Queue server operation
+   ↓
+Sync in background
+So even if:
+Internet = OFF
+the athlete can still start.
+
+8. Workout Screen
+The main workout screen:
+┌──────────────────────────────┐
+│ ← Push                  ⋮    │
+│                              │
+│ 42:17                        │
+│                              │
+│ Bench Press                  │
+│                              │
+│ Previous: 60kg × 10         │
+│                              │
+│ SET   KG       REPS    RIR   │
+│  1    60        10      2    │
+│  2    60        10      2    │
+│  3    62.5       8      1    │
+│                              │
+│        + ADD SET             │
+│                              │
+│ ───────────────────────────  │
+│                              │
+│ Incline Dumbbell Press       │
+│                              │
+│ ...                          │
+│                              │
+│      COMPLETE WORKOUT        │
+└──────────────────────────────┘
+
+9. Exercise Card
+Create:
+src/components/workout/ExerciseCard.tsx
+The card should display:
+Exercise name
+Target prescription
+Previous performance
+Completed sets
+Current set
+Notes
+Example:
+Bench Press
+
+3 × 8–12
+Target: 60kg
+Rest: 120 sec
+
+LAST TIME
+60 × 10
+60 × 10
+60 × 9
+This is much more useful than making the athlete remember what they did last week.
+
+10. Set Row
+Create:
+src/components/workout/SetRow.tsx
+Structure:
+SET | WEIGHT | REPS | RIR | ✓
+Example:
+1    60 kg    10     2    ✓
+2    60 kg    10     2    ✓
+3    62.5 kg   8     1    ✓
+Inputs need to be optimized for quick gym usage.
+
+11. Input UX
+Do not make the athlete type:
+60.000
+Use numeric keyboards.
+Weight:
+[ 60 ] kg
+Reps:
+[ 10 ]
+RIR:
+[ 2 ]
+For common increments, later we can support:
+−  60  +
+This is much faster.
+
+12. Previous Performance
+This is a high-value feature.
+When viewing:
+Bench Press
+show:
+LAST SESSION
+
+60 × 10
+60 × 10
+60 × 9
+If the current prescription changes:
+Target:
+62.5kg × 8–12
+still show historical performance independently.
+
+13. Set Completion
+When the athlete taps:
+✓
+the app:
+Update local DB
+      ↓
+Update UI
+      ↓
+Start rest timer
+      ↓
+Queue sync operation
+The UI should update instantly.
+Don't wait for:
+POST /sets
+to finish before showing the set as completed.
+
+14. Rest Timer
+After completing a set:
+┌──────────────────────────────┐
+│                              │
+│            REST              │
+│                              │
+│            01:42             │
+│                              │
+│       +30       SKIP         │
+│                              │
+│        NEXT SET              │
+│                              │
+└──────────────────────────────┘
+Default duration comes from the prescription:
+restSeconds
+
+15. Timer Architecture
+Don't run a backend timer.
+Store:
+restStartedAt
+restDurationSeconds
+Then calculate:
+remaining =
+restDurationSeconds
+-
+(now - restStartedAt)
+This means the timer survives:
+backgrounding
+app pause
+screen navigation
+
+16. Workout Timer
+The overall workout timer should also be derived from:
+startedAt
+rather than incrementing a variable every second.
+elapsed =
+now - startedAt
+This prevents timer drift.
+
+17. Exercise Navigation
+For a long workout:
+Exercise 1
+Exercise 2
+Exercise 3
+...
+Don't force the athlete to scroll through a huge page.
+We can use:
+vertical exercise list
+with:
+sticky current exercise
+or later:
+exercise pager
+For V1, a vertical list is simpler and easier to maintain.
+
+18. Completed Exercise
+Once all desired sets are complete:
+Bench Press
+✓ 3 sets completed
+The card becomes visually compact.
+Example:
+┌──────────────────────────────┐
+│ ✓ Bench Press                │
+│ 60×10  60×10  62.5×8        │
+└──────────────────────────────┘
+This makes long workouts easier to scan.
+
+19. Exercise Notes
+Allow:
+Add note
+Example:
+"Felt slight discomfort in left shoulder."
+This becomes valuable coaching information.
+It should be attached to the session exercise, not the permanent exercise definition.
+
+20. Workout Notes
+At the end:
+How did the workout feel?
+
+[ Add notes... ]
+
+Energy
+○ 1 ○ 2 ○ 3 ○ 4 ○ 5
+
+Difficulty
+○ 1 ○ 2 ○ 3 ○ 4 ○ 5
+These can be stored on WorkoutSession.
+
+21. Session Completion
+When the athlete taps:
+COMPLETE WORKOUT
+don't immediately close the screen.
+First show:
+┌──────────────────────────────┐
+│ COMPLETE WORKOUT?            │
+│                              │
+│ 16 sets completed             │
+│ 5 exercises                  │
+│                              │
+│ Some prescribed sets weren't │
+│ completed. That's okay.      │
+│                              │
+│ CANCEL       COMPLETE        │
+└──────────────────────────────┘
+This avoids accidental completion.
+
+22. Completion Flow
+Complete
+   ↓
+Local session = completed
+   ↓
+Queue operation
+   ↓
+Show summary immediately
+   ↓
+Sync backend
+Again:
+offline ≠ blocked
+
+23. Workout Summary
+This should feel rewarding but not childish.
+Example:
+WORKOUT COMPLETE
+
+Push
+54 min
+
+16 sets
+5 exercises
+8,420 kg volume
+
+NEW PR
+Bench Press
+Estimated 1RM ↑
+
+Consistency
+17 / 20 workouts
+
+        DONE
+
+24. PR Celebration
+If a PR occurred:
+NEW PERSONAL RECORD
+
+Bench Press
+
+62.5 kg × 8
+
+Estimated 1RM
+79.2 kg
+
+Previous
+76.4 kg
+Don't turn every small improvement into a "PR."
+Use the deterministic PR rules from Phase 3G.
+
+25. Progress Update
+After completion:
+Workout
+   ↓
+Session
+   ↓
+Performance
+   ↓
+PR
+   ↓
+Progress
+The Home screen should then update:
+Today's workout
+✓ Completed
+and:
+Recent activity
+Push — Completed
+
+26. Offline UX
+When offline:
+┌──────────────────────────────┐
+│ ● Offline                    │
+│ Your workout is saved here.  │
+└──────────────────────────────┘
+Don't constantly interrupt the athlete.
+A small status indicator is enough.
+
+27. Sync Indicator
+After connection returns:
+Syncing...
+then:
+✓ Synced
+If something fails:
+Sync pending
+The workout remains safe locally.
+
+28. Workout Store
+Create:
+src/stores/workout.store.ts
+It should handle ephemeral workout UI state, such as:
+interface WorkoutUIState {
+  activeSessionId: string | null;
+
+  currentExerciseId: string | null;
+
+  restStartedAt: string | null;
+
+  restDurationSeconds: number;
+
+  isCompleting: boolean;
+
+  setCurrentExercise: (
+    exerciseId: string
+  ) => void;
+
+  startRest: (
+    durationSeconds: number
+  ) => void;
+
+  stopRest: () => void;
+}
+The actual persisted workout data belongs in the local database.
+
+29. Don't Store the Whole Workout in Zustand
+Avoid:
+workoutStore = {
+  entireWorkout: {...},
+  everySet: [...],
+  everyExercise: [...]
+}
+That creates unnecessary synchronization problems.
+Instead:
+Local DB
+→ source of truth
+
+Zustand
+→ temporary UI state
+
+30. Workout Repository
+Create:
+src/database/repositories/workout.repository.ts
+Methods:
+startSession()
+getActiveSession()
+getSession()
+addSet()
+updateSet()
+skipSet()
+updateExerciseNote()
+updateSessionNote()
+completeSession()
+abandonSession()
+Each operation writes locally first.
+
+31. Sync Repository
+Create:
+src/database/sync/sync.repository.ts
+Methods:
+enqueue()
+getPending()
+markSyncing()
+markSynced()
+markFailed()
+retryFailed()
+Then:
+Workout Repository
+       ↓
+Sync Repository
+
+32. Sync Manager
+Create:
+src/database/sync/sync.manager.ts
+Responsibilities:
+Monitor connectivity
+        ↓
+Detect connection
+        ↓
+Read pending operations
+        ↓
+Upload
+        ↓
+Process ACK
+        ↓
+Mark synced
+It should run independently from workout screens.
+
+33. Optimistic UI
+Suppose:
+Athlete enters:
+
+62.5kg
+8 reps
+The UI should immediately show:
+✓ 62.5kg × 8
+even if the server hasn't responded.
+This is essential for a gym environment.
+
+34. Error Recovery
+If server rejects the set:
+Local
+62.5 × 8
+       ↓
+Server
+       ↓
+Rejected
+Don't erase the athlete's data.
+Instead:
+Sync error
+Review
+and preserve the local record.
+
+35. Workout History
+After the core workout screen, add:
+Workout History
+Example:
+AUG 28
+Push
+54 min
+8,420 kg
+
+AUG 26
+Pull
+61 min
+7,930 kg
+
+AUG 24
+Legs
+68 min
+10,220 kg
+Tap one:
+Workout Detail
+showing the actual performed sets.
+
+36. Important Distinction
+History must show:
+ACTUAL PERFORMANCE
+not:
+CURRENT PROGRAM PRESCRIPTION
+If the program changed later, history remains unchanged.
+
+37. Athlete Home Data Architecture
+Home should combine:
+Today
++
+Progress summary
++
+Recent activity
++
+Unread messages
+But don't make five independent network requests on every app launch.
+Eventually expose:
+GET /api/v1/athletes/me/home
+that returns the core home data.
+Individual screens can still fetch detailed information independently.
+
+38. Athlete Home Query Strategy
+Use:
+queryKey:
+["athlete-home"]
+After completing a workout:
+queryClient.invalidateQueries({
+  queryKey: ["athlete-home"]
+});
+Then the home data refreshes automatically.
+
+39. Navigation After Completion
+Flow:
+Workout
+ ↓
+Complete
+ ↓
+Summary
+ ↓
+Done
+ ↓
+Home
+But if the athlete taps:
+View Progress
+go to:
+Progress
+This creates a natural loop:
+Train
+ ↓
+Measure
+ ↓
+Improve
+ ↓
+Train again
+
+40. Phase 4C Implementation Order
+Don't build all of this simultaneously.
+Build in this order:
+Step 1
+Athlete Home
+with fake/static data.
+Step 2
+Connect:
+GET /athletes/me/today-workout
+Step 3
+Build:
+Workout screen
+Step 4
+Connect local database.
+Step 5
+Implement:
+Start Session
+Step 6
+Implement:
+Add Set
+Step 7
+Implement:
+Rest Timer
+Step 8
+Implement:
+Offline Queue
+Step 9
+Implement:
+Complete Workout
+Step 10
+Build:
+Workout Summary
+Step 11
+Connect:
+PR + Progress
+Step 12
+Build:
+Workout History
+
+41. Phase 4C Definition of Done
+We should consider 4C complete only when this entire flow works:
+Fresh login
+    ↓
+Athlete Home
+    ↓
+Today's Push workout
+    ↓
+Start
+    ↓
+Workout loads
+    ↓
+Log:
+60kg × 10
+60kg × 10
+62.5kg × 8
+    ↓
+Rest timer
+    ↓
+Move through exercises
+    ↓
+Internet disconnected
+    ↓
+Continue workout
+    ↓
+Complete workout
+    ↓
+Summary appears
+    ↓
+Internet returns
+    ↓
+Data syncs
+    ↓
+Backend records session
+    ↓
+PR detected
+    ↓
+Home updates
+    ↓
+History shows workout
+If that works reliably, we have the first genuinely usable version of the gym app.
+
+Phase 4D — Athlete Progress + Program Experience
+After 4C, we'll build the other half of the athlete experience:
+ATHLETE
+│
+├── Home
+│
+├── Workout
+│
+├── Progress
+│   ├── Strength
+│   ├── Volume
+│   ├── Consistency
+│   ├── PRs
+│   ├── Measurements
+│   ├── Photos
+│   └── Goals
+│
+├── Program
+│   ├── Current Program
+│   ├── Weekly Schedule
+│   └── Program Details
+│
+├── Messages
+│
+└── Profile
+We'll make Progress more than a collection of charts: it will explain what changed, where the athlete is improving, where they're plateauing, and how that connects back to their program. That structure will also give the AI layer a clean, reliable context later.
+Phase 4D — Athlete Progress + Program Experience
+Now we build the second major part of the athlete app.
+After Phase 4C, the athlete can actually train. Phase 4D makes the app useful between workouts by answering:
+What am I improving at?
+Am I staying consistent?
+What is my current program?
+What is coming next?
+Am I moving toward my goals?
+The athlete experience becomes:
+ATHLETE
+│
+├── Home
+│
+├── Workout
+│
+├── Progress
+│   ├── Overview
+│   ├── Strength
+│   ├── Volume
+│   ├── Consistency
+│   ├── PRs
+│   ├── Measurements
+│   ├── Photos
+│   └── Goals
+│
+├── Program
+│   ├── Current Program
+│   ├── Calendar
+│   ├── Week Detail
+│   └── Workout Detail
+│
+├── Messages
+│
+└── Profile
+
+1. Progress Overview
+The first screen should be:
+Progress
+Not immediately a giant chart.
+Recommended hierarchy:
+┌──────────────────────────────┐
+│ Progress                     │
+│                              │
+│ YOUR OVERVIEW                │
+│                              │
+│ ┌──────────┐ ┌──────────┐    │
+│ │ 87%      │ │ 12       │    │
+│ │Adherence │ │ PRs      │    │
+│ └──────────┘ └──────────┘    │
+│                              │
+│ Strength                     │
+│ Bench Press       +8%        │
+│ Squat             +5%        │
+│ Deadlift          +11%       │
+│                              │
+│ Volume                       │
+│       ╭──────────────╮       │
+│       │      ╭──╮    │       │
+│       │  ╭───╯  ╰──  │       │
+│       ╰──────────────╯       │
+│                              │
+│ Goals                        │
+│ Bench 100kg    82.5% ████░  │
+│                              │
+└──────────────────────────────┘
+The overview should answer:
+Am I progressing?
+within a few seconds.
+
+2. Progress API
+Use the backend we've already designed:
+GET /api/v1/athletes/me/progress
+Example:
+{
+  "success": true,
+  "data": {
+    "adherence": 87,
+    "workoutsCompleted": 17,
+    "workoutsScheduled": 20,
+    "personalRecords": 12,
+    "strengthTrend": {
+      "benchPress": 8,
+      "squat": 5,
+      "deadlift": 11
+    },
+    "volumeTrend": 6,
+    "goals": []
+  }
+}
+The mobile app should not calculate these values from raw sessions.
+The backend remains the source of truth.
+
+3. Progress Cards
+Create reusable:
+src/components/progress/MetricCard.tsx
+Example:
+┌─────────────────────┐
+│ ADHERENCE           │
+│                     │
+│ 87%                 │
+│ ↑ 4% this month     │
+└─────────────────────┘
+Another:
+┌─────────────────────┐
+│ PERSONAL RECORDS    │
+│                     │
+│ 12                  │
+│ 3 this month        │
+└─────────────────────┘
+
+4. Strength Progress
+Screen:
+Progress
+  ↓
+Strength
+Display an exercise selector:
+Exercise
+
+[ Bench Press          ▼ ]
+Then:
+Current
+82.5 kg
+
+Estimated 1RM
+94.5 kg
+
+Best Reps
+12
+And a historical graph.
+
+5. Strength Chart
+For example:
+Estimated 1RM
+
+100 ┤
+ 95 ┤                 ●
+ 90 ┤            ●────
+ 85 ┤       ●────
+ 80 ┤  ●────
+    └────────────────────
+      May Jun Jul Aug
+The chart should be interactive:
+Tap point
+    ↓
+Date
+    ↓
+Workout
+    ↓
+Performance
+
+6. Avoid Misleading Charts
+Don't connect unrelated data points as if they represent continuous improvement.
+For example:
+May:
+heavy singles
+
+June:
+high-rep hypertrophy
+
+July:
+different exercise variation
+These aren't necessarily directly comparable.
+The backend should tell the frontend what metric is being displayed.
+For example:
+{
+  "metric": "estimated_1rm",
+  "exercise": "bench_press",
+  "unit": "kg",
+  "points": []
+}
+
+7. Volume Screen
+Progress
+  ↓
+Volume
+Filters:
+[ Week ] [ Month ] [ 3 Months ]
+Then:
+TOTAL VOLUME
+
+42,350 kg
+and:
+Weekly Volume
+
+W1   █████████
+W2   ██████████
+W3   ███████████
+W4   █████████
+
+8. Muscle Group Volume
+Later, if exercise metadata contains muscle groups, we can display:
+Chest
+8,400 kg
+
+Back
+10,200 kg
+
+Legs
+14,800 kg
+
+Shoulders
+5,200 kg
+
+Arms
+3,750 kg
+This becomes useful for detecting imbalances.
+But don't make this a medical or injury diagnosis system.
+It's simply training-volume information.
+
+9. Consistency Screen
+This screen should show:
+Consistency
+
+87% adherence
+Then:
+Scheduled       20
+Completed       17
+Skipped          2
+Missed           1
+And:
+This Month
+
+W  M  T  W  T  F  S
+✓  ✓  —  ✓  ✓  —  ✓
+✓  —  ✓  ✓  ✓  —  ✓
+...
+Where:
+✓ = completed
+— = rest day
+
+10. Streak
+Show:
+Current streak
+
+5 workouts
+But don't gamify it excessively.
+The purpose is to help the athlete understand consistency.
+
+11. PR Screen
+Progress
+  ↓
+Personal Records
+Example:
+PERSONAL RECORDS
+
+Bench Press
+82.5 kg × 8
+Aug 28
+
+Squat
+120 kg × 5
+Aug 24
+
+Deadlift
+150 kg × 3
+Aug 20
+Filters:
+All
+Strength
+Reps
+Volume
+Estimated 1RM
+
+12. PR Detail
+Tap:
+Bench Press
+Show:
+Current PR
+82.5kg × 8
+
+Previous PR
+80kg × 8
+
+Improvement
++2.5kg
+
+Achieved
+Aug 28, 2026
+And:
+View Workout
+which opens the actual session.
+
+13. Goals Screen
+The goals screen should make progress obvious.
+GOALS
+
+Bench Press
+100 kg
+
+82.5 kg / 100 kg
+████████░░ 82.5%
+
+Target:
+Dec 1
+
+Consistency
+90%
+
+87% / 90%
+█████████░
+
+14. Goal Detail
+Tap a goal:
+Bench Press — 100kg
+
+Current
+82.5kg
+
+Target
+100kg
+
+Remaining
+17.5kg
+
+Started
+July 1
+
+Target Date
+December 1
+Then show historical progress.
+
+15. Goal Creation
+Athlete:
++ New Goal
+Choose:
+Strength
+Body Weight
+Consistency
+Volume
+Custom
+For strength:
+Exercise
+[ Bench Press ]
+
+Target
+[ 100 ] kg
+
+Target date
+[ Dec 1 ]
+
+16. Program Screen
+Now we build:
+Program
+The current program should be immediately visible.
+┌──────────────────────────────┐
+│ 12 Week Hypertrophy          │
+│ Week 5 of 12                 │
+│                              │
+│ ████████░░░░ 42%             │
+│                              │
+│ Mon   Push        ✓          │
+│ Tue   Pull        ✓          │
+│ Wed   Rest                   │
+│ Thu   Legs        TODAY      │
+│ Fri   Upper                  │
+│                              │
+│ View Program                 │
+└──────────────────────────────┘
+
+17. Current Week
+The athlete should see:
+WEEK 5
+
+Monday
+Push
+✓ Completed
+
+Tuesday
+Pull
+✓ Completed
+
+Wednesday
+Rest
+
+Thursday
+Legs
+TODAY
+
+Friday
+Upper
+Upcoming
+This connects the program to the schedule.
+
+18. Program API
+GET /api/v1/athletes/me/program
+Return:
+{
+  "success": true,
+  "data": {
+    "program": {
+      "id": "...",
+      "name": "12 Week Hypertrophy",
+      "durationWeeks": 12,
+      "currentWeek": 5
+    },
+    "week": {
+      "number": 5,
+      "workouts": []
+    }
+  }
+}
+
+19. Program Calendar
+Create:
+ProgramCalendarScreen.tsx
+Month/week navigation:
+< August 2026 >
+
+Mon Tue Wed Thu Fri Sat Sun
+24  25  26  27  28  29  30
+✓   ✓   —   ✓   →   —   —
+
+31   1   2   3   4   5   6
+...
+Statuses:
+✓ Completed
+→ Scheduled
+× Missed
+— Rest
+
+20. Workout Detail from Program
+Tapping a scheduled workout:
+Leg Day
+
+Scheduled:
+Aug 28
+
+Exercises:
+
+Back Squat
+4 × 6–8
+
+Romanian Deadlift
+3 × 8–10
+
+Leg Press
+3 × 10–12
+
+Leg Curl
+3 × 12
+Then:
+START WORKOUT
+If already completed:
+VIEW SESSION
+
+21. Program Version Display
+If the coach updates the program:
+Version 2
+the athlete shouldn't need to understand the underlying database versioning.
+Just show:
+Updated by your coach
+Optionally:
+Program updated
+3 exercises changed
+The backend still maintains:
+Version 1
+Version 2
+for historical integrity.
+
+22. Program Changes
+For meaningful updates:
+Old:
+Bench
+3 × 10
+
+New:
+Bench
+4 × 8
+The athlete should see:
+Updated workout
+
+Bench Press
+4 × 8
+
+Previously:
+3 × 10
+This is useful, but should only be shown when the coach actually changes something relevant.
+
+23. Offline Program Access
+The current program should be cached locally.
+The athlete should still be able to see:
+Current week
+Today's workout
+Upcoming workouts
+Exercise prescriptions
+Previous performance
+without internet.
+This follows the same offline-first principle from Phase 3F.
+
+24. Messages
+Phase 4D doesn't fully build messaging yet, but we should establish the athlete UI entry point.
+On Home:
+Messages
+   2 unread
+and on navigation:
+More
+ └── Messages
+Later Phase 4H will implement the complete messaging UI.
+
+25. Profile
+The athlete profile should contain:
+Profile
+│
+├── Personal information
+├── Fitness goals
+├── Training preferences
+├── Equipment
+├── Notifications
+├── Account
+└── Logout
+Keep profile editing separate from onboarding.
+
+26. Measurement Entry
+Athlete:
+Progress
+  ↓
+Measurements
+  ↓
++ Add Measurement
+Form:
+Date
+
+Weight
+[ 72.4 ] kg
+
+Body Fat
+[ 16.2 ] %
+
+Chest
+[ 101 ] cm
+
+Waist
+[ 79 ] cm
+
+Arms
+[ 37 ] cm
+
+Thigh
+[ 58 ] cm
+
+SAVE
+Everything except the date can be optional depending on the athlete's preference and product requirements.
+
+27. Measurement History
+Display:
+Aug 28
+72.4 kg
+
+Aug 14
+73.1 kg
+
+Jul 31
+74.0 kg
+
+Jul 17
+74.5 kg
+Then graph:
+Weight
+
+75 ┤●
+74 ┤  ●
+73 ┤     ●
+72 ┤          ●
+   └──────────────
+
+28. Progress Photos
+Screen:
+Progress Photos
+
+[ FRONT ] [ SIDE ] [ BACK ]
+
+          +
+
+Add Photo
+Then:
+AUG 28
+Photo
+
+JUL 28
+Photo
+
+JUN 28
+Photo
+
+29. Photo Comparison
+A useful feature:
+Compare
+Then:
+┌─────────────┬─────────────┐
+│             │             │
+│   JUL 28    │   AUG 28    │
+│             │             │
+│             │             │
+└─────────────┴─────────────┘
+Or later an interactive slider.
+The images should remain private unless the athlete explicitly shares them with a coach.
+
+30. Data Privacy
+Progress photos and measurements are sensitive personal data.
+The app should ensure:
+Athlete
+  ↓
+Own data
+
+Coach
+  ↓
+Only assigned athlete data
+
+Other athlete
+  ↓
+No access
+Backend authorization remains the actual security boundary.
+
+31. Progress Query Architecture
+Don't have each component independently call the API.
+Use hooks:
+src/hooks/progress/
+│
+├── useProgressOverview.ts
+├── useStrengthProgress.ts
+├── useVolumeProgress.ts
+├── useConsistency.ts
+├── usePersonalRecords.ts
+├── useGoals.ts
+└── useMeasurements.ts
+Example:
+const {
+  data,
+  isLoading
+} = useStrengthProgress(exerciseId);
+
+32. Query Keys
+Use predictable query keys:
+["progress", "overview"]
+
+["progress", "strength", exerciseId]
+
+["progress", "volume", range]
+
+["progress", "consistency", range]
+
+["progress", "prs"]
+
+["goals"]
+
+["measurements"]
+This lets us invalidate only the affected data.
+
+33. After Workout Completion
+When a workout finishes:
+Workout complete
+       ↓
+Invalidate:
+       │
+       ├── athlete-home
+       ├── progress-overview
+       ├── progress-strength
+       ├── progress-volume
+       ├── progress-consistency
+       ├── prs
+       └── goals
+We don't need to reload the entire app.
+
+34. Loading Charts
+Don't show empty chart containers while waiting.
+Use chart skeletons:
+┌─────────────────────────┐
+│ Strength                │
+│                         │
+│ ──── ░░░░░░░░░ ───      │
+│                         │
+└─────────────────────────┘
+Then replace with real data.
+
+35. Empty Progress
+A new athlete won't have data.
+Instead of:
+No data
+show:
+Your progress starts here.
+
+Complete your first workout
+to start tracking strength,
+volume and consistency.
+This gives the screen a purpose.
+
+36. No Coach
+If an athlete has no coach:
+Your Program
+
+No active program
+
+You can:
+• explore your workout history
+• create goals
+• track progress
+
+Find a Coach
+Don't make the entire app unusable without a coach.
+
+37. Athlete Experience After 4D
+The full athlete loop is now:
+                   ATHLETE
+                      │
+                      ▼
+                    HOME
+                      │
+             ┌────────┼────────┐
+             ▼        ▼        ▼
+          PROGRAM   PROGRESS  MESSAGES
+             │
+             ▼
+       TODAY'S WORKOUT
+             │
+             ▼
+        START SESSION
+             │
+             ▼
+          LOG SETS
+             │
+             ▼
+        COMPLETE
+             │
+       ┌─────┼─────┐
+       ▼     ▼     ▼
+      PR   GOAL  VOLUME
+       │     │     │
+       └─────┼─────┘
+             ▼
+          PROGRESS
+             │
+             ▼
+            HOME
+That is the fundamental product loop.
+
+38. Phase 4D Definition of Done
+We should verify:
+✓ Progress overview loads
+✓ Strength chart works
+✓ Exercise-specific history works
+✓ Volume analytics work
+✓ Consistency works
+✓ PR history works
+✓ Goals display correctly
+✓ Goals update from performance
+✓ Measurements can be added
+✓ Measurement history works
+✓ Progress photos can be added
+✓ Current program loads
+✓ Current week loads
+✓ Program calendar works
+✓ Scheduled workout opens
+✓ Completed workouts show actual session
+✓ Program data works offline
+✓ Privacy/authorization is respected
+
+Phase 4E — Coach Application
+Now we shift focus completely.
+The Coach app should not be a copy of the athlete app with extra buttons.
+Its central workflow is:
+                    COACH
+                      │
+                      ▼
+                 DASHBOARD
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       ATHLETES     PROGRAMS    CALENDAR
+          │           │
+          ▼           ▼
+      ATHLETE       PROGRAM
+      PROFILE       BUILDER
+          │           │
+          └─────┬─────┘
+                ▼
+             ANALYTICS
+                │
+                ▼
+            COMMUNICATION
+The first screen we'll build is the Coach Dashboard, designed around attention and action rather than generic statistics.
+It should immediately show:
+Good morning, Coach
+
+ATTENTION NEEDED
+• 3 athletes missed workouts
+• 2 athletes haven't checked in
+• 1 athlete hit a major PR
+
+TODAY
+• 8 workouts scheduled
+• 5 completed
+• 2 upcoming
+
+ATHLETES
+• 24 active
+• 3 at risk
+• 7 progressing strongly
+
+RECENT ACTIVITY
+...
+Then we'll build the Athlete Management screen, where the coach can search athletes, inspect individual progress, review workout history, see adherence, manage assignments, and communicate—all while respecting the coach-athlete relationship boundaries established in Phase 3.
+Phase 4E — Coach Application
+We now start the Coach side of the mobile app.
+The Coach experience should be fundamentally different from the Athlete experience.
+The athlete asks:
+What should I do today?
+The coach asks:
+Which athletes need my attention, what should I change, and what is happening across my roster?
+So the architecture becomes:
+                     COACH APP
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+          Dashboard    Athletes   Programs
+              │          │          │
+              ▼          ▼          ▼
+          Attention   Athlete     Program
+           Center     Profile     Builder
+                         │
+                         ▼
+                     Analytics
+                         │
+                         ▼
+                    Communication
+
+1. Coach Navigation
+Use:
+CoachNavigator
+│
+├── Dashboard
+├── Athletes
+├── Programs
+├── Calendar
+├── Messages
+└── More
+     ├── Profile
+     ├── Notifications
+     ├── Settings
+     └── Logout
+Bottom navigation:
+┌─────────────────────────────────────┐
+│                                     │
+│             CONTENT                 │
+│                                     │
+├─────────────────────────────────────┤
+│ Home │ Athletes │ Programs │ More  │
+└─────────────────────────────────────┘
+Messages and notifications can be accessible from the top-right as well.
+
+2. Coach Dashboard
+This is the most important coach screen.
+Don't make it:
+Total Athletes: 24
+Total Workouts: 142
+Revenue: ₹...
+and call it a dashboard.
+The dashboard should be an action center.
+Recommended:
+Good morning, Coach
+
+TODAY
+────────────────────────
+
+24 Active Athletes
+
+8 workouts today
+5 completed
+2 upcoming
+1 missed
+
+────────────────────────
+
+ATTENTION NEEDED
+
+3 athletes missed workouts
+2 haven't checked in
+1 program needs review
+
+View all →
+
+────────────────────────
+
+RECENT ACTIVITY
+
+Alex completed Push
+Sam hit a new PR
+Rahul completed Week 4
+
+────────────────────────
+
+UPCOMING
+
+6:00 PM   Alex — Legs
+7:00 PM   Sam — Push
+
+3. Dashboard API
+Instead of making the frontend request 15 different endpoints:
+GET /api/v1/coaches/me/dashboard
+Return aggregated information:
+{
+  "success": true,
+  "data": {
+    "athletes": {
+      "active": 24,
+      "attentionRequired": 3
+    },
+    "today": {
+      "scheduled": 8,
+      "completed": 5,
+      "upcoming": 2,
+      "missed": 1
+    },
+    "attention": [],
+    "recentActivity": [],
+    "upcoming": []
+  }
+}
+The backend performs the aggregation.
+
+4. Attention Center
+This is one of the most important features.
+Examples:
+ATTENTION NEEDED
+
+⚠ Alex
+Missed 2 scheduled workouts
+
+⚠ Rahul
+No workout completed in 6 days
+
+⚠ Sam
+Program ends this week
+
+✓ John
+New personal record
+Each item should have:
+type
+priority
+athlete
+reason
+timestamp
+action
+
+5. Don't Call Athletes "At Risk" Without Rules
+Avoid arbitrary AI labels like:
+"Alex is at risk"
+unless we have defined what that means.
+Instead use deterministic signals initially:
+Missed 2+ scheduled workouts
+No activity for X days
+Repeated program non-adherence
+Upcoming program expiration
+Pending coach response
+Later the AI layer can provide additional insights, but it should clearly distinguish:
+Observed:
+3 missed workouts
+
+AI interpretation:
+Possible adherence issue
+
+6. Attention Detail
+Tap:
+Alex
+Missed 2 workouts
+Open:
+Alex
+
+ADHERENCE
+82%
+
+RECENT WORKOUTS
+✓ Push
+× Pull
+× Legs
+✓ Upper
+
+Last active:
+Aug 24
+
+[ VIEW ATHLETE ]
+[ MESSAGE ]
+This allows the coach to act immediately.
+
+7. Athlete List
+Screen:
+Athletes
+
+[ Search athletes... ]
+
+24 Active
+
+All
+Needs Attention
+Recently Active
+
+────────────────────
+
+Alex
+82% adherence
+Last workout: Today
+
+Sam
+94% adherence
+Last workout: Yesterday
+
+Rahul
+61% adherence
+Last workout: 6 days ago
+
+8. Athlete Search
+Search should support:
+name
+email
+status
+program
+Later:
+goal
+training phase
+adherence
+Use server-side search when the roster becomes large.
+Don't load 10,000 athletes into the phone.
+
+9. Athlete Card
+Create:
+src/components/coach/AthleteCard.tsx
+Display:
+┌──────────────────────────────┐
+│ [Avatar] Alex                │
+│                              │
+│ Adherence       87%          │
+│ Current Program              │
+│ Week 5 of 12                 │
+│                              │
+│ Last workout    Today        │
+│                              │
+│              View →          │
+└──────────────────────────────┘
+The card should communicate status, not overwhelm the coach with data.
+
+10. Athlete Profile
+When the coach taps an athlete:
+Alex
+────────────────────
+
+Overview
+Progress
+Program
+Workouts
+Goals
+Notes
+Messages
+This becomes the coach's central workspace for that athlete.
+
+11. Athlete Overview
+Alex
+
+ADHERENCE
+87%
+
+CURRENT PROGRAM
+Hypertrophy — Week 5
+
+THIS WEEK
+4 / 5 workouts
+
+RECENT PRs
+Bench Press +2.5kg
+
+GOALS
+2 active
+
+LAST ACTIVE
+Today
+Then:
+Quick Actions
+
+[ Message ]
+[ Assign Program ]
+[ Schedule Workout ]
+[ Add Note ]
+
+12. Athlete Progress
+The coach should see essentially the same underlying analytics as the athlete, but with more context.
+Athlete Progress
+
+Strength
+Volume
+Consistency
+PRs
+Measurements
+Goals
+For example:
+BENCH PRESS
+
+Current estimated 1RM
+94.5 kg
+
+12-week trend
+↑ 8.4%
+
+Recent:
+82.5 × 8
+80 × 9
+80 × 8
+
+13. Coach-Specific Interpretation
+The coach should also see:
+PROGRAM TARGET
+
+Target range:
+8–12 reps
+
+Recent performance:
+8–10 reps
+
+Adherence:
+Good
+This helps the coach make decisions without manually comparing multiple screens.
+
+14. Workout History
+Coach can inspect:
+Workout History
+
+Aug 28
+Push
+✓ Completed
+
+Aug 26
+Pull
+✓ Completed
+
+Aug 24
+Legs
+× Missed
+
+Aug 22
+Upper
+✓ Completed
+Tap:
+Push
+and show:
+Bench Press
+
+60 × 10
+60 × 10
+62.5 × 8
+
+Coach notes:
+...
+
+Athlete notes:
+"Felt strong today."
+
+15. Coach Feedback
+From the workout detail:
+ADD FEEDBACK
+Example:
+How did this session look?
+
+[ Your feedback... ]
+
+[ SEND FEEDBACK ]
+This connects directly to the WorkoutFeedback model from Phase 3.
+
+16. Coach Private Notes
+Separate:
+PRIVATE NOTES
+Example:
+Alex prefers heavier compounds.
+Watch recovery between lower-body sessions.
+
+Aug 20
+Review squat progression next week.
+These notes are visible only to the coach/authorized coaching staff.
+
+17. Athlete Goals
+Coach can see:
+ACTIVE GOALS
+
+Bench Press
+100kg
+82.5 / 100kg
+
+Body Weight
+70kg
+72.4 / 70kg
+
+Consistency
+90%
+87%
+Depending on permissions, the coach may be able to create or edit goals if the product specification allows it.
+
+18. Program Management
+Now the coach needs:
+Programs
+Structure:
+My Programs
+
+┌──────────────────────────────┐
+│ Hypertrophy Base             │
+│ 12 weeks                     │
+│ 18 athletes                  │
+│ Active                       │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│ Strength Foundation          │
+│ 8 weeks                      │
+│ 7 athletes                   │
+│ Draft                        │
+└──────────────────────────────┘
+
+             + CREATE PROGRAM
+
+19. Program Builder
+This is one of the biggest features of the entire app.
+Flow:
+Create Program
+      ↓
+Program Details
+      ↓
+Weeks
+      ↓
+Workouts
+      ↓
+Exercises
+      ↓
+Prescriptions
+      ↓
+Review
+      ↓
+Publish
+
+20. Program Details
+Coach enters:
+Program Name
+Description
+Duration
+Training Goal
+Difficulty
+Example:
+12 Week Hypertrophy
+
+Goal:
+Muscle Growth
+
+Difficulty:
+Intermediate
+
+Duration:
+12 weeks
+
+21. Week Builder
+WEEK 1
+
+Monday
+Push
+
+Tuesday
+Pull
+
+Wednesday
+Rest
+
+Thursday
+Legs
+
+Friday
+Upper
+
+Saturday
+Optional
+
+Sunday
+Rest
+Coach can:
++ Add Workout
+
+22. Workout Builder
+Example:
+PUSH
+
+1. Bench Press
+   4 × 8–10
+   Rest: 120s
+
+2. Incline DB Press
+   3 × 10–12
+   Rest: 90s
+
+3. Cable Fly
+   3 × 12–15
+   Rest: 60s
+
++ Add Exercise
+
+23. Exercise Selection
+Don't make the coach type exercise names manually.
+Use:
+Search exercise...
+
+Bench Press
+Incline Bench Press
+Close Grip Bench Press
+...
+Filters:
+Muscle
+Equipment
+Movement
+Difficulty
+These come from the exercise library we created earlier.
+
+24. Prescription Editor
+When selecting an exercise:
+Bench Press
+
+Sets
+[ 4 ]
+
+Rep Range
+[ 8 ] — [ 10 ]
+
+Weight
+○ Fixed
+○ Percentage
+○ RPE
+○ RIR
+
+Rest
+[ 120 ] sec
+
+Tempo
+[ 3-1-1-0 ]
+
+Notes
+[ Controlled eccentric ]
+This is where our backend prescription model becomes useful.
+
+25. Dynamic Prescriptions
+Eventually allow:
+Weight:
+Previous Weight + 2.5kg
+
+or
+
+Weight:
+70% 1RM
+
+or
+
+Intensity:
+RPE 8
+
+or
+
+Target:
+2 RIR
+This will become extremely powerful when the progression engine is implemented.
+For the first version, support only the prescription methods that the backend already defines.
+
+26. Drag and Drop
+Coach should be able to reorder exercises:
+☰ Bench Press
+☰ Incline Press
+☰ Cable Fly
+☰ Triceps Pushdown
+Reorder:
+☰ Bench Press
+☰ Incline Press
+☰ Triceps Pushdown
+☰ Cable Fly
+The order field is then updated.
+
+27. Program Templates
+A major productivity feature:
+Save as Template
+Coach creates:
+12 Week Hypertrophy
+Then can reuse it for another athlete.
+Instead of:
+Create 12 weeks
+×
+×
+×
+they can:
+Template
+ ↓
+Duplicate
+ ↓
+Customize
+ ↓
+Assign
+
+28. Program Assignment
+Coach selects:
+Assign Program
+
+Program:
+12 Week Hypertrophy
+
+Athlete:
+Alex
+
+Start Date:
+Sep 1
+
+Starting Week:
+1
+
+[ ASSIGN ]
+Backend:
+Program
+   ↓
+ProgramAssignment
+   ↓
+Schedule generated
+   ↓
+Athlete notified
+
+29. Assignment Confirmation
+Show:
+Assign program?
+
+Alex will receive:
+
+12 Week Hypertrophy
+Starting Sep 1
+12 weeks
+
+[ CANCEL ] [ ASSIGN ]
+Avoid accidental assignments.
+
+30. Coach Calendar
+Screen:
+Calendar
+
+< August 2026 >
+
+Today
+──────────────
+
+6:00 PM
+Alex — Legs
+
+7:00 PM
+Sam — Push
+
+8:00 PM
+Rahul — Pull
+Later this can show:
+Athlete availability
+Scheduled workouts
+Check-ins
+Coach meetings
+Program milestones
+
+31. Calendar Filters
+[ All Athletes ▼ ]
+[ All Types ▼ ]
+Types:
+Workout
+Check-in
+Meeting
+Program Start
+Program End
+
+32. Coach Messages
+Phase 3 already gave us:
+Conversation
+Message
+Notification
+So the UI becomes:
+Messages
+
+Alex
+"How should I approach..."
+2m
+
+Sam
+"Feeling good after..."
+18m
+
+Rahul
+"Can I change..."
+1h
+Tap → conversation.
+
+33. Conversation Screen
+Alex
+
+────────────────────────────
+
+Coach
+How did today's workout feel?
+
+Alex
+Pretty good. Bench felt strong.
+
+Coach
+Good. Let's keep the same load
+next session.
+
+────────────────────────────
+
+[ Type a message... ]  ➤
+WebSocket provides real-time updates.
+
+34. Coach Notifications
+Coach notification center:
+Notifications
+
+New PR
+Alex hit a new bench PR.
+
+Workout completed
+Sam completed today's Push.
+
+Program update
+Your program for Rahul was updated.
+
+Missed workout
+Alex missed today's Legs.
+Tap a notification → deep link to relevant context.
+
+35. Notification Deep Links
+Examples:
+NEW_PR
+ ↓
+Athlete → Progress → PR
+
+WORKOUT_COMPLETED
+ ↓
+Athlete → Workout
+
+MISSED_WORKOUT
+ ↓
+Athlete → Overview
+
+NEW_MESSAGE
+ ↓
+Conversation
+
+PROGRAM_ENDING
+ ↓
+Athlete → Program
+This prevents the notification center from becoming a dead-end list.
+
+36. Coach Dashboard Data Flow
+The complete flow:
+                  BACKEND
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+      Analytics   Programs   Activity
+          │          │          │
+          └──────────┼──────────┘
+                     ▼
+              Coach Dashboard
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+       Attention  Today      Activity
+          │
+          ▼
+       Athlete
+          │
+    ┌─────┼─────┐
+    ▼     ▼     ▼
+Progress Program Workout
+    │     │     │
+    └─────┼─────┘
+          ▼
+       Action
+          │
+     ┌────┼────┐
+     ▼    ▼    ▼
+  Message Note Feedback
+
+37. Coach Dashboard Query Strategy
+Create:
+src/hooks/coach/
+│
+├── useCoachDashboard.ts
+├── useCoachAthletes.ts
+├── useAthleteOverview.ts
+├── useAthleteProgress.ts
+├── useAthleteWorkouts.ts
+├── useCoachPrograms.ts
+├── useProgram.ts
+└── useCoachCalendar.ts
+Then screens remain clean.
+
+38. Coach Dashboard Refresh
+The dashboard should update when important events occur.
+For example:
+Athlete completes workout
+       ↓
+WebSocket event
+       ↓
+Coach app
+       ↓
+Invalidate dashboard
+       ↓
+"5 completed" → "6 completed"
+No manual refresh required.
+
+39. Coach Athlete Filtering
+Useful filters:
+All
+Active
+Needs Attention
+No Activity
+High Adherence
+Low Adherence
+Later:
+Program
+Goal
+Training phase
+This is much more useful than sorting only alphabetically.
+
+40. Bulk Actions
+Once the basic athlete management works, support:
+Select multiple athletes
+        ↓
+Bulk action
+Possible:
+Assign Program
+Send Announcement
+Change Schedule
+Archive
+But don't build this before the single-athlete workflow is solid.
+
+41. Coach Permissions
+A coach should only see athletes they are authorized to manage.
+Every API request must verify:
+Coach
+ ↓
+Relationship
+ ↓
+Athlete
+Frontend filtering is not security.
+Backend authorization is mandatory.
+
+42. Coach App Local Caching
+Cache:
+Athlete list
+Current programs
+Dashboard summary
+Recent activity
+But don't attempt to make the entire coach application offline-first.
+Unlike the athlete workout screen, the coach's primary workflow depends much more heavily on current server data.
+Use:
+Cache for speed
++
+Server as source of truth
+
+43. Coach Dashboard Performance
+A coach with:
+200 athletes
+should not cause:
+200 API requests
+on opening the dashboard.
+The backend should provide aggregated data.
+Similarly, athlete lists should use pagination:
+GET /coaches/me/athletes
+?cursor=...
+&limit=30
+
+44. Phase 4E Implementation Order
+Build it in this order:
+1. Coach Dashboard
+Dashboard
+↓
+Real backend data
+2. Athlete List
+Search
+Filter
+Pagination
+3. Athlete Overview
+Profile
+Adherence
+Program
+Recent activity
+4. Athlete Workout History
+Sessions
+Sets
+Performance
+5. Workout Feedback
+Coach → Athlete feedback
+6. Private Notes
+Coach notes
+7. Program List
+Programs
+Templates
+Drafts
+Published
+8. Program Builder
+Weeks
+Workouts
+Exercises
+Prescriptions
+9. Program Assignment
+Assign
+Start date
+Athlete
+10. Calendar
+Schedule
+Upcoming
+Completed
+Missed
+11. Messaging
+Conversations
+Real-time messages
+Unread
+12. Notifications
+Push
+In-app
+Deep links
+
+45. Phase 4E Definition of Done
+The Coach side should be considered functional when this works end-to-end:
+Coach logs in
+      ↓
+Dashboard
+      ↓
+Sees athlete requiring attention
+      ↓
+Opens athlete
+      ↓
+Reviews adherence
+      ↓
+Reviews recent workouts
+      ↓
+Reviews progress
+      ↓
+Reviews goals
+      ↓
+Adds private note
+      ↓
+Reviews latest workout
+      ↓
+Leaves feedback
+      ↓
+Messages athlete
+And:
+Coach
+ ↓
+Creates program
+ ↓
+Adds weeks
+ ↓
+Adds workouts
+ ↓
+Adds exercises
+ ↓
+Sets prescriptions
+ ↓
+Publishes
+ ↓
+Assigns to athlete
+ ↓
+Athlete receives notification
+ ↓
+Program appears in athlete app
+That second flow is particularly important because it connects Coach App → Backend → Athlete App.
+
+Phase 4F — Program Builder 2.0 + Coaching Workflow
+After the basic Coach app works, the next step is to make the coach workflow genuinely powerful rather than merely functional.
+We'll add:
+Program Builder 2.0
+│
+├── Templates
+├── Duplicate weeks
+├── Duplicate workouts
+├── Exercise substitutions
+├── Progressive overload rules
+├── Supersets
+├── Circuits
+├── Warm-ups
+├── Cool-downs
+├── Deload weeks
+└── Program version comparison
+Then:
+Coaching Workflow
+│
+├── Check-ins
+├── Athlete flags
+├── Coach tasks
+├── Workout review queue
+├── Bulk athlete management
+├── Calendar management
+└── Athlete communication
+That will turn the app from a gym workout tracker into an actual coach-athlete management platform.
+Phase 4F — Program Builder 2.0 + Coaching Workflow
+We now upgrade the Coach side from a basic program creator into a proper coaching management system.
+The key idea:
+                    COACH
+                      │
+                      ▼
+               COACHING CENTER
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+   Programs       Check-ins      Tasks/Flags
+       │              │              │
+       ▼              ▼              ▼
+  Assignments      Athletes       Athletes
+       │              │              │
+       └──────────────┼──────────────┘
+                      ▼
+                 Communication
+
+1. Program Builder 2.0
+The basic builder was:
+Program
+ ↓
+Week
+ ↓
+Workout
+ ↓
+Exercise
+ ↓
+Prescription
+Now it becomes:
+Program
+│
+├── Program Information
+│
+├── Week 1
+│   ├── Monday
+│   │   └── Push
+│   │       ├── Warm-up
+│   │       ├── Bench Press
+│   │       ├── Incline Press
+│   │       ├── Superset
+│   │       └── Cool-down
+│   │
+│   ├── Tuesday
+│   └── ...
+│
+├── Week 2
+│
+├── Week 3
+│
+└── ...
+
+2. Program Builder Layout
+On mobile, don't try to cram the entire builder into one screen.
+Use a hierarchical editor:
+EDIT PROGRAM
+
+12 Week Hypertrophy
+
+Overview
+Weeks
+Assignments
+Versions
+Tap Weeks:
+WEEK 5
+
+Mon   Push
+Tue   Pull
+Wed   Rest
+Thu   Legs
+Fri   Upper
+Sat   Optional
+Sun   Rest
+Tap Push:
+PUSH
+
+Warm-up
+Bench Press
+Incline DB Press
+Cable Fly
+Triceps Pushdown
+Cool-down
+
+3. Exercise Sections
+Exercises should support sections:
+Warm-up
+Main Lifts
+Accessories
+Finisher
+Cool-down
+This gives the coach more control over workout structure.
+
+4. Warm-Up
+Example:
+WARM-UP
+
+Treadmill
+5 min
+
+Band Pull Apart
+2 × 15
+
+Shoulder Circles
+2 × 10
+Warm-up exercises should still use the same exercise library.
+
+5. Supersets
+Coach can select:
+Bench Press
++
+Cable Row
+and choose:
+Create Superset
+The athlete sees:
+SUPERSET A
+
+A1 Bench Press
+3 × 8–10
+
+A2 Cable Row
+3 × 10–12
+The execution UI can later automatically guide the athlete:
+A1 → A2 → Rest
+
+6. Circuits
+Allow:
+Create Circuit
+
+3 rounds:
+
+Push-ups
+15 reps
+
+Bodyweight Squats
+20 reps
+
+Mountain Climbers
+30 sec
+The backend should represent the relationship explicitly rather than relying on exercise names.
+
+7. Exercise Substitutions
+This is extremely useful.
+Coach configures:
+Bench Press
+
+Alternative:
+Machine Chest Press
+Athlete can then select:
+Can't perform Bench Press?
+
+[ Use Machine Chest Press ]
+The app should record the actual exercise performed.
+Important:
+Prescribed Exercise
+       ↓
+Bench Press
+
+Performed Exercise
+       ↓
+Machine Chest Press
+Do not overwrite the original prescription.
+
+8. Why This Matters
+Suppose an athlete cannot use:
+Barbell
+They substitute:
+Dumbbell Press
+The history should still say:
+Program prescribed:
+Barbell Bench Press
+
+Performed:
+Dumbbell Bench Press
+That gives the coach accurate history.
+
+9. Progressive Overload Rules
+Now we introduce one of the more powerful features.
+Coach can configure:
+Progression
+
+If all sets reach
+top of rep range
+
+→ increase weight by 2.5kg
+Example:
+Bench Press
+3 × 8–10
+
+Rule:
+If 3 × 10 completed
+→ +2.5kg next session
+
+10. RIR-Based Progression
+Another option:
+Target:
+3 × 8–12
+2 RIR
+
+If athlete completes:
+12 reps @ 2 RIR
+
+→ increase load
+The progression engine should calculate this rather than the mobile app.
+
+11. Percentage-Based Prescription
+Coach can configure:
+Squat
+
+4 × 5
+75% 1RM
+The athlete sees:
+Squat
+4 × 5
+
+Target:
+~90kg
+The actual percentage calculation happens on the backend using the athlete's relevant performance data.
+
+12. Don't Over-Automate Initially
+For V1, support:
+Fixed Weight
+Rep Range
+RIR
+RPE
+Percentage
+Progression Rule
+Don't immediately build an extremely complicated programming language.
+We can extend the prescription engine later.
+
+13. Deload Weeks
+Coach can mark:
+Week 6
+
+DELOAD
+Then configure:
+Volume:
+-30%
+
+Intensity:
+-10%
+The athlete sees:
+DELOAD WEEK
+
+Focus on recovery and technique.
+
+14. Program Duplication
+Coach can duplicate:
+Week 4
+into:
+Week 5
+Then modify:
+loads
+reps
+exercise
+volume
+This drastically reduces program-building time.
+
+15. Duplicate Workout
+Similarly:
+Push Day
+→
+Duplicate
+→
+Push Day B
+Then customize.
+
+16. Program Templates
+Coach can save:
+SAVE AS TEMPLATE
+Template:
+12 Week Hypertrophy
+Then:
+New Athlete
+ ↓
+Use Template
+ ↓
+Customize
+ ↓
+Assign
+This should become one of the major time-saving features for coaches.
+
+17. Template Categories
+Later:
+Strength
+Hypertrophy
+Fat Loss
+General Fitness
+Beginner
+Advanced
+Athletic Performance
+The coach can filter their templates.
+
+18. Program Versioning
+We already established:
+Program
+ ├── Version 1
+ ├── Version 2
+ └── Version 3
+Now expose it to the coach.
+PROGRAM HISTORY
+
+v3 — Aug 28
+Changed:
+• Bench Press
+• Volume
+
+v2 — Aug 15
+Changed:
+• Leg Day
+
+v1 — Aug 1
+Initial version
+
+19. Compare Versions
+Coach taps:
+Compare v2 → v3
+Show:
+BENCH PRESS
+
+Before
+3 × 10
+
+After
+4 × 8
+
+────────────────
+
+LEG PRESS
+
+No change
+
+────────────────
+
+CABLE FLY
+
+Removed
+This is extremely useful when reviewing programming decisions.
+
+20. Publishing
+Program lifecycle:
+Draft
+ ↓
+Review
+ ↓
+Published
+ ↓
+Assigned
+ ↓
+Active
+ ↓
+Completed / Archived
+A draft cannot accidentally affect athletes.
+
+21. Publishing Confirmation
+Before publishing:
+PROGRAM REVIEW
+
+12 weeks
+48 workouts
+
+Missing prescriptions:
+0
+
+Incomplete workouts:
+0
+
+Warnings:
+2
+
+[ BACK ]
+[ PUBLISH ]
+If something is invalid:
+Week 7
+Thursday
+
+Legs
+
+⚠ Squat has no target reps
+The coach can fix it before publishing.
+
+22. Validation Rules
+Program validation should catch:
+Missing exercise
+Missing reps
+Invalid set count
+Invalid rest
+Invalid prescription
+Empty workout
+Duplicate ordering
+Invalid progression rule
+The backend must validate this too.
+Frontend validation is not sufficient.
+
+23. Check-In System
+Now we move beyond programs.
+A coach needs structured athlete check-ins.
+Create:
+CheckIn
+│
+├── athleteId
+├── coachId
+├── submittedAt
+├── energy
+├── sleep
+├── soreness
+├── stress
+├── adherence
+├── notes
+└── responses
+
+24. Athlete Check-In
+Athlete receives:
+WEEKLY CHECK-IN
+
+How was your week?
+
+Energy
+1 2 3 4 5
+
+Sleep
+1 2 3 4 5
+
+Stress
+1 2 3 4 5
+
+Training difficulty
+1 2 3 4 5
+
+Anything you'd like
+your coach to know?
+
+[ ... ]
+
+SUBMIT
+
+25. Coach Check-In Queue
+Coach sees:
+CHECK-INS
+
+Needs Review
+────────────────
+
+Alex
+Submitted 20m ago
+
+Energy: 2/5
+Sleep: 3/5
+Training: 4/5
+
+⚠ Needs review
+
+Sam
+Submitted 1h ago
+
+Energy: 4/5
+Sleep: 4/5
+Training: 4/5
+
+✓ Looks good
+
+26. Check-In Detail
+Alex — Weekly Check-In
+
+Energy        2/5
+Sleep         3/5
+Stress        4/5
+Training      4/5
+
+Athlete notes:
+"Work has been stressful this week."
+
+Coach response:
+
+[ Write response... ]
+
+[ SEND ]
+This creates structured communication instead of forcing everything into chat.
+
+27. Check-In Frequency
+For V1:
+Weekly
+Later:
+Daily
+Weekly
+Biweekly
+Custom
+Don't build all of this initially.
+
+28. Coach Tasks
+Now create an internal task system.
+Example:
+TASKS
+
+Today
+────────────────
+
+Review Alex check-in
+○
+
+Update Rahul program
+○
+
+Reply to Sam
+○
+
+Review missed workouts
+○
+
+29. Task Model
+CoachTask
+│
+├── coachId
+├── athleteId?
+├── type
+├── title
+├── description
+├── priority
+├── dueAt
+├── completedAt
+└── createdAt
+Tasks can be generated automatically.
+Example:
+Athlete check-in submitted
+        ↓
+Create coach task
+        ↓
+"Review Alex's check-in"
+
+30. Task Priorities
+LOW
+MEDIUM
+HIGH
+URGENT
+But don't make everything urgent.
+The dashboard should surface only genuinely important items.
+
+31. Athlete Flags
+Separate from tasks.
+A flag represents a condition:
+Athlete Flag
+│
+├── athleteId
+├── type
+├── severity
+├── reason
+├── createdAt
+└── resolvedAt
+Examples:
+MISSED_WORKOUTS
+LOW_ADHERENCE
+PROGRAM_ENDING
+CHECKIN_PENDING
+NO_RECENT_ACTIVITY
+
+32. Flag Lifecycle
+Condition detected
+      ↓
+Flag created
+      ↓
+Coach sees it
+      ↓
+Coach takes action
+      ↓
+Flag resolved
+Example:
+2 missed workouts
+      ↓
+Adherence flag
+      ↓
+Coach messages athlete
+      ↓
+Athlete responds
+      ↓
+Coach resolves flag
+
+33. Important: Don't Create Permanent Flags
+A flag should be stateful.
+Bad:
+Missed workout
+Missed workout
+Missed workout
+Missed workout
+Better:
+Flag:
+Low adherence
+
+Occurrences:
+4
+
+Status:
+Open
+This avoids clutter.
+
+34. Coaching Dashboard Upgrade
+Now the dashboard becomes significantly more useful:
+GOOD MORNING, COACH
+
+────────────────────────
+TODAY
+
+24 athletes
+8 workouts
+5 completed
+2 upcoming
+1 missed
+
+────────────────────────
+ACTION REQUIRED
+
+⚠ 3 athletes need attention
+
+2 check-ins awaiting review
+
+1 program ending this week
+
+────────────────────────
+TASKS
+
+Review Alex check-in
+Update Rahul program
+Reply to Sam
+
+────────────────────────
+RECENT ACTIVITY
+
+Alex — New PR
+Sam — Workout completed
+Rahul — Missed workout
+This is much closer to a real coaching workspace.
+
+35. Automated Coach Tasks
+The backend event system can now create tasks.
+Example:
+CHECKIN_SUBMITTED
+        ↓
+Task:
+Review check-in
+Another:
+PROGRAM_ENDING
+        ↓
+Task:
+Review next program
+Another:
+LOW_ADHERENCE
+        ↓
+Task:
+Contact athlete
+
+36. Athlete Detail — Coach View
+The final athlete profile becomes:
+Alex
+────────────────────
+
+OVERVIEW
+87% adherence
+
+PROGRAM
+Week 5 / 12
+
+PROGRESS
+Strength ↑
+Volume ↑
+Consistency →
+
+WORKOUTS
+17 completed
+
+GOALS
+2 active
+
+CHECK-INS
+Last: Aug 25
+
+NOTES
+3 private notes
+
+FLAGS
+1 active
+
+MESSAGES
+Open conversation
+This is the coach's central athlete workspace.
+
+37. Quick Action Bar
+At the top:
+[ Message ]
+[ Program ]
+[ Workout ]
+[ Note ]
+The coach shouldn't need to navigate through five screens to perform common actions.
+
+38. Coach Workflow
+The complete workflow now becomes:
+                    DASHBOARD
+                        │
+          ┌─────────────┼─────────────┐
+          ▼             ▼             ▼
+       FLAGS         CHECK-INS      TASKS
+          │             │             │
+          └─────────────┼─────────────┘
+                        ▼
+                     ATHLETE
+                        │
+             ┌──────────┼──────────┐
+             ▼          ▼          ▼
+          PROGRAM     WORKOUT    PROGRESS
+             │          │          │
+             └──────────┼──────────┘
+                        ▼
+                     ACTION
+                        │
+           ┌────────────┼────────────┐
+           ▼            ▼            ▼
+        Message        Note       Feedback
+
+39. Backend Models Added
+Phase 4F introduces:
+CheckIn
+CoachTask
+AthleteFlag
+And expands:
+Program
+ProgramVersion
+Workout
+ExercisePrescription
+with support for:
+supersets
+circuits
+sections
+substitutions
+progression rules
+deloads
+templates
+
+40. New API Surface
+Check-ins
+POST /api/v1/check-ins
+GET  /api/v1/check-ins
+GET  /api/v1/check-ins/:id
+POST /api/v1/check-ins/:id/respond
+Coach Tasks
+GET   /api/v1/coaches/me/tasks
+POST  /api/v1/coaches/me/tasks
+PATCH /api/v1/coaches/me/tasks/:id
+Flags
+GET  /api/v1/coaches/me/flags
+POST /api/v1/coaches/me/flags/:id/resolve
+Program Templates
+GET  /api/v1/coaches/me/program-templates
+POST /api/v1/coaches/me/program-templates
+POST /api/v1/coaches/me/program-templates/:id/duplicate
+Program Versions
+GET /api/v1/programs/:id/versions
+GET /api/v1/programs/:id/versions/:versionId
+
+41. Phase 4F Implementation Order
+Do this in this exact order:
+1. Program builder data model
+        ↓
+2. Exercise sections
+        ↓
+3. Supersets/circuits
+        ↓
+4. Prescription editor
+        ↓
+5. Program validation
+        ↓
+6. Templates
+        ↓
+7. Program version history
+        ↓
+8. Publishing
+        ↓
+9. Assignment
+        ↓
+10. Check-ins
+        ↓
+11. Coach tasks
+        ↓
+12. Athlete flags
+        ↓
+13. Dashboard integration
+Do not build the AI coaching layer yet.
+We need reliable structured data first.
+
+42. Phase 4F Definition of Done
+The phase is complete when a coach can:
+Create program
+      ↓
+Build multiple weeks
+      ↓
+Create workouts
+      ↓
+Add exercises
+      ↓
+Configure sets/reps/rest
+      ↓
+Add supersets
+      ↓
+Add substitutions
+      ↓
+Configure progression
+      ↓
+Validate program
+      ↓
+Publish
+      ↓
+Assign to athlete
+      ↓
+Athlete receives it
+      ↓
+Athlete trains
+      ↓
+Workout data returns
+      ↓
+Coach reviews it
+      ↓
+Coach leaves feedback
+And:
+Athlete submits check-in
+       ↓
+Coach gets notification
+       ↓
+Task created
+       ↓
+Coach reviews
+       ↓
+Coach responds
+       ↓
+Athlete sees response
+
+Phase 4G — Intelligence Layer Preparation
+After this, we reach an important transition.
+We have:
+USER DATA
+    │
+    ├── Workouts
+    ├── Sets
+    ├── Programs
+    ├── Progress
+    ├── Goals
+    ├── Check-ins
+    ├── Messages
+    ├── Coach Feedback
+    └── Adherence
+Now we can start building the intelligence layer on top of real structured data.
+But we shouldn't jump straight to:
+"Ask AI anything about my workout."
+First we build the context pipeline:
+MongoDB
+   │
+   ▼
+Data Aggregation
+   │
+   ▼
+Athlete Context
+   │
+   ├── Current Program
+   ├── Recent Performance
+   ├── Progress Trends
+   ├── Goals
+   ├── Adherence
+   ├── Check-ins
+   └── Relevant Coach Feedback
+          │
+          ▼
+      AI Context
+          │
+          ▼
+    AI / Coaching Engine
+That gives us the foundation for the genuinely differentiated part of the product: an AI layer that understands the athlete's actual training history and program rather than acting like a generic chatbot.
+Phase 4G — Intelligence Layer Preparation
+We now reach the part that can make this gym app substantially different from a standard workout tracker.
+The mistake would be to immediately put a chatbot into the app.
+Instead, we'll build:
+                    GYM APP
+                       │
+                 Structured Data
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     Athlete         Coach         Workout
+      Data            Data           Data
+        │              │              │
+        └──────────────┼──────────────┘
+                       ▼
+                Context Engine
+                       │
+                       ▼
+                AI Intelligence
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+     Athlete AI     Coach AI       Insights
+The AI should understand the user's actual history, program, goals, and performance.
+
+1. What the AI Should Know
+For an athlete, the context engine should be able to assemble:
+ATHLETE CONTEXT
+│
+├── Profile
+│   ├── Training experience
+│   ├── Goals
+│   ├── Equipment
+│   └── Preferences
+│
+├── Current Program
+│   ├── Program
+│   ├── Current week
+│   ├── Current phase
+│   └── Prescriptions
+│
+├── Workout History
+│   ├── Recent sessions
+│   ├── Exercise performance
+│   ├── Volume
+│   └── Completion
+│
+├── Progress
+│   ├── Strength
+│   ├── PRs
+│   ├── Consistency
+│   └── Measurements
+│
+├── Goals
+│
+├── Check-ins
+│
+└── Coach Context
+    ├── Feedback
+    └── Relevant notes
+Not all of this should be sent to the AI for every request.
+That's important.
+
+2. Context Should Be Dynamic
+Suppose the athlete asks:
+"Should I increase my bench weight today?"
+The AI needs:
+Current exercise
+Current prescription
+Last few performances
+Recent RIR/RPE
+Recent progression
+Program progression rule
+Recent fatigue/check-in information
+It does not need:
+Every workout the athlete has ever completed
+All chat messages
+Every measurement
+Every notification
+So we'll build a context selector.
+
+3. Context Engine
+Create:
+backend/src/ai/
+│
+├── context/
+│   ├── athlete-context.ts
+│   ├── coach-context.ts
+│   ├── workout-context.ts
+│   └── context-builder.ts
+│
+├── prompts/
+│   ├── athlete.ts
+│   ├── coach.ts
+│   └── workout.ts
+│
+├── services/
+│   ├── ai.service.ts
+│   ├── insight.service.ts
+│   └── recommendation.service.ts
+│
+└── safety/
+    ├── boundaries.ts
+    └── validators.ts
+
+4. Context Builder
+The central interface:
+interface AIContext {
+  athlete?: AthleteContext;
+
+  coach?: CoachContext;
+
+  workout?: WorkoutContext;
+
+  program?: ProgramContext;
+
+  progress?: ProgressContext;
+
+  goals?: GoalContext[];
+
+  checkIns?: CheckInContext[];
+
+  feedback?: FeedbackContext[];
+}
+Then:
+buildAthleteContext(
+  athleteId,
+  contextRequest
+)
+returns only the relevant information.
+
+5. Context Request
+Instead of:
+buildEverything()
+use:
+{
+  include: [
+    "profile",
+    "current_program",
+    "recent_workouts",
+    "progress",
+    "goals"
+  ]
+}
+This lets different AI features request different context.
+
+6. Context Layers
+I recommend four levels.
+Level 1 — Identity
+Who is this?
+Includes:
+role
+goals
+training experience
+preferences
+Level 2 — Current State
+What's happening now?
+Includes:
+current program
+current week
+today's workout
+active goals
+recent check-in
+Level 3 — Historical Context
+What happened recently?
+Includes:
+recent sessions
+performance trends
+adherence
+PRs
+Level 4 — Relevant Deep Context
+What specific information is needed
+to answer this question?
+Only load it when required.
+
+7. Example: "Why Am I Not Progressing?"
+User asks:
+Why has my squat stopped improving?
+Context:
+Profile
+Goal
+Current squat prescription
+Last 8 squat sessions
+Estimated 1RM trend
+Volume trend
+RIR/RPE
+Adherence
+Recent check-ins
+Potentially:
+Coach feedback
+The AI then has enough information to reason about the question.
+
+8. Example: Simple Question
+User:
+What is my workout today?
+We only need:
+Today's schedule
+Today's workout
+Don't waste tokens loading six months of history.
+
+9. Athlete AI Chat
+The mobile UI:
+AI COACH
+
+────────────────────────
+
+AI
+What would you like help with?
+
+You
+Should I increase my bench
+weight today?
+
+AI
+Your last three sessions were:
+
+60 × 10
+60 × 10
+62.5 × 8
+
+Your current prescription is
+3 × 8–10 at 2 RIR.
+
+You reached the top of the
+range previously, but today's
+decision depends on your actual
+performance and target RIR.
+
+...
+The important part is that the answer is grounded in the athlete's data.
+
+10. AI Should Not Invent Data
+If the context says:
+Last bench:
+62.5 × 8
+AI can use it.
+If there is no bench history:
+No recorded bench sessions
+the AI should say that it doesn't have enough recorded data.
+It should never fabricate historical performance.
+
+11. AI Response Structure
+Internally, have the model produce structured output:
+{
+  "answer": "...",
+  "confidence": "high",
+  "usedContext": [
+    "recent_workouts",
+    "current_prescription"
+  ],
+  "actions": []
+}
+The UI only needs to render the answer and relevant actions.
+
+12. AI Actions
+Eventually the AI can suggest:
+"Your program has you doing
+3 × 8–10."
+
+[View Workout]
+or:
+"Your coach's progression rule
+suggests increasing the load."
+
+[View Prescription]
+Notice:
+suggestion ≠ automatic modification.
+
+13. AI Should Not Directly Modify Programs
+Initially:
+AI
+ ↓
+Suggestion
+ ↓
+Coach / Athlete
+ ↓
+Confirm
+ ↓
+Backend mutation
+Not:
+AI
+ ↓
+Change program
+This is especially important for coach-controlled programs.
+
+14. Coach AI
+The coach gets a different AI experience.
+Coach asks:
+"Which athletes need my attention this week?"
+The context engine can retrieve:
+Athlete roster
++
+Adherence
++
+Missed workouts
++
+Check-ins
++
+Progress
++
+Open flags
++
+Recent activity
+Then return:
+3 athletes stand out:
+
+Alex
+• 61% adherence this week
+• 2 missed workouts
+• check-in reports low energy
+
+Rahul
+• program ends in 5 days
+• no next program assigned
+
+Sam
+• completed all workouts
+• 2 new PRs
+
+15. Coach AI Should Be Action-Oriented
+Instead of:
+"Sam is doing well."
+give:
+Sam is progressing strongly.
+
+Recommended action:
+Review the next training block
+while current momentum is high.
+
+[VIEW ATHLETE]
+The AI should help reduce coach workload.
+
+16. AI Insight Engine
+Chat isn't the only AI feature.
+We should have proactive insights.
+Architecture:
+Workout Completed
+       ↓
+Event
+       ↓
+Insight Engine
+       ↓
+Evaluate athlete
+       ↓
+Generate insight
+       ↓
+Store insight
+       ↓
+Coach / Athlete
+
+17. Insight Types
+Initial set:
+STRENGTH_IMPROVEMENT
+PLATEAU
+ADHERENCE_DROP
+CONSISTENCY_IMPROVEMENT
+PROGRAM_MILESTONE
+PR_ACHIEVED
+GOAL_PROGRESS
+PROGRAM_REVIEW
+Some of these don't need AI at all.
+For example:
+PR_ACHIEVED
+is deterministic.
+AI is useful for interpretation:
+"What does this trend mean?"
+
+18. Deterministic First, AI Second
+This principle should govern the whole system.
+Example:
+Workout
+ ↓
+Calculate volume
+ ↓
+Calculate 1RM
+ ↓
+Detect PR
+ ↓
+Calculate adherence
+ ↓
+Calculate trend
+ ↓
+AI interprets
+Not:
+Workout
+ ↓
+AI guesses everything
+Numerical fitness metrics should remain deterministic.
+
+19. Athlete Insight
+Example:
+INSIGHT
+
+Your squat estimated 1RM has
+increased 7.4% over the last
+6 weeks.
+
+Your consistency during the
+same period was 91%.
+
+[VIEW PROGRESS]
+The numbers come from the analytics engine.
+The AI can generate the explanation around them.
+
+20. Plateau Detection
+This can start deterministically.
+For example:
+Same exercise
++
+similar intensity
++
+minimal improvement
++
+multiple sessions
+→ candidate plateau.
+Then:
+Plateau Candidate
+      ↓
+AI analyzes:
+• volume
+• intensity
+• adherence
+• recent feedback
+• exercise changes
+      ↓
+Coach insight
+
+21. AI Safety Boundary
+The AI should not diagnose medical conditions.
+If the athlete says:
+"My knee hurts when I squat."
+The AI should not respond:
+"You have X injury."
+Instead:
+Pain during exercise can have
+many causes. Don't use the app
+to diagnose the issue.
+
+Consider stopping or modifying
+the movement and discussing
+persistent or significant pain
+with an appropriately qualified
+health professional.
+
+[Message Coach]
+The coach can then be notified if the athlete chooses to share it.
+
+22. AI and Coach Authority
+If an athlete has a coach:
+Coach Program
+      │
+      ▼
+Current Prescription
+The AI should treat that as authoritative context.
+If the athlete asks:
+"Should I change today's workout?"
+AI shouldn't silently override the coach's plan.
+Instead:
+Your current program has you
+scheduled for...
+
+If something feels wrong or
+your circumstances have changed,
+consider discussing the adjustment
+with your coach.
+
+[Message Coach]
+
+23. AI Memory
+Don't create a giant:
+AI_MEMORY
+containing every conversation.
+Instead store useful structured information.
+Example:
+Athlete Preference
+│
+├── preferred training time
+├── equipment preference
+├── communication preference
+└── coaching preference
+Only persist information that has clear product value.
+
+24. Conversation Memory
+For AI conversations:
+Conversation
+    ↓
+Recent messages
+    ↓
+Relevant structured context
+    ↓
+Current question
+Don't automatically send the entire conversation history every time.
+Use:
+Recent conversation
++
+summary
++
+relevant context
+
+25. AI Conversation Summary
+Long conversation:
+100 messages
+can become:
+Conversation Summary
+
+Athlete is currently training
+4 days/week for hypertrophy.
+
+Recent concern:
+Bench progression has slowed.
+
+Relevant context:
+...
+Then the AI doesn't need all 100 messages.
+
+26. AI Context Storage
+We can maintain:
+AIContextSnapshot
+│
+├── userId
+├── contextType
+├── data
+├── generatedAt
+└── expiresAt
+But don't cache everything permanently.
+Some context is better calculated live.
+
+27. Live vs Cached Context
+Live
+Today's workout
+Current program
+Active session
+Current adherence
+Unread messages
+Cached
+Long-term strength trends
+Historical summaries
+Long-term preferences
+This keeps AI responses both current and efficient.
+
+28. AI Service Interface
+Create:
+src/ai/services/ai.service.ts
+Interface:
+interface AIRequest {
+  userId: string;
+
+  role: "athlete" | "coach";
+
+  message: string;
+
+  context: AIContext;
+}
+
+interface AIResponse {
+  answer: string;
+
+  suggestedActions?: AIAction[];
+
+  contextUsed: string[];
+}
+Then:
+aiService.generateResponse(
+  request
+);
+The rest of the application doesn't need to know which AI provider is being used.
+
+29. Provider Abstraction
+Don't hard-code your entire application to one model.
+Use:
+AIService
+    │
+    ├── Provider A
+    ├── Provider B
+    └── Future Provider
+The app talks to:
+AIService
+not directly to a specific provider.
+This gives us flexibility later.
+
+30. Prompt Architecture
+Don't have giant prompts scattered across controllers.
+Create:
+prompts/
+├── athlete-system.ts
+├── coach-system.ts
+├── workout-analysis.ts
+├── progress-analysis.ts
+└── checkin-analysis.ts
+Then construct:
+System Instructions
++
+Relevant Context
++
+User Request
+
+31. Context Injection Format
+Use structured context:
+<athlete>
+  ...
+</athlete>
+
+<current_program>
+  ...
+</current_program>
+
+<recent_performance>
+  ...
+</recent_performance>
+
+<goals>
+  ...
+</goals>
+This is easier to reason about than concatenating random strings.
+
+32. AI Request Logging
+For debugging, store metadata:
+AI Request
+│
+├── userId
+├── role
+├── feature
+├── model
+├── latency
+├── token usage
+├── success/failure
+└── createdAt
+Don't blindly store every sensitive conversation forever.
+Define retention rules.
+
+33. AI Cost Control
+This will matter quickly.
+Don't call AI for:
+"Show today's workout"
+That's a database query.
+Don't call AI for:
+"How many workouts did I complete?"
+That's analytics.
+AI should be used when reasoning or natural-language interpretation adds value.
+
+34. AI Feature Classification
+No AI
+Today's workout
+Workout history
+PR calculation
+Volume
+Adherence
+Calendar
+AI-enhanced
+Progress explanation
+Workout interpretation
+Check-in summary
+Coach prioritization
+Training trend explanation
+Natural-language questions
+AI-generated
+Personalized insights
+Coaching suggestions
+Athlete summaries
+This distinction will save significant cost and improve reliability.
+
+35. First AI Features
+Don't start with 30 AI features.
+Build these first:
+1. Ask My Training
+2. Explain My Progress
+3. Coach Athlete Summary
+4. Check-in Summary
+5. Proactive Training Insight
+These directly use the structured data we've already built.
+
+36. "Ask My Training"
+Athlete can ask:
+"Why did my bench stop improving?"
+
+"How has my strength changed?"
+
+"What did I do last week?"
+
+"How consistent have I been?"
+
+"What should I focus on today?"
+
+37. "Explain My Progress"
+Instead of only:
+Bench +8%
+AI can explain:
+Your bench has improved steadily
+over the last 6 weeks.
+
+The biggest increase happened
+after Week 3, when your average
+training volume increased.
+
+Your adherence during this period
+was 91%.
+Every numerical claim should originate from the analytics context.
+
+38. Coach Athlete Summary
+Coach taps:
+AI SUMMARY
+The system generates:
+Alex — Weekly Summary
+
+Training:
+4/5 sessions completed.
+
+Strength:
+Bench estimated 1RM +3.2%.
+
+Adherence:
+87%.
+
+Check-in:
+Energy lower than usual.
+
+Attention:
+Consider reviewing recovery
+before progressing lower-body
+volume.
+Again, this is a summary, not a diagnosis.
+
+39. Check-In Summary
+Coach doesn't need to manually read 30 check-ins.
+AI can summarize:
+Weekly Athlete Summary
+
+Most common concerns:
+• Lower energy
+• Increased work stress
+• Sleep inconsistency
+
+Training adherence:
+Strong
+
+Suggested review:
+Recovery and workload
+The underlying check-in values remain accessible.
+
+40. Proactive Insights
+Eventually:
+Athlete completes workout
+        ↓
+Analytics
+        ↓
+Insight candidate
+        ↓
+AI interpretation
+        ↓
+Insight
+Example:
+PROGRESS INSIGHT
+
+You've increased your squat
+performance for 4 consecutive
+weeks while maintaining your
+current training frequency.
+
+Your next programmed session
+continues the progression.
+
+[VIEW PROGRESS]
+
+41. Insight Feed
+Athlete:
+INSIGHTS
+
+Today
+────────────────────
+
+Strength
+Bench Press improved 5%.
+
+Consistency
+You've completed 8 of your
+last 9 scheduled workouts.
+
+Milestone
+Week 5 completed.
+Coach:
+COACH INSIGHTS
+
+Alex
+Strength improving
+
+Rahul
+Adherence declining
+
+Sam
+Program progression ready
+for review
+
+42. Phase 4G Architecture
+At this point:
+                         DATA
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+         Deterministic              Context
+          Analytics                  Engine
+              │                         │
+              ├───────────┬─────────────┤
+              │           │
+              ▼           ▼
+           Metrics      AI Service
+              │           │
+              │      ┌────┴────┐
+              │      ▼         ▼
+              │   Athlete     Coach
+              │      AI         AI
+              │      │           │
+              └──────┴───────────┘
+                         │
+                         ▼
+                    Insights
+
+43. Phase 4G Implementation Order
+Do not start by building the chatbot UI.
+Build the backend in this order:
+1. AIContext types
+        ↓
+2. Context builders
+        ↓
+3. Athlete context
+        ↓
+4. Coach context
+        ↓
+5. Workout context
+        ↓
+6. AI provider abstraction
+        ↓
+7. Prompt architecture
+        ↓
+8. AI service
+        ↓
+9. AI response validation
+        ↓
+10. AI logging
+        ↓
+11. Athlete AI endpoint
+        ↓
+12. Coach AI endpoint
+        ↓
+13. Insight engine
+        ↓
+14. Insight persistence
+        ↓
+15. Mobile AI UI
+
+44. API Endpoints
+We'll add:
+POST /api/v1/ai/athlete/chat
+
+POST /api/v1/ai/coach/chat
+
+GET /api/v1/athletes/me/insights
+
+GET /api/v1/coaches/me/insights
+
+POST /api/v1/ai/progress/explain
+
+POST /api/v1/ai/athletes/:athleteId/summary
+Every AI endpoint must still use the same authorization system.
+
+45. The Most Important Architectural Rule
+The AI should never become the source of truth.
+Our hierarchy is:
+MongoDB
+    ↓
+Business Logic
+    ↓
+Analytics
+    ↓
+Context Engine
+    ↓
+AI
+not:
+MongoDB
+    ↓
+AI
+    ↓
+"whatever AI says"
+The AI interprets the application's data.
+It doesn't replace the application's data layer.
+
+46. Phase 4G Definition of Done
+We are finished when:
+Athlete
+  ↓
+Ask AI
+  ↓
+Context Engine retrieves
+real program + performance
+  ↓
+AI answers
+  ↓
+Response references real data
+And:
+Coach
+  ↓
+Open athlete
+  ↓
+AI Summary
+  ↓
+Real workouts
++ progress
++ adherence
++ check-ins
++ goals
+  ↓
+Useful summary
+And finally:
+Workout completed
+      ↓
+Analytics calculated
+      ↓
+Insight candidate
+      ↓
+AI interpretation
+      ↓
+Insight appears
+
+Phase 4H — Messaging + Notifications UI
+The backend communication system from Phase 3H is already in place. Now we connect the mobile clients properly.
+We'll build:
+MESSAGES
+│
+├── Conversation List
+├── Conversation Screen
+├── Message Composer
+├── Image/File Attachments
+├── Typing Indicator
+├── Read Receipts
+├── Online Status
+└── Push Notifications
+And connect it to:
+WebSocket
+    ↓
+Real-time message
+    ↓
+Local cache
+    ↓
+UI update
+    ↓
+Read event
+    ↓
+Push notification
+The important part is that Coach ↔ Athlete messaging will be embedded into the coaching workflow, so a coach can go from an athlete flag, missed workout, check-in, PR, or program change directly into the relevant conversation rather than treating messaging as an isolated chat application.
+Phase 4H — Messaging + Notifications
+Now we connect the communication layer to the actual mobile experience.
+The important principle is:
+Messaging should be part of the coaching workflow, not a separate social-chat feature.
+A coach should be able to go:
+Missed Workout
+      ↓
+Athlete
+      ↓
+Why was it missed?
+      ↓
+Message Athlete
+and:
+Check-in
+   ↓
+Review
+   ↓
+Message Athlete
+and:
+New PR
+   ↓
+Athlete
+   ↓
+Message
+
+1. Messaging Architecture
+                    MESSAGING
+                        │
+          ┌─────────────┴─────────────┐
+          ▼                           ▼
+    Conversation                  Notifications
+          │                           │
+          ▼                           ▼
+      Messages                    Push / In-App
+          │
+     ┌────┼─────┐
+     ▼    ▼     ▼
+   Text Media  System
+          │
+          ▼
+      WebSocket
+          │
+          ▼
+     Local Cache
+
+2. Conversation List
+Create:
+src/screens/messages/
+├── ConversationListScreen.tsx
+├── ConversationScreen.tsx
+└── components/
+    ├── ConversationCard.tsx
+    ├── MessageBubble.tsx
+    ├── MessageComposer.tsx
+    └── AttachmentPicker.tsx
+Athlete view:
+MESSAGES
+
+┌──────────────────────────────┐
+│ [Avatar] Coach Mike          │
+│ Last: Great work today       │
+│                         2m   │
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│ [Avatar] Coach Sarah         │
+│ Check your new program       │
+│                        1h    │
+└──────────────────────────────┘
+Coach view:
+MESSAGES
+
+Alex
+"How should I approach..."
+2m
+
+Sam
+"Feeling good after..."
+18m
+
+Rahul
+"Can I change..."
+1h
+
+3. Conversation Model
+Use the model from Phase 3:
+Conversation
+│
+├── id
+├── type
+├── participants
+├── lastMessage
+├── lastMessageAt
+├── createdAt
+└── updatedAt
+For V1, support:
+DIRECT
+Then later:
+GROUP
+for teams or coaching groups.
+
+4. Message Model
+Message
+│
+├── id
+├── conversationId
+├── senderId
+├── type
+├── text
+├── attachments
+├── createdAt
+├── editedAt
+├── deletedAt
+└── status
+Message types:
+TEXT
+IMAGE
+FILE
+SYSTEM
+Don't support every media type initially.
+
+5. Conversation Screen
+The screen should feel familiar:
+┌──────────────────────────────┐
+│ ← Coach Mike           ●     │
+├──────────────────────────────┤
+│                              │
+│        Today                 │
+│                              │
+│ Coach                        │
+│ Great work on today's        │
+│ workout.                     │
+│                         10:42│
+│                              │
+│ You                          │
+│ Thanks! Bench felt strong.   │
+│                    10:44     │
+│                              │
+│ Coach                        │
+│ Keep the same load next time.│
+│                         10:45│
+│                              │
+├──────────────────────────────┤
+│ +  Type a message...     ➤  │
+└──────────────────────────────┘
+
+6. Message Composer
+Create:
+MessageComposer.tsx
+Support:
+[ + ] [ Type message... ] [ Send ]
+The + menu:
+Photo
+Camera
+File
+For V1, text + images are enough.
+
+7. Optimistic Messaging
+When the user taps Send:
+User taps Send
+      ↓
+Create local message
+      ↓
+Display immediately
+      ↓
+WebSocket/API send
+      ↓
+Server ACK
+      ↓
+Mark sent
+Don't make the user wait for a round trip.
+
+8. Message Status
+Display:
+Sending...
+✓ Sent
+✓✓ Read
+For example:
+You
+Great session today.
+                   ✓✓
+Avoid excessive status UI if it makes the screen cluttered.
+
+9. Read Receipts
+When the user opens a conversation:
+Conversation opened
+       ↓
+Find unread messages
+       ↓
+Send read event
+       ↓
+Server updates readAt
+WebSocket event:
+{
+  "type": "message.read",
+  "conversationId": "...",
+  "messageIds": ["..."]
+}
+
+10. Typing Indicator
+WebSocket events:
+typing.start
+typing.stop
+UI:
+Coach Mike is typing...
+Important:
+Don't persist typing events in MongoDB.
+They're temporary WebSocket events.
+
+11. Online Status
+Show:
+● Online
+or:
+Last seen 10m ago
+But don't make online presence central to the product.
+The gym app is not a social network.
+
+12. Message Pagination
+Don't load an entire conversation.
+Use cursor pagination:
+GET /api/v1/conversations/:id/messages
+?cursor=...
+&limit=30
+Load newest messages first.
+When scrolling upward:
+Load older messages
+
+13. Local Message Cache
+Cache recent messages locally:
+Conversation
+   ↓
+Messages
+   ↓
+SQLite/local DB
+This means opening a conversation feels instant.
+Then:
+Local messages
+       ↓
+Background sync
+       ↓
+New messages
+
+14. Offline Messages
+If the athlete sends a message without internet:
+Message
+ ↓
+Local DB
+ ↓
+Status: pending
+Show:
+You
+Can you review today's workout?
+
+             ◷
+When internet returns:
+pending
+ ↓
+send
+ ↓
+server ACK
+ ↓
+✓
+
+15. Failed Messages
+If sending permanently fails:
+You
+Can you review today's workout?
+
+             !
+        Failed to send
+Provide:
+Retry
+Never silently delete the message.
+
+16. Attachments
+For an image:
+Select image
+     ↓
+Compress
+     ↓
+Upload
+     ↓
+Receive media URL/object key
+     ↓
+Create message
+Don't send huge raw images through your messaging API.
+
+17. Media Upload Architecture
+Use:
+Mobile
+  ↓
+Request upload authorization
+  ↓
+Storage
+  ↓
+Upload directly
+  ↓
+Backend receives metadata
+  ↓
+Message references media
+This prevents your Node API from becoming a giant file-transfer server.
+
+18. Image Compression
+Before upload:
+Original
+4–8 MB
+   ↓
+Compress
+   ↓
+~500 KB–1.5 MB
+   ↓
+Upload
+The exact target should depend on the image dimensions and quality.
+
+19. Notification Architecture
+Now connect push notifications.
+EVENT
+  ↓
+Notification Service
+  ↓
+Determine recipient
+  ↓
+Create notification
+  ↓
+Send push
+  ↓
+Store in-app notification
+
+20. Notification Types
+Initial set:
+MESSAGE_RECEIVED
+WORKOUT_ASSIGNED
+PROGRAM_UPDATED
+WORKOUT_REMINDER
+WORKOUT_COMPLETED
+NEW_PR
+CHECKIN_SUBMITTED
+COACH_FEEDBACK
+PROGRAM_ENDING
+Don't notify for every tiny event.
+
+21. Notification Preferences
+Users need control.
+Create:
+Settings
+ ↓
+Notifications
+Example:
+Messages                 ON
+Workout reminders        ON
+Program updates          ON
+PR notifications         ON
+Coach feedback           ON
+Check-in reminders       ON
+Marketing                OFF
+
+22. Notification Model
+Notification
+│
+├── id
+├── recipientId
+├── type
+├── title
+├── body
+├── entityType
+├── entityId
+├── readAt
+└── createdAt
+The important fields are:
+entityType
+entityId
+because they allow deep linking.
+
+23. Deep Linking
+Example:
+Notification
+"Alex completed today's workout."
+contains:
+{
+  "entityType": "workout_session",
+  "entityId": "123"
+}
+Tap:
+Notification
+      ↓
+Workout Session
+Not merely:
+Home
+
+24. Notification Routing
+Implement one central router:
+src/navigation/notification-router.ts
+Logic:
+switch (notification.entityType) {
+  case "workout_session":
+    return WorkoutDetail;
+
+  case "program":
+    return ProgramDetail;
+
+  case "conversation":
+    return Conversation;
+
+  case "checkin":
+    return CheckInDetail;
+
+  case "athlete":
+    return AthleteProfile;
+}
+This keeps notification navigation manageable.
+
+25. Notification Center
+Create:
+NotificationsScreen.tsx
+Example:
+NOTIFICATIONS
+
+Today
+
+NEW PR
+Alex hit a new Bench Press PR.
+10m
+
+MESSAGE
+Coach Mike sent you a message.
+25m
+
+PROGRAM UPDATE
+Your Week 6 workout was updated.
+2h
+
+Earlier
+
+WORKOUT COMPLETED
+You completed Push.
+Yesterday
+
+26. Unread Badge
+Navigation:
+Messages   ●2
+Notifications:
+Bell ●5
+When opened:
+Unread → Read
+
+27. Mark All Read
+Provide:
+Mark all as read
+But don't delete notifications.
+Read and deleted are separate concepts.
+
+28. Push Token Registration
+When the app starts:
+App
+ ↓
+Permission
+ ↓
+Get device push token
+ ↓
+POST /devices
+Backend stores:
+Device
+│
+├── userId
+├── platform
+├── pushToken
+├── appVersion
+├── lastSeenAt
+└── active
+One user can have multiple devices.
+
+29. Multiple Devices
+Example:
+Alex
+│
+├── iPhone
+├── iPad
+└── Mac
+A message should reach the appropriate active devices.
+On logout:
+Device
+ ↓
+Deactivate token
+
+30. Notification Delivery
+Don't assume:
+Push sent = user saw it
+Track:
+queued
+sent
+delivered
+opened
+If the platform doesn't provide every state reliably, don't fabricate them.
+
+31. Notification Deduplication
+This is important.
+Suppose:
+Workout completed
+triggers:
+WebSocket
+Push
+In-app notification
+Don't create three notifications.
+Use a deduplication key:
+eventId
++
+recipientId
++
+notificationType
+
+32. Workout Reminder
+A scheduled reminder:
+Tomorrow
+6:00 PM
+
+Your Push workout starts
+in 30 minutes.
+The notification should deep link directly to:
+Today's Workout
+
+33. Coach Notification
+Coach:
+Alex completed Push.
+
+[VIEW WORKOUT]
+Deep link:
+Coach
+ ↓
+Alex
+ ↓
+Workout
+This saves the coach from manually searching for Alex.
+
+34. Check-In Notification
+Athlete:
+Weekly check-in available.
+
+[START CHECK-IN]
+Coach:
+Alex submitted a check-in.
+
+[REVIEW]
+Again, direct navigation.
+
+35. Program Update Notification
+If coach modifies a program:
+Your program was updated.
+
+3 changes were made to
+this week's workouts.
+
+[VIEW CHANGES]
+The user can inspect the version comparison we built in 4F.
+
+36. Notification Quiet Hours
+Add:
+Notification Settings
+
+Quiet Hours
+10:00 PM — 7:00 AM
+Messages can potentially remain available in-app while push notifications are suppressed.
+Don't block critical account/security notifications through the same preference.
+
+37. Real-Time Event Architecture
+At this point the WebSocket layer becomes:
+                      SERVER
+                        │
+                 Event Dispatcher
+                        │
+          ┌─────────────┼─────────────┐
+          ▼             ▼             ▼
+       Athlete        Coach         System
+          │             │             │
+          └─────────────┼─────────────┘
+                        ▼
+                    WebSocket
+                        │
+                  Mobile Clients
+Events:
+message.new
+message.read
+typing.start
+typing.stop
+workout.completed
+program.updated
+notification.created
+athlete.activity
+
+38. Don't Send Sensitive Data Through Events
+For example, instead of:
+{
+  "type": "message.new",
+  "message": {
+    "everything": "..."
+  }
+}
+send the minimum required information:
+{
+  "type": "message.new",
+  "conversationId": "...",
+  "messageId": "..."
+}
+Then the client can fetch the message if necessary.
+For performance, you can include safe display data where appropriate, but keep the event payload intentionally small.
+
+39. Connection Manager
+Create:
+src/services/realtime/
+├── websocket.service.ts
+├── connection.manager.ts
+├── event.router.ts
+└── realtime.types.ts
+Responsibilities:
+Connect
+Reconnect
+Authenticate
+Heartbeat
+Receive events
+Dispatch events
+Disconnect
+
+40. Reconnection
+Mobile networks are unreliable.
+Expect:
+Wi-Fi
+ ↓
+4G
+ ↓
+No signal
+ ↓
+Wi-Fi
+The connection manager should:
+Disconnected
+ ↓
+Reconnect
+ ↓
+Authenticate
+ ↓
+Resume
+ ↓
+Sync missed data
+Don't build a WebSocket system assuming permanent connectivity.
+
+41. Heartbeat
+Use:
+ping
+pong
+to detect stale connections.
+If connection becomes invalid:
+close
+ ↓
+reconnect
+
+42. Event → Query Invalidation
+When:
+message.new
+arrives:
+invalidate:
+["conversations"]
+
+["messages", conversationId]
+When:
+workout.completed
+arrives:
+invalidate:
+["athlete-home"]
+
+["progress"]
+
+["workout-history"]
+When:
+program.updated
+arrives:
+invalidate:
+["program"]
+
+["today-workout"]
+This integrates the realtime system with our existing TanStack Query architecture.
+
+43. Phase 4H Folder Structure
+By the end:
+src/
+│
+├── screens/
+│   ├── auth/
+│   ├── athlete/
+│   ├── coach/
+│   ├── messages/
+│   └── notifications/
+│
+├── components/
+│   ├── workout/
+│   ├── progress/
+│   ├── coach/
+│   ├── messages/
+│   └── notifications/
+│
+├── hooks/
+│   ├── auth/
+│   ├── workout/
+│   ├── progress/
+│   ├── coach/
+│   ├── messages/
+│   └── notifications/
+│
+├── services/
+│   ├── api/
+│   ├── realtime/
+│   └── notifications/
+│
+├── database/
+│   ├── repositories/
+│   └── sync/
+│
+└── stores/
+    ├── auth.store.ts
+    └── workout.store.ts
+
+44. API Endpoints
+Messaging:
+GET  /api/v1/conversations
+POST /api/v1/conversations
+
+GET  /api/v1/conversations/:id/messages
+POST /api/v1/conversations/:id/messages
+
+POST /api/v1/conversations/:id/read
+Notifications:
+GET   /api/v1/notifications
+POST  /api/v1/notifications/:id/read
+POST  /api/v1/notifications/read-all
+PATCH /api/v1/notification-preferences
+Devices:
+POST   /api/v1/devices
+DELETE /api/v1/devices/:id
+
+45. Phase 4H Implementation Order
+Follow this order:
+1. Conversation list
+       ↓
+2. Conversation screen
+       ↓
+3. Send text message
+       ↓
+4. Message persistence
+       ↓
+5. Message pagination
+       ↓
+6. Optimistic messages
+       ↓
+7. Read receipts
+       ↓
+8. WebSocket connection
+       ↓
+9. Real-time messages
+       ↓
+10. Reconnection
+       ↓
+11. Push token registration
+       ↓
+12. Notification service
+       ↓
+13. Notification center
+       ↓
+14. Deep links
+       ↓
+15. Notification preferences
+       ↓
+16. Attachments
+       ↓
+17. Offline message queue
+
+46. Phase 4H Definition of Done
+Test this complete scenario:
+COACH
+  │
+  │ sends message
+  ▼
+SERVER
+  │
+  ├── MongoDB
+  ├── WebSocket
+  └── Push
+        │
+        ▼
+ATHLETE
+Then:
+Athlete replies
+     ↓
+Coach receives instantly
+     ↓
+Read receipt updates
+     ↓
+Conversation persists
+     ↓
+Close app
+     ↓
+Reopen
+     ↓
+Conversation still exists
+Then test:
+Internet OFF
+     ↓
+Send message
+     ↓
+Message remains pending
+     ↓
+Internet ON
+     ↓
+Message sends
+     ↓
+✓
+Then:
+Coach updates program
+     ↓
+Athlete gets push
+     ↓
+Taps notification
+     ↓
+Program change screen
+If all of that works, Phase 4H is complete.
+
+Phase 4I — Admin + Gym Management
+At this point we have:
+ATHLETE
+├── Workout
+├── Progress
+├── Program
+├── Goals
+├── Check-ins
+├── Messages
+└── AI
+
+COACH
+├── Dashboard
+├── Athletes
+├── Programs
+├── Check-ins
+├── Tasks
+├── Flags
+├── Messages
+└── AI
+The next layer is the Gym/Organization/Admin side.
+This is where we handle:
+GYM / ORGANIZATION
+│
+├── Members
+├── Coaches
+├── Staff
+├── Memberships
+├── Plans
+├── Billing
+├── Gym Settings
+├── Equipment
+├── Classes
+├── Attendance
+├── Reports
+└── Permissions
+And we'll introduce the hierarchy:
+Organization
+      │
+      ├── Admin
+      │
+      ├── Coaches
+      │
+      ├── Staff
+      │
+      └── Athletes
+This is important because we're no longer just building a fitness app. We're building the infrastructure that can eventually support individual athletes, independent coaches, and entire gyms/fitness organizations from the same platform.
+Phase 4I — Gym / Organization / Admin
+We now add the organization layer.
+Until now, the application has mainly been:
+Athlete ↔ Coach
+Now it becomes:
+                         PLATFORM
+                            │
+                ┌───────────┴───────────┐
+                │                       │
+          Independent             Organization
+             Coach                  / Gym
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    ▼                 ▼                 ▼
+                 Admin             Coaches            Staff
+                                      │
+                                      ▼
+                                   Athletes
+This is important because a gym owner should not have to manage the system using a coach account.
+
+1. Organization Model
+Create the organization as a first-class entity.
+Organization
+│
+├── id
+├── name
+├── slug
+├── logo
+├── description
+├── contact
+├── location
+├── timezone
+├── status
+├── settings
+├── createdAt
+└── updatedAt
+Example:
+{
+  "name": "Iron Forge Fitness",
+  "slug": "iron-forge-fitness",
+  "timezone": "Asia/Kolkata",
+  "status": "active"
+}
+
+2. Don't Put Organization ID Everywhere Blindly
+We need to distinguish:
+User
+from:
+OrganizationMembership
+Use a membership model:
+OrganizationMembership
+│
+├── organizationId
+├── userId
+├── role
+├── status
+├── joinedAt
+└── permissions
+This allows one user to potentially belong to multiple organizations.
+For example:
+Coach Alex
+│
+├── Iron Forge Fitness
+│   └── Coach
+│
+└── Elite Performance
+    └── Consultant
+Much more flexible than:
+user.organizationId
+
+3. Organization Roles
+Initial roles:
+OWNER
+ADMIN
+COACH
+STAFF
+MEMBER
+Don't create 20 roles immediately.
+We can introduce custom permissions later.
+
+4. Permission Architecture
+Role alone shouldn't determine every action.
+Use:
+Role
+  ↓
+Permissions
+Example:
+ADMIN
+
+✓ manage members
+✓ manage coaches
+✓ view reports
+✓ manage billing
+✓ manage gym settings
+✓ manage programs
+✓ view attendance
+Coach:
+COACH
+
+✓ manage assigned athletes
+✓ create programs
+✓ view athlete progress
+✓ message athletes
+
+✗ manage billing
+✗ manage organization
+✗ manage other coaches
+
+5. Organization Context
+When a user opens the organization app:
+User
+ ↓
+Memberships
+ ↓
+Current Organization
+ ↓
+Organization Context
+Store the currently selected organization in the app state.
+For example:
+interface OrganizationContext {
+  organizationId: string | null;
+  role: OrganizationRole | null;
+}
+
+6. Admin Navigation
+Admin needs a different navigation structure.
+AdminNavigator
+│
+├── Dashboard
+├── Members
+├── Coaches
+├── Attendance
+├── Classes
+├── Memberships
+├── Reports
+└── More
+    ├── Gym Profile
+    ├── Equipment
+    ├── Settings
+    ├── Staff
+    └── Billing
+
+7. Admin Dashboard
+The dashboard should answer:
+What's happening in my gym?
+Example:
+IRON FORGE FITNESS
+
+TODAY
+────────────────────────
+
+Members
+248
+
+Check-ins
+137
+
+Active coaches
+12
+
+Scheduled classes
+18
+
+────────────────────────
+
+ATTENDANCE
+
+137 / 248 members
+
+55% checked in
+
+────────────────────────
+
+COACH ACTIVITY
+
+12 active
+8 currently coaching
+
+────────────────────────
+
+MEMBERSHIP
+
+7 expiring this week
+3 overdue
+
+8. Dashboard API
+GET /api/v1/organizations/me/dashboard
+Example:
+{
+  "members": {
+    "active": 248
+  },
+  "attendance": {
+    "today": 137,
+    "rate": 55
+  },
+  "coaches": {
+    "active": 12
+  },
+  "classes": {
+    "today": 18
+  },
+  "memberships": {
+    "expiringSoon": 7,
+    "overdue": 3
+  }
+}
+Again, aggregate this on the backend.
+
+9. Members
+Admin screen:
+MEMBERS
+
+[ Search members... ]
+
+248 active
+
+All
+Active
+Inactive
+Expiring
+Expired
+
+────────────────────
+
+Alex
+Active
+Expires Sep 30
+
+Sam
+Active
+Expires Oct 14
+
+Rahul
+Expiring
+Expires Aug 31
+
+10. Member Profile
+Admin sees:
+Alex
+
+Membership
+Active
+
+Joined
+Jan 12, 2026
+
+Coach
+Mike
+
+Attendance
+87%
+
+Last visit
+Today
+
+Program
+Hypertrophy
+Quick actions:
+[ Edit ]
+[ Change Coach ]
+[ Membership ]
+[ Attendance ]
+[ Contact ]
+
+11. Coach Management
+Screen:
+COACHES
+
+12 active
+
+Mike
+24 athletes
+
+Sarah
+18 athletes
+
+David
+31 athletes
+
+Priya
+16 athletes
+Show:
+Athletes
+Active programs
+Recent activity
+Status
+
+12. Coach Detail
+MIKE
+
+Coach since:
+2025
+
+Athletes:
+24
+
+Active programs:
+8
+
+Sessions this month:
+142
+
+Athlete adherence:
+88%
+
+Status:
+Active
+Admin can:
+Assign athlete
+Remove athlete
+Deactivate coach
+View workload
+
+13. Coach Workload
+This is useful for gym management.
+Example:
+COACH WORKLOAD
+
+Mike
+24 athletes
+████████░░
+
+Sarah
+18 athletes
+██████░░░░
+
+David
+31 athletes
+██████████
+This can help identify overloaded coaches.
+Don't automatically call this "performance."
+It's a workload indicator.
+
+14. Staff
+Some gym employees shouldn't be coaches.
+For example:
+Front Desk
+Manager
+Trainer
+Accountant
+Use organization membership permissions to support this.
+
+15. Invitations
+Admin needs:
++ INVITE MEMBER
+Options:
+Invite Coach
+Invite Staff
+Invite Member
+Flow:
+Admin
+ ↓
+Enter email
+ ↓
+Select role
+ ↓
+Send invitation
+ ↓
+User receives invite
+ ↓
+Accept
+ ↓
+Organization membership created
+
+16. Invitation Model
+OrganizationInvitation
+│
+├── organizationId
+├── email
+├── role
+├── tokenHash
+├── invitedBy
+├── expiresAt
+├── acceptedAt
+└── createdAt
+Again, store the hash rather than a reusable raw token.
+
+17. Member Registration
+There are two flows.
+Self-registration
+User
+ ↓
+Create account
+ ↓
+Join gym
+Invitation
+Gym
+ ↓
+Invite
+ ↓
+User
+ ↓
+Accept
+ ↓
+Join gym
+Both should result in:
+OrganizationMembership
+
+18. Memberships
+Now we introduce actual gym memberships.
+Membership
+│
+├── memberId
+├── organizationId
+├── planId
+├── status
+├── startDate
+├── endDate
+├── autoRenew
+└── createdAt
+Status:
+ACTIVE
+PAUSED
+EXPIRED
+CANCELLED
+
+19. Membership Plans
+Admin can create:
+MEMBERSHIP PLANS
+
+Monthly
+₹2,000 / month
+
+Quarterly
+₹5,000 / 3 months
+
+Annual
+₹18,000 / year
+Plan:
+MembershipPlan
+│
+├── name
+├── description
+├── price
+├── currency
+├── duration
+├── features
+└── active
+
+20. Don't Build Full Billing Yet
+We should establish the model now.
+But payment processing is a separate phase.
+For now:
+Membership
++
+MembershipPlan
+is enough.
+Actual payment integration comes later.
+
+21. Attendance
+This is one of the most useful gym-specific features.
+ATTENDANCE
+
+Today
+
+Alex       ✓ 6:32 PM
+Sam        ✓ 6:41 PM
+Rahul      ✓ 7:02 PM
+Priya      ✓ 7:08 PM
+
+22. Attendance Model
+AttendanceRecord
+│
+├── organizationId
+├── memberId
+├── checkedInAt
+├── checkedOutAt
+├── method
+└── createdAt
+Methods:
+QR
+MANUAL
+NFC
+APP
+Start with:
+APP
+MANUAL
+Then add QR.
+
+23. Member Check-In
+Athlete can tap:
+CHECK IN
+Then:
+✓ Checked in
+
+6:42 PM
+Admin dashboard immediately updates.
+
+24. QR Check-In
+Later:
+Gym
+ ↓
+Display QR
+ ↓
+Athlete scans
+ ↓
+Authenticated request
+ ↓
+Attendance created
+This is likely much more practical for a gym environment than requiring staff to manually check everyone in.
+
+25. Prevent Fake Check-Ins
+Don't allow:
+POST /check-in
+from anywhere with no validation.
+Eventually validate:
+authenticated user
++
+organization membership
++
+active membership
++
+gym/location rules
+Potentially:
+QR token
++
+short expiry
+
+26. Classes
+Now we can introduce group classes.
+Class
+│
+├── organizationId
+├── name
+├── coachId
+├── capacity
+├── location
+├── schedule
+└── status
+Example:
+6:00 PM
+HIIT
+
+Coach:
+Sarah
+
+Capacity:
+20
+
+27. Class Booking
+Athlete:
+Classes
+
+HIIT
+Today • 6:00 PM
+
+12 / 20 spots
+
+[ BOOK ]
+After booking:
+✓ Booked
+
+28. Waitlist
+If:
+20 / 20
+show:
+JOIN WAITLIST
+If someone cancels:
+Cancellation
+ ↓
+Waitlist
+ ↓
+Next athlete
+ ↓
+Notification
+
+29. Class Attendance
+At class time:
+HIIT
+
+Booked: 20
+Checked in: 17
+No show: 3
+This becomes useful for gym analytics.
+
+30. Gym Equipment
+Since this is a gym app, equipment can be tracked.
+Equipment
+
+Squat Rack 1
+Available
+
+Squat Rack 2
+In Use
+
+Cable Machine
+Maintenance
+
+Leg Press
+Available
+Initially, keep this simple.
+
+31. Equipment Model
+Equipment
+│
+├── organizationId
+├── name
+├── category
+├── location
+├── status
+├── lastMaintenanceAt
+└── nextMaintenanceAt
+Status:
+AVAILABLE
+IN_USE
+MAINTENANCE
+OUT_OF_ORDER
+
+32. Equipment Maintenance
+Admin can see:
+MAINTENANCE
+
+Cable Machine
+Due Sep 2
+
+Treadmill 3
+Due Sep 5
+
+Leg Press
+Overdue
+This can later generate admin reminders.
+
+33. Organization Reports
+Admin reports:
+REPORTS
+
+Attendance
+Membership
+Revenue
+Coach Workload
+Class Utilization
+Member Retention
+Initially implement:
+Attendance
+Coach Workload
+Membership
+Revenue comes after billing integration.
+
+34. Attendance Analytics
+Example:
+ATTENDANCE
+
+This Month
+
+Week 1  ████████
+Week 2  █████████
+Week 3  ███████
+Week 4  ██████████
+Then:
+Average visits/member
+8.4
+
+Active members
+214
+
+Most active day
+Monday
+
+35. Member Retention
+Eventually:
+MEMBER RETENTION
+
+Active
+214
+
+At risk
+18
+
+Expiring
+7
+
+Inactive
+9
+Again, "at risk" needs a deterministic definition.
+For example:
+No visit for 14+ days
+can be a simple initial signal.
+
+36. Organization Notifications
+Admin receives:
+Membership expiring
+Alex — 3 days
+
+Coach invitation accepted
+Sarah joined
+
+Class capacity reached
+HIIT — 6 PM
+
+Equipment maintenance due
+Cable Machine
+These use the same notification infrastructure from Phase 4H.
+
+37. Organization Settings
+Create:
+Gym Settings
+
+Gym Name
+Logo
+Timezone
+Contact
+Address
+
+Attendance
+Check-in method
+
+Classes
+Booking window
+Cancellation policy
+
+Notifications
+Default preferences
+
+38. Multi-Tenant Security
+This is now extremely important.
+Every organization-scoped request must establish:
+Authenticated User
+       ↓
+Organization Membership
+       ↓
+Permission
+       ↓
+Resource
+For example:
+GET /organizations/A/athletes/123
+must verify:
+User belongs to Organization A
+AND
+User can view athlete 123
+Never trust:
+organizationId
+sent by the mobile client.
+
+39. Organization Middleware
+Create:
+middleware/
+├── requireAuth.ts
+├── requireOrganization.ts
+├── requireRole.ts
+└── requirePermission.ts
+Flow:
+requireAuth
+    ↓
+requireOrganization
+    ↓
+requirePermission("members.read")
+    ↓
+Controller
+
+40. Permission Names
+Use consistent permissions:
+members.read
+members.write
+
+coaches.read
+coaches.write
+
+programs.read
+programs.write
+
+attendance.read
+attendance.write
+
+classes.read
+classes.write
+
+reports.read
+
+billing.read
+billing.write
+
+organization.read
+organization.write
+This scales much better than:
+if role === "admin"
+everywhere.
+
+41. Admin Mobile UX
+Don't overload the admin dashboard.
+Use sections:
+Dashboard
+│
+├── Today
+├── Members
+├── Coaches
+├── Attendance
+└── Alerts
+More advanced management can live inside:
+More
+
+42. Organization Architecture
+At this point the product hierarchy becomes:
+                    PLATFORM
+                       │
+         ┌─────────────┴─────────────┐
+         ▼                           ▼
+    INDIVIDUAL                   ORGANIZATION
+     COACH                           │
+         │                 ┌─────────┼─────────┐
+         │                 ▼         ▼         ▼
+         │               ADMIN    COACH      STAFF
+         │                           │
+         └───────────────────────────┤
+                                     ▼
+                                  ATHLETE
+This allows the same athlete account to potentially interact with:
+Coach
++
+Gym
+without duplicating the user.
+
+43. Example Real-World Flow
+Consider:
+Alex
+Alex joins:
+Iron Forge Fitness
+He gets:
+OrganizationMembership
+role = MEMBER
+Admin assigns:
+Coach = Mike
+Mike creates:
+12 Week Hypertrophy
+and assigns it to Alex.
+Alex:
+checks in
+ ↓
+does workout
+ ↓
+logs sets
+ ↓
+completes workout
+Then:
+Analytics
+ ↓
+Progress
+ ↓
+Coach insight
+ ↓
+Gym analytics
+Now the same activity powers all three layers.
+
+44. Phase 4I Implementation Order
+Follow this order:
+1. Organization model
+       ↓
+2. Organization membership
+       ↓
+3. Roles
+       ↓
+4. Permissions
+       ↓
+5. Organization middleware
+       ↓
+6. Admin dashboard
+       ↓
+7. Member management
+       ↓
+8. Coach management
+       ↓
+9. Invitations
+       ↓
+10. Membership plans
+       ↓
+11. Membership records
+       ↓
+12. Attendance
+       ↓
+13. Classes
+       ↓
+14. Class booking
+       ↓
+15. Equipment
+       ↓
+16. Reports
+       ↓
+17. Organization notifications
+       ↓
+18. Settings
+
+45. Phase 4I Definition of Done
+A gym owner should be able to:
+Create organization
+      ↓
+Invite coaches
+      ↓
+Invite staff
+      ↓
+Add members
+      ↓
+Assign coaches
+      ↓
+Create membership plans
+      ↓
+Track memberships
+      ↓
+Track attendance
+      ↓
+Create classes
+      ↓
+Manage bookings
+      ↓
+Track coach workload
+      ↓
+View reports
+And the entire chain should work:
+GYM ADMIN
+    │
+    ▼
+COACH
+    │
+    ▼
+ATHLETE
+    │
+    ▼
+WORKOUT
+    │
+    ▼
+PERFORMANCE
+    │
+    ├──────────────► ATHLETE PROGRESS
+    │
+    ├──────────────► COACH INSIGHT
+    │
+    └──────────────► GYM ANALYTICS
+
+Phase 4J — Polish + Production Hardening
+At this point, the major product surfaces exist.
+We should not immediately add more features.
+Phase 4J should make what we've built reliable enough for real users.
+We'll cover:
+Production Hardening
+│
+├── Error handling
+├── Loading states
+├── Empty states
+├── Offline recovery
+├── Crash handling
+├── API retry strategy
+├── Security review
+├── Permission testing
+├── Database indexes
+├── Query optimization
+├── Image optimization
+├── Accessibility
+├── Analytics
+├── Feature flags
+├── App versioning
+├── Logging
+└── End-to-end testing
+Then Phase 5 can move into production deployment, real-device testing, AI refinement, payments, App Store/Play Store preparation, and launch infrastructure rather than continuing to add unfinished functionality.
+
+# Phase 4J — Production Hardening
+
+We start with **stability and architecture**, not UI polish. At this stage the app already has the major Athlete, Coach, AI, Messaging, and Gym/Admin flows.
+
+Our objective now is:
+
+> **Make everything reliable before adding more features.**
+
+---
+
+## 4J.1 — Establish the Production Architecture
+
+Before touching individual bugs, make sure the project has a clean separation:
+
+```text
+gym-app/
+│
+├── mobile/
+│   ├── src/
+│   │   ├── screens/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── stores/
+│   │   ├── database/
+│   │   ├── navigation/
+│   │   ├── utils/
+│   │   └── types/
+│   │
+│   └── ...
+│
+├── server/
+│   ├── src/
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   ├── athletes/
+│   │   │   ├── coaches/
+│   │   │   ├── workouts/
+│   │   │   ├── programs/
+│   │   │   ├── progress/
+│   │   │   ├── messaging/
+│   │   │   ├── notifications/
+│   │   │   ├── organizations/
+│   │   │   └── ai/
+│   │   │
+│   │   ├── middleware/
+│   │   ├── database/
+│   │   ├── services/
+│   │   ├── realtime/
+│   │   ├── config/
+│   │   └── utils/
+│   │
+│   └── ...
+│
+└── docs/
+```
+
+The important change is moving toward **feature/module-based backend organization** rather than one giant controllers/services folder.
+
+---
+
+# 4J.2 — Environment Configuration
+
+We need three environments:
+
+```text
+Development
+     ↓
+Staging
+     ↓
+Production
+```
+
+Never use production MongoDB credentials during local development.
+
+Example:
+
+```text
+.env.development
+.env.staging
+.env.production
+```
+
+Variables should include things such as:
+
+```text
+NODE_ENV
+PORT
+MONGODB_URI
+JWT_SECRET
+STORAGE_ENDPOINT
+PUSH_NOTIFICATION_KEY
+AI_PROVIDER_KEY
+WEBSOCKET_URL
+```
+
+Secrets must never be committed to Git.
+
+---
+
+# 4J.3 — Centralized Configuration
+
+Create:
+
+```text
+server/src/config/env.ts
+```
+
+Instead of doing this throughout the application:
+
+```ts
+process.env.MONGODB_URI
+process.env.JWT_SECRET
+process.env.PORT
+```
+
+use:
+
+```ts
+config.database.mongoUri
+config.auth.jwtSecret
+config.server.port
+```
+
+Then validate the environment **when the server starts**.
+
+If MongoDB credentials are missing:
+
+```text
+Server startup
+     ↓
+Environment validation
+     ↓
+Missing MONGODB_URI
+     ↓
+FAIL IMMEDIATELY
+```
+
+rather than discovering it 20 minutes later when an API request fails.
+
+---
+
+# 4J.4 — Global Error Handling
+
+Every API should return a predictable structure.
+
+Success:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ATHLETE_NOT_FOUND",
+    "message": "Athlete could not be found"
+  }
+}
+```
+
+Don't return random structures such as:
+
+```json
+{
+  "error": "something went wrong"
+}
+```
+
+from one endpoint and:
+
+```json
+{
+  "message": "Not found"
+}
+```
+
+from another.
+
+---
+
+# 4J.5 — Error Codes
+
+Create centralized error codes:
+
+```text
+AUTH_REQUIRED
+INVALID_TOKEN
+FORBIDDEN
+VALIDATION_ERROR
+
+USER_NOT_FOUND
+ATHLETE_NOT_FOUND
+COACH_NOT_FOUND
+
+PROGRAM_NOT_FOUND
+WORKOUT_NOT_FOUND
+SESSION_NOT_FOUND
+
+ORGANIZATION_NOT_FOUND
+MEMBERSHIP_NOT_FOUND
+
+CONVERSATION_NOT_FOUND
+MESSAGE_NOT_FOUND
+
+RESOURCE_CONFLICT
+RATE_LIMITED
+INTERNAL_ERROR
+```
+
+The mobile app can then react appropriately.
+
+For example:
+
+```text
+FORBIDDEN
+    ↓
+Show permission error
+
+AUTH_REQUIRED
+    ↓
+Refresh/login
+
+VALIDATION_ERROR
+    ↓
+Show form errors
+
+INTERNAL_ERROR
+    ↓
+Generic retry UI
+```
+
+---
+
+# 4J.6 — API Validation
+
+Every request entering the backend must be validated.
+
+Example:
+
+```http
+POST /workout-sessions
+```
+
+should validate:
+
+```text
+athleteId
+workoutId
+startedAt
+sets
+```
+
+before business logic executes.
+
+Flow:
+
+```text
+Request
+   ↓
+Authentication
+   ↓
+Authorization
+   ↓
+Validation
+   ↓
+Business Logic
+   ↓
+Database
+```
+
+Not:
+
+```text
+Request
+   ↓
+Database
+```
+
+---
+
+# 4J.7 — Database Index Audit
+
+Since we're using MongoDB, this becomes important now.
+
+Indexes should exist for common queries.
+
+For example:
+
+```text
+users
+ └── email
+
+organizationMemberships
+ ├── organizationId
+ ├── userId
+ └── organizationId + userId
+
+workoutSessions
+ ├── athleteId
+ ├── athleteId + startedAt
+ └── workoutId
+
+messages
+ ├── conversationId + createdAt
+ └── senderId
+
+notifications
+ ├── recipientId + createdAt
+ └── recipientId + readAt
+```
+
+Don't create indexes blindly.
+
+Each index has a storage and write-performance cost.
+
+---
+
+# 4J.8 — Query Audit
+
+Look for:
+
+```text
+N+1 queries
+```
+
+Example of bad architecture:
+
+```text
+Get 50 athletes
+ ↓
+Query program for athlete 1
+Query program for athlete 2
+Query program for athlete 3
+...
+```
+
+Instead:
+
+```text
+Get 50 athletes
+       ↓
+Batch required data
+       ↓
+Return response
+```
+
+This matters especially for the Coach Dashboard and Admin Dashboard.
+
+---
+
+# 4J.9 — Pagination Everywhere
+
+Any potentially large collection must be paginated.
+
+```text
+Athletes
+Messages
+Notifications
+Workout history
+Attendance
+Check-ins
+Activity
+Programs
+```
+
+Prefer:
+
+```http
+?limit=30&cursor=abc
+```
+
+over:
+
+```http
+?page=1
+```
+
+for continuously changing feeds such as messages and activity.
+
+---
+
+# 4J.10 — Mobile Loading States
+
+Every major screen needs three states:
+
+```text
+Loading
+Success
+Error
+```
+
+and frequently:
+
+```text
+Empty
+```
+
+For example:
+
+```text
+Loading
+   ↓
+┌──────────────────────┐
+│ ░░░░░░░░░░░░░░░░     │
+│ ░░░░░░░░░░░░░░░░     │
+└──────────────────────┘
+```
+
+Don't show:
+
+```text
+Progress: 0%
+```
+
+while the actual request hasn't completed.
+
+---
+
+# 4J.11 — Empty States
+
+Every major feature needs a meaningful empty state.
+
+### No workouts
+
+```text
+No workouts yet
+
+Your completed workouts
+will appear here.
+```
+
+### No messages
+
+```text
+No conversations yet
+
+Your coach will appear here
+when you start communicating.
+```
+
+### No programs
+
+```text
+No active program
+
+Your coach can assign one
+when you're ready.
+```
+
+### No progress
+
+```text
+Complete your first workout
+to start tracking progress.
+```
+
+---
+
+# 4J.12 — Error States
+
+Don't display:
+
+```text
+Something went wrong.
+```
+
+everywhere.
+
+Instead:
+
+```text
+Couldn't load your workouts.
+
+Check your connection and try again.
+
+[ RETRY ]
+```
+
+For a server error:
+
+```text
+We couldn't load this right now.
+
+Your data is safe.
+
+[ RETRY ]
+```
+
+---
+
+# 4J.13 — Network Layer
+
+The mobile API client should centrally handle:
+
+```text
+401
+403
+404
+409
+422
+429
+500
+503
+```
+
+Example:
+
+```text
+401
+ ↓
+Attempt token refresh
+ ↓
+Success → retry request
+
+Failure
+ ↓
+Logout
+```
+
+Don't duplicate this logic in every screen.
+
+---
+
+# 4J.14 — Retry Strategy
+
+Don't retry everything indefinitely.
+
+For temporary failures:
+
+```text
+Attempt 1
+ ↓
+wait
+ ↓
+Attempt 2
+ ↓
+wait
+ ↓
+Attempt 3
+ ↓
+show error
+```
+
+Use exponential backoff for appropriate requests.
+
+Never blindly retry mutations that could create duplicate records.
+
+---
+
+# 4J.15 — Idempotency
+
+This becomes critical for actions such as:
+
+```text
+Complete workout
+Create attendance
+Send message
+Assign program
+Create payment
+```
+
+Suppose the athlete taps:
+
+```text
+COMPLETE WORKOUT
+```
+
+twice because the network is slow.
+
+We don't want:
+
+```text
+Session 1
+Session 2
+```
+
+for the same action.
+
+Use an idempotency key where appropriate:
+
+```text
+requestId
+```
+
+Backend:
+
+```text
+same requestId
+ ↓
+return existing result
+```
+
+---
+
+# 4J.16 — Authentication Hardening
+
+Verify:
+
+```text
+Access token
+Refresh token
+Expiration
+Revocation
+Device/session management
+```
+
+We should also support:
+
+```text
+Logout from this device
+Logout from all devices
+```
+
+Eventually:
+
+```text
+Active Sessions
+├── iPhone
+├── Mac
+└── iPad
+```
+
+---
+
+# 4J.17 — Authorization Testing
+
+This is one of the most important tests in the entire application.
+
+Test:
+
+```text
+Athlete A
+   ↓
+Try to access Athlete B
+```
+
+Must return:
+
+```text
+403 Forbidden
+```
+
+Similarly:
+
+```text
+Coach A
+   ↓
+Try to access Coach B's athlete
+```
+
+must fail unless the relationship/organization permissions allow it.
+
+And:
+
+```text
+Gym Admin
+   ↓
+Organization A
+   ↓
+Try Organization B data
+```
+
+must fail.
+
+---
+
+# 4J.18 — MongoDB Security Rule
+
+Never trust IDs coming from the client.
+
+Bad:
+
+```ts
+findOne({
+  _id: athleteId
+});
+```
+
+Better:
+
+```ts
+findOne({
+  _id: athleteId,
+  organizationId: currentOrganizationId
+});
+```
+
+And for coaches:
+
+```ts
+verifyCoachAthleteRelationship(
+  coachId,
+  athleteId
+);
+```
+
+**Authorization must happen before returning data.**
+
+---
+
+# 4J.19 — Audit Logging
+
+For sensitive administrative actions:
+
+```text
+Admin
+ ↓
+Changes membership
+```
+
+record:
+
+```text
+AuditLog
+│
+├── actorId
+├── organizationId
+├── action
+├── resourceType
+├── resourceId
+├── metadata
+└── createdAt
+```
+
+Examples:
+
+```text
+PROGRAM_PUBLISHED
+PROGRAM_ASSIGNED
+MEMBERSHIP_CHANGED
+COACH_ASSIGNED
+MEMBER_SUSPENDED
+PERMISSION_CHANGED
+```
+
+This becomes invaluable later when debugging disputes.
+
+---
+
+# 4J.20 — Crash Monitoring
+
+The mobile application needs crash reporting.
+
+Track:
+
+```text
+Crash
+Fatal error
+Unhandled exception
+Network failures
+```
+
+But don't log:
+
+```text
+passwords
+tokens
+private message contents
+sensitive personal information
+```
+
+Logging must be deliberately sanitized.
+
+---
+
+# 4J.21 — Backend Logging
+
+Use structured logs:
+
+```json
+{
+  "level": "error",
+  "requestId": "abc123",
+  "route": "/api/v1/workouts",
+  "userId": "...",
+  "errorCode": "WORKOUT_NOT_FOUND"
+}
+```
+
+A request ID should travel through the request:
+
+```text
+Mobile
+ ↓
+API
+ ↓
+Service
+ ↓
+Database
+```
+
+So one failure can be traced across the system.
+
+---
+
+# 4J.22 — Performance Monitoring
+
+Track:
+
+```text
+API latency
+Database latency
+AI latency
+WebSocket connection failures
+Push notification failures
+Crash rate
+```
+
+Key metric:
+
+```text
+p50
+p95
+p99
+```
+
+For example:
+
+```text
+GET /athletes
+p50: 120ms
+p95: 380ms
+p99: 900ms
+```
+
+Don't optimize based solely on average latency.
+
+---
+
+# 4J.23 — Mobile Performance
+
+Audit:
+
+```text
+Startup time
+Screen transition time
+Memory usage
+Large lists
+Image loading
+Chart rendering
+Offline database operations
+WebSocket reconnects
+```
+
+Avoid:
+
+```text
+Huge list
+ ↓
+render 2,000 items
+```
+
+Use:
+
+```text
+Virtualized list
++
+pagination
+```
+
+---
+
+# 4J.24 — Image Optimization
+
+Progress photos and chat images can become a major storage problem.
+
+Pipeline:
+
+```text
+Image
+ ↓
+Validate type
+ ↓
+Resize
+ ↓
+Compress
+ ↓
+Upload
+ ↓
+Generate thumbnail
+```
+
+Store:
+
+```text
+original
+thumbnail
+```
+
+rather than repeatedly downloading a 5–10 MB image just to display a tiny avatar.
+
+---
+
+# 4J.25 — Accessibility
+
+At minimum:
+
+```text
+Touch targets
+Readable font sizes
+Color contrast
+Screen reader labels
+Keyboard navigation where applicable
+Focus states
+```
+
+Don't rely only on:
+
+```text
+red = error
+green = success
+```
+
+because color alone shouldn't communicate important information.
+
+---
+
+# 4J.26 — Analytics
+
+Now we need **product analytics**, separate from application logs.
+
+Track events such as:
+
+```text
+user_registered
+onboarding_completed
+workout_started
+workout_completed
+set_logged
+program_viewed
+program_assigned
+checkin_submitted
+message_sent
+ai_question_asked
+goal_created
+goal_completed
+gym_checkin
+class_booked
+```
+
+---
+
+# 4J.27 — Funnel
+
+The most important initial funnel:
+
+```text
+Install
+ ↓
+Register
+ ↓
+Complete onboarding
+ ↓
+See workout
+ ↓
+Start workout
+ ↓
+Complete workout
+ ↓
+Return next day
+ ↓
+Complete second workout
+```
+
+This tells us whether the core product is actually working.
+
+---
+
+# 4J.28 — Feature Flags
+
+Introduce:
+
+```text
+FeatureFlag
+```
+
+Examples:
+
+```text
+ai_coach_enabled
+new_program_builder
+class_booking
+progress_photos
+advanced_insights
+```
+
+This allows us to deploy functionality without exposing it to everyone.
+
+---
+
+# 4J.29 — Beta Rollout
+
+Don't launch everything to everyone.
+
+Use:
+
+```text
+Internal
+ ↓
+Small beta
+ ↓
+Expanded beta
+ ↓
+Production
+```
+
+Potential rollout:
+
+```text
+Development
+    ↓
+10 internal testers
+    ↓
+25 athletes/coaches
+    ↓
+100 users
+    ↓
+Full rollout
+```
+
+This lets us catch problems before they become production-wide failures.
+
+---
+
+# 4J.30 — Automated Testing Pyramid
+
+We should have:
+
+```text
+                 E2E
+                /   \
+               /     \
+          Integration
+             /   \
+            /     \
+        Unit Tests
+```
+
+### Unit tests
+
+Test:
+
+```text
+PR calculation
+Volume calculation
+Adherence
+Progression rules
+Permission functions
+Validation
+```
+
+### Integration tests
+
+Test:
+
+```text
+API
+ ↓
+Service
+ ↓
+MongoDB
+```
+
+### E2E
+
+Test complete user journeys.
+
+---
+
+# 4J.31 — Critical E2E Test #1
+
+```text
+Register Athlete
+      ↓
+Onboarding
+      ↓
+Program assigned
+      ↓
+View workout
+      ↓
+Start workout
+      ↓
+Log sets
+      ↓
+Complete
+      ↓
+Progress updated
+```
+
+---
+
+# 4J.32 — Critical E2E Test #2
+
+```text
+Coach Login
+      ↓
+View athlete
+      ↓
+Create program
+      ↓
+Publish
+      ↓
+Assign
+      ↓
+Athlete receives notification
+      ↓
+Athlete views program
+```
+
+---
+
+# 4J.33 — Critical E2E Test #3
+
+```text
+Athlete
+ ↓
+Send message
+ ↓
+Coach receives
+ ↓
+Coach replies
+ ↓
+Athlete receives
+ ↓
+Read receipt
+```
+
+---
+
+# 4J.34 — Critical E2E Test #4
+
+```text
+Admin
+ ↓
+Create organization
+ ↓
+Invite coach
+ ↓
+Coach accepts
+ ↓
+Invite athlete
+ ↓
+Athlete accepts
+ ↓
+Assign coach
+ ↓
+Coach sees athlete
+```
+
+---
+
+# 4J.35 — Security Test Matrix
+
+We should explicitly test:
+
+| Actor     | Resource              | Expected            |
+| --------- | --------------------- | ------------------- |
+| Athlete A | Athlete A             | Allow               |
+| Athlete A | Athlete B             | Deny                |
+| Coach A   | Assigned athlete      | Allow               |
+| Coach A   | Unassigned athlete    | Deny                |
+| Admin A   | Organization A        | Allow               |
+| Admin A   | Organization B        | Deny                |
+| Staff     | Billing               | Based on permission |
+| Coach     | Organization settings | Deny                |
+| Athlete   | Admin APIs            | Deny                |
+
+This should become automated tests rather than something we manually remember.
+
+---
+
+# 4J.36 — Backup Strategy
+
+MongoDB data needs backups.
+
+At minimum:
+
+```text
+Production DB
+     ↓
+Automated backup
+     ↓
+Retention policy
+```
+
+And we need to test:
+
+```text
+Can we actually restore it?
+```
+
+A backup that has never been restored is not a proven backup.
+
+---
+
+# 4J.37 — Database Migration Strategy
+
+Even with MongoDB, schemas evolve.
+
+Don't simply change code and hope old documents work.
+
+Use:
+
+```text
+Schema Version
+```
+
+where necessary.
+
+Example:
+
+```text
+Workout
+schemaVersion: 2
+```
+
+Then migrate old documents safely.
+
+---
+
+# 4J.38 — API Versioning
+
+Keep:
+
+```text
+/api/v1/...
+```
+
+We've already been following this.
+
+When breaking changes become necessary:
+
+```text
+/api/v2/...
+```
+
+Don't suddenly change:
+
+```text
+/v1
+```
+
+and break every older mobile client.
+
+---
+
+# 4J.39 — App Version Compatibility
+
+Imagine:
+
+```text
+Mobile v1.4
+```
+
+is still installed by users while the backend becomes:
+
+```text
+Server v2
+```
+
+The backend must support compatible clients during rollout.
+
+Eventually:
+
+```text
+minimumSupportedVersion
+latestVersion
+```
+
+can be configured remotely.
+
+---
+
+# 4J.40 — Maintenance Mode
+
+Create a server-controlled switch:
+
+```text
+maintenanceMode = true
+```
+
+Mobile displays:
+
+```text
+We're performing maintenance.
+
+Please try again shortly.
+```
+
+This is much better than letting every API call fail mysteriously.
+
+---
+
+# 4J.41 — Final Phase 4J Architecture
+
+After hardening:
+
+```text
+                    MOBILE
+                       │
+              ┌────────┴────────┐
+              │                 │
+           Offline            API
+              │                 │
+              │            Auth / Validation
+              │                 │
+              └──────────┬──────┘
+                         ▼
+                    Business Logic
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+           MongoDB    Realtime      AI
+              │          │          │
+              └──────────┼──────────┘
+                         ▼
+                  Observability
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+            Logs       Metrics     Crashes
+```
+
+---
+
+# 4J.42 — What We Build First
+
+Don't try to do all of Phase 4J at once.
+
+Our immediate implementation sequence is:
+
+```text
+DAY 1
+│
+├── Environment validation
+├── Central config
+├── Global error handling
+└── API response standardization
+
+DAY 2
+│
+├── Request validation
+├── Auth middleware audit
+├── Permission middleware audit
+└── Organization isolation
+
+DAY 3
+│
+├── MongoDB index audit
+├── Query optimization
+├── Pagination audit
+└── N+1 audit
+
+DAY 4
+│
+├── Mobile loading states
+├── Empty states
+├── Error states
+└── Retry handling
+
+DAY 5
+│
+├── Offline recovery
+├── WebSocket recovery
+├── Idempotency
+└── Sync verification
+
+DAY 6+
+│
+├── Testing
+├── Logging
+├── Crash monitoring
+├── Analytics
+├── Feature flags
+└── Beta preparation
+```
+
+---
+
+# 4J.43 — Our First Actual Task
+
+Before writing more features, we should perform a **full project audit**.
+
+We need to inspect:
+
+```text
+1. Current folder structure
+2. React Native/Expo configuration
+3. Backend configuration
+4. MongoDB connection
+5. Existing models
+6. Existing API routes
+7. Authentication
+8. Navigation
+9. TanStack Query
+10. Local database/offline layer
+11. WebSocket implementation
+12. Notification implementation
+13. AI implementation
+14. Environment variables
+15. Existing tests
+```
+
+Then we'll compare what actually exists against the architecture we've designed.
+
+
