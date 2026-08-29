@@ -761,23 +761,23 @@ export const getExercises = async (req: Request, res: Response, next: NextFuncti
 
     if (category && category !== 'All') {
       exercises = exercises.filter((e) =>
-        e.category.some((c) => c.toLowerCase() === String(category).toLowerCase())
+        e.category?.some((c) => c.toLowerCase() === String(category).toLowerCase())
       );
     }
 
     if (movementPattern && movementPattern !== 'All') {
-      exercises = exercises.filter((e) => e.movementPattern.toLowerCase() === String(movementPattern).toLowerCase());
+      exercises = exercises.filter((e) => e.movementPattern?.toLowerCase() === String(movementPattern).toLowerCase());
     }
 
     if (muscle && muscle !== 'All') {
       exercises = exercises.filter((e) =>
-        e.primaryMuscles.some((m) => m.toLowerCase() === String(muscle).toLowerCase())
+        e.primaryMuscles?.some((m) => m.toLowerCase() === String(muscle).toLowerCase())
       );
     }
 
     if (equipment && equipment !== 'All') {
       exercises = exercises.filter((e) =>
-        e.equipment.some((eq) => eq.toLowerCase().includes(String(equipment).toLowerCase()))
+        e.equipment?.some((eq) => eq.toLowerCase().includes(String(equipment).toLowerCase()))
       );
     }
 
@@ -785,11 +785,11 @@ export const getExercises = async (req: Request, res: Response, next: NextFuncti
       const q = String(search).toLowerCase();
       exercises = exercises.filter(
         (e) =>
-          e.name.toLowerCase().includes(q) ||
-          e.slug.toLowerCase().includes(q) ||
-          e.primaryMuscles.some((m) => m.toLowerCase().includes(q)) ||
-          e.aliases.some((a) => a.toLowerCase().includes(q)) ||
-          e.tags.some((t) => t.toLowerCase().includes(q))
+          e.name?.toLowerCase().includes(q) ||
+          e.slug?.toLowerCase().includes(q) ||
+          e.primaryMuscles?.some((m) => m.toLowerCase().includes(q)) ||
+          e.aliases?.some((a) => a.toLowerCase().includes(q)) ||
+          e.tags?.some((t) => t.toLowerCase().includes(q))
       );
     }
 
@@ -816,7 +816,30 @@ export const getExerciseById = async (req: Request, res: Response, next: NextFun
     }
 
     if (!exercise) {
-      exercise = MASTER_30_EXERCISES[0];
+      sendError(res, ErrorCode.RESOURCE_NOT_FOUND, 'Exercise not found', 404);
+      return;
+    }
+
+    sendSuccess(res, exercise);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getExerciseBySlug = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { slug } = req.params;
+
+    let exercise = MASTER_30_EXERCISES.find((e) => e.slug === slug || e._id === slug);
+
+    if (!exercise && mongoose.connection.readyState === 1) {
+      const dbExercise = await Exercise.findOne({ slug });
+      if (dbExercise) exercise = dbExercise as any;
+    }
+
+    if (!exercise) {
+      sendError(res, ErrorCode.RESOURCE_NOT_FOUND, 'Exercise not found', 404);
+      return;
     }
 
     sendSuccess(res, exercise);

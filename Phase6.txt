@@ -2372,3 +2372,611 @@ First produce:
 Wait for implementation approval after the audit.
 
 Once the audit is done, **we implement the schema/API changes before adding the exercise catalog**. That prevents us from filling the database with data that we'll later have to migrate.
+
+Next, we move from the audit into **implementation**.
+
+# Phase 6A.2 — Upgrade the Exercise Data Layer
+
+Do this before adding the 300+ exercises.
+
+The objective is:
+
+```text
+Existing Exercise System
+        ↓
+Schema Upgrade
+        ↓
+Migration
+        ↓
+Indexes
+        ↓
+Validation
+        ↓
+API
+        ↓
+Seed 30 exercises
+```
+
+## Step 1 — Extend the Exercise model
+
+Use the audit you just completed to modify the **existing** model rather than creating a new collection.
+
+Add the missing fields from the audit, prioritizing:
+
+```text
+name
+slug
+description
+
+category[]
+movementPattern[]
+difficulty
+
+primaryMuscles[]
+secondaryMuscles[]
+
+equipment[]
+requiredEquipment[]
+
+instructions[]
+setupInstructions[]
+breathingInstructions[]
+
+coachingCues[]
+commonMistakes[]
+
+progressionMethods[]
+regressionMethods[]
+
+aliases[]
+tags[]
+
+media
+
+programming
+
+status
+
+createdAt
+updatedAt
+```
+
+### Important
+
+Use references/controlled enums for things like:
+
+```text
+muscles
+equipment
+movement patterns
+difficulty
+status
+```
+
+Don't let arbitrary strings enter the database.
+
+---
+
+# Step 2 — Preserve Existing Data
+
+Before migration:
+
+```text
+BACKUP
+  ↓
+MIGRATION
+  ↓
+VALIDATION
+  ↓
+APPLICATION
+```
+
+Existing exercises must remain usable.
+
+If an old exercise doesn't have the new fields yet, give them sensible defaults such as:
+
+```text
+[]
+null
+DRAFT
+```
+
+depending on the field.
+
+**Do not delete historical exercise references.**
+
+---
+
+# Step 3 — Add Slugs
+
+Every active exercise should have:
+
+```text
+slug
+```
+
+Example:
+
+```text
+Barbell Bench Press
+        ↓
+barbell-bench-press
+```
+
+Make the slug unique.
+
+If the existing database has duplicate names, don't blindly generate identical slugs. Resolve collisions deterministically.
+
+---
+
+# Step 4 — Standardize Reference Values
+
+Create controlled constants/enums.
+
+### Muscles
+
+```text
+CHEST
+LATS
+UPPER_BACK
+LOWER_BACK
+
+FRONT_DELTS
+SIDE_DELTS
+REAR_DELTS
+
+BICEPS
+TRICEPS
+FOREARMS
+
+QUADS
+HAMSTRINGS
+GLUTES
+CALVES
+
+ABS
+OBLIQUES
+HIP_FLEXORS
+```
+
+### Equipment
+
+```text
+BARBELL
+DUMBBELL
+KETTLEBELL
+EZ_BAR
+CABLE
+RESISTANCE_BAND
+SMITH_MACHINE
+MACHINE
+BENCH
+PULL_UP_BAR
+DIP_STATION
+BODYWEIGHT
+```
+
+### Movement patterns
+
+```text
+HORIZONTAL_PUSH
+VERTICAL_PUSH
+
+HORIZONTAL_PULL
+VERTICAL_PULL
+
+SQUAT
+HINGE
+LUNGE
+
+CARRY
+ROTATION
+ANTI_ROTATION
+
+FLEXION
+EXTENSION
+ISOLATION
+```
+
+Keep these definitions in one place.
+
+---
+
+# Step 5 — Add Database Indexes
+
+At minimum, evaluate:
+
+```text
+slug
+status
+name
+primaryMuscles
+equipment
+movementPattern
+difficulty
+```
+
+For search, don't automatically create an index for every field.
+
+Use the query patterns from your audit to determine which indexes are actually needed.
+
+---
+
+# Step 6 — Exercise API
+
+Bring the API to:
+
+```http
+GET    /api/v1/exercises
+GET    /api/v1/exercises/:id
+GET    /api/v1/exercises/slug/:slug
+
+POST   /api/v1/exercises
+PATCH  /api/v1/exercises/:id
+DELETE /api/v1/exercises/:id
+```
+
+But because we don't want historical workouts breaking, `DELETE` should probably mean:
+
+```text
+ARCHIVE
+```
+
+rather than physically deleting the exercise.
+
+---
+
+# Step 7 — Exercise Search API
+
+Implement:
+
+```http
+GET /api/v1/exercises
+```
+
+with:
+
+```text
+search
+muscle
+equipment
+movement
+difficulty
+category
+status
+limit
+cursor
+```
+
+Example:
+
+```text
+/exercises?search=bench&equipment=DUMBBELL
+```
+
+or:
+
+```text
+/exercises?primaryMuscle=CHEST&difficulty=BEGINNER
+```
+
+The backend should perform the filtering.
+
+Don't download every exercise to the phone and filter thousands of records locally.
+
+---
+
+# Step 8 — Exercise Admin API
+
+Separate normal user access from management operations.
+
+For example:
+
+```text
+GET  /exercises
+GET  /exercises/:id
+```
+
+for normal users.
+
+But:
+
+```text
+POST   /admin/exercises
+PATCH  /admin/exercises/:id
+ARCHIVE /admin/exercises/:id
+```
+
+for authorized administrators.
+
+---
+
+# Step 9 — Validation
+
+An exercise should not be publishable unless required information exists.
+
+For example:
+
+```text
+ACTIVE exercise
+│
+├── name ✓
+├── slug ✓
+├── primary muscle ✓
+├── movement pattern ✓
+├── equipment ✓
+├── difficulty ✓
+├── instructions ✓
+└── media ✓
+```
+
+Draft exercises can be incomplete.
+
+---
+
+# Step 10 — Seed Only 30 Exercises
+
+Once the schema and APIs work, seed approximately 30 exercises.
+
+Use a balanced test set:
+
+```text
+CHEST
+5
+
+BACK
+5
+
+SHOULDERS
+4
+
+BICEPS
+3
+
+TRICEPS
+3
+
+QUADS
+3
+
+HAMSTRINGS
+2
+
+GLUTES
+2
+
+CORE
+3
+```
+
+The exact distribution can change based on what your existing library already contains.
+
+---
+
+# Step 11 — Test the Entire Chain
+
+Before expanding the catalog:
+
+```text
+MongoDB
+   ↓
+Exercise API
+   ↓
+Search
+   ↓
+Filters
+   ↓
+Mobile exercise list
+   ↓
+Exercise detail
+   ↓
+Add to workout
+   ↓
+Workout execution
+   ↓
+Workout history
+```
+
+Test this with the 30 exercises.
+
+If all of that works, **then** we scale the catalog.
+
+---
+
+# Step 12 — Then Build the Alternative Engine
+
+Only after the base data works.
+
+The first version can calculate alternatives using:
+
+```text
+Movement pattern
++
+Primary muscle
++
+Equipment
++
+Difficulty
+```
+
+Example:
+
+```text
+Barbell Bench Press
+       │
+       ├── Same movement + same muscle
+       │       ↓
+       │   HIGH MATCH
+       │
+       ├── Same movement + similar muscle
+       │       ↓
+       │   MEDIUM MATCH
+       │
+       └── Different movement + same muscle
+               ↓
+            LOWER MATCH
+```
+
+Then equipment availability filters the results.
+
+---
+
+# Your Implementation Prompt
+
+Use this as the **next Antigravity/Cursor/Claude Code task**:
+
+Implement Phase 6A.2 of the gym application.
+
+IMPORTANT:
+The existing project has already completed Phases 1–5 and an architecture audit has been performed.
+
+Do NOT rewrite the application.
+Do NOT create a second Exercise model, Workout model, or API.
+Extend the existing implementation.
+
+TASK:
+
+1. Upgrade the existing Exercise schema according to the audit.
+
+The Exercise entity should support:
+
+* name
+* slug
+* description
+* category[]
+* movementPattern[]
+* difficulty
+* primaryMuscles[]
+* secondaryMuscles[]
+* equipment[]
+* requiredEquipment[]
+* instructions[]
+* setupInstructions[]
+* breathingInstructions[]
+* coachingCues[]
+* commonMistakes[]
+* progressionMethods[]
+* regressionMethods[]
+* alternatives
+* aliases[]
+* tags[]
+* media
+* programming
+* status: DRAFT / ACTIVE / ARCHIVED
+* createdAt
+* updatedAt
+
+2. Preserve compatibility with all existing workout, workout-session, set-log, program, and progress functionality.
+
+3. Do not physically delete exercises that may be referenced by historical workout data. Exercise deletion should use ARCHIVED status.
+
+4. Standardize controlled values for:
+
+* muscles
+* equipment
+* movement patterns
+* difficulty
+* categories
+* status
+
+Do not allow arbitrary inconsistent strings.
+
+5. Add unique slugs for exercises.
+
+6. Create a safe migration for existing exercise records.
+
+* Back up before migration where the project supports this.
+* Preserve all existing records.
+* Provide defaults for newly introduced optional fields.
+* Do not break historical references.
+
+7. Audit and add only the MongoDB indexes actually required for the application's real query patterns.
+
+8. Extend the existing exercise API.
+
+Required functionality:
+
+GET /api/v1/exercises
+GET /api/v1/exercises/:id
+GET /api/v1/exercises/slug/:slug
+
+Admin functionality should support:
+POST /api/v1/admin/exercises
+PATCH /api/v1/admin/exercises/:id
+ARCHIVE /api/v1/admin/exercises/:id
+
+9. Add server-side search/filtering for:
+
+* search
+* muscle
+* equipment
+* movement pattern
+* difficulty
+* category
+* status
+
+Support pagination/cursor-based loading where appropriate.
+
+10. Add request validation for exercise creation and updates.
+
+11. Add validation rules for publishing ACTIVE exercises. Required production fields must be present before an exercise can become ACTIVE.
+
+12. Update the existing mobile exercise API integration without creating a duplicate data layer.
+
+13. Update the existing exercise list/detail screens only as necessary to consume the new schema. Do not redesign the entire UI yet.
+
+14. Seed approximately 30 high-quality exercises for testing.
+
+The seed data must cover:
+
+* chest
+* back
+* shoulders
+* biceps
+* triceps
+* quads
+* hamstrings
+* glutes
+* core
+
+Each seeded exercise should contain realistic structured metadata and should follow the new schema.
+
+15. Add automated tests covering:
+
+* exercise creation
+* exercise retrieval
+* slug uniqueness
+* search
+* filters
+* pagination
+* validation
+* archive behavior
+* historical workout compatibility
+* authorization for admin operations
+
+16. Run:
+
+* type checking
+* linting
+* unit tests
+* integration tests
+* existing application tests
+* build
+
+Do not proceed to the full 250–300 exercise catalog yet.
+
+At the end, report:
+
+A. Files changed
+B. Database changes
+C. Migration performed
+D. API changes
+E. Mobile changes
+F. Seed exercises added
+G. Tests passed
+H. Remaining issues
+I. Recommended next implementation step
+
+Do not silently change unrelated features.
+
+Once that implementation passes, **the next task is 6A.3 — Exercise Discovery UI + advanced search/filtering**, followed by the full exercise catalog.

@@ -12,6 +12,7 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import subscriptionRoutes from './routes/subscription.routes.js';
 import aiRoutes from './routes/ai.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app: Application = express();
@@ -49,6 +50,7 @@ app.get('/health/ready', (req, res) => {
 // API v1 Base Routers
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/exercises', exerciseRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/programs', programRoutes);
 app.use('/api/v1/workouts', workoutRoutes);
 app.use('/api/v1/coach', coachRoutes);
