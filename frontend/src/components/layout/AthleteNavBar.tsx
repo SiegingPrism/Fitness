@@ -7,10 +7,10 @@ interface Props {
 
 export const AthleteNavBar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
   const tabs = [
-    { id: 'dashboard', label: 'Home', icon: 'home' },
-    { id: 'workout_library', label: 'Workouts', icon: 'fitness_center' },
-    { id: 'progress', label: 'Insights', icon: 'bar_chart' },
-    { id: 'profile', label: 'Profile', icon: 'person' },
+    { id: 'dashboard', label: 'Home', icon: '🏠' },
+    { id: 'workout_library', label: 'Workouts', icon: '🏋️' },
+    { id: 'progress', label: 'Insights', icon: '📊' },
+    { id: 'profile', label: 'Profile', icon: '👤' },
   ];
 
   return (
@@ -21,11 +21,11 @@ export const AthleteNavBar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
       right: 0,
       backgroundColor: '#111a12',
       borderTop: '1px solid #23321d',
-      padding: '8px 16px 12px',
+      padding: '10px 16px 16px',
       display: 'flex',
       justifyContent: 'space-around',
       alignItems: 'center',
-      zIndex: 50
+      zIndex: 999
     }}>
       {tabs.map((tab) => {
         const isActive = currentTab === tab.id;
@@ -33,6 +33,7 @@ export const AthleteNavBar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
         return (
           <button
             key={tab.id}
+            type="button"
             onClick={() => onSelectTab(tab.id)}
             style={{
               background: 'none',
@@ -40,13 +41,16 @@ export const AthleteNavBar: React.FC<Props> = ({ currentTab, onSelectTab }) => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '4px',
               color,
               cursor: 'pointer',
-              fontWeight: isActive ? '700' : '500'
+              fontWeight: isActive ? '700' : '500',
+              padding: '6px 16px',
+              minWidth: '64px'
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>{tab.icon}</span>
+            <span style={{ fontSize: '18px' }}>{tab.icon}</span>
             <span style={{ fontSize: '11px', fontFamily: 'Inter, sans-serif' }}>{tab.label}</span>
           </button>
         );

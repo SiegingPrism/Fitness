@@ -8,6 +8,7 @@ import {
 const router = Router();
 
 router.get('/', getExercises);
+router.get('/slug/:slug', getExerciseById);
 router.get('/:id', getExerciseById);
 router.get('/:id/alternatives', getExerciseAlternatives);
 

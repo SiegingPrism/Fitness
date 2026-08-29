@@ -1,281 +1,297 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchExerciseById, fetchExerciseAlternatives } from '../../services/api.js';
 
-interface Props {
-  exerciseId?: string;
+interface ExerciseDetailViewProps {
+  exerciseId: string;
   onBack: () => void;
-  onSelectAlternative?: (altName: string) => void;
 }
 
-export const ExerciseDetailView: React.FC<Props> = ({ exerciseId = 'ex_1', onBack, onSelectAlternative }) => {
-  const [activeTab, setActiveTab] = useState<'GUIDE' | 'HISTORY' | 'ALTERNATIVES'>('GUIDE');
+export const ExerciseDetailView: React.FC<ExerciseDetailViewProps> = ({ exerciseId, onBack }) => {
+  const [exercise, setExercise] = useState<any>(null);
+  const [alternatives, setAlternatives] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const exercise = {
-    id: exerciseId,
-    name: 'Barbell Bench Press',
-    category: 'Chest',
-    movementPattern: 'Horizontal Push',
-    difficulty: 'INTERMEDIATE',
-    primaryMuscle: 'Pectoralis Major',
-    secondaryMuscles: ['Triceps Brachii', 'Anterior Deltoid'],
-    equipment: 'Barbell & Flat Bench',
-    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    setup: 'Lie flat on bench with eyes under the bar. Retract scapulae and plant feet firmly into the floor.',
-    executionSteps: [
-      'Unrack barbell with straight locked arms over chest',
-      'Inhale deeply and lower bar with controlled 3-second tempo to sternum',
-      'Lightly touch chest without bouncing off ribs',
-      'Drive forcefully upwards, pressing slightly back toward rack'
-    ],
-    coachingCues: [
-      'Keep shoulder blades tightly pinched together throughout',
-      'Maintain active leg drive through heels',
-      'Control eccentric phase; do not bounce bar off chest'
-    ],
-    commonMistakes: [
-      'Excessive lower back arch beyond natural curvature',
-      'Flaring elbows out at 90 degrees (keep at 45–60 degrees)',
-      'Losing upper back tension at the bottom of the movement'
-    ],
-    personalRecords: {
-      estimated1RM: '116 kg',
-      topSet: '100 kg × 5 reps',
-      totalVolume: '42,380 kg',
-      lastTrained: 'Yesterday (Push Day)'
-    },
-    alternatives: [
-      { id: 'ex_2', name: 'Dumbbell Bench Press', equipment: 'Dumbbells & Bench', match: '95% Match' },
-      { id: 'ex_3', name: 'Incline Dumbbell Press', equipment: 'Dumbbells & Incline Bench', match: '90% Match' },
-      { id: 'ex_4', name: 'Plate-Loaded Chest Press', equipment: 'Machine', match: '85% Match' },
-      { id: 'ex_5', name: 'Weighted Push-Ups', equipment: 'Bodyweight / Plates', match: '80% Match' }
-    ]
+  useEffect(() => {
+    loadData();
+  }, [exerciseId]);
+
+  const loadData = async () => {
+    setLoading(true);
+    const [exRes, altRes] = await Promise.all([
+      fetchExerciseById(exerciseId),
+      fetchExerciseAlternatives(exerciseId)
+    ]);
+    if (exRes?.success && exRes.data) {
+      setExercise(exRes.data);
+    }
+    if (altRes?.success && altRes.data?.alternatives) {
+      setAlternatives(altRes.data.alternatives);
+    }
+    setLoading(false);
   };
 
+  if (loading || !exercise) {
+    return (
+      <div style={{ padding: '40px 16px', textAlign: 'center', color: '#8f9bb3' }}>
+        Loading movement breakdown...
+      </div>
+    );
+  }
+
+  const primaryMuscles = Array.isArray(exercise.primaryMuscles)
+    ? exercise.primaryMuscles.join(', ')
+    : exercise.primaryMuscleGroup || 'Major Muscle';
+
+  const secondaryMuscles = Array.isArray(exercise.secondaryMuscles)
+    ? exercise.secondaryMuscles.join(', ')
+    : (exercise.secondaryMuscleGroups || []).join(', ');
+
+  const equipmentList = Array.isArray(exercise.equipment)
+    ? exercise.equipment.join(', ')
+    : exercise.equipmentRequired || 'Standard Gym';
+
   return (
-    <div style={{ padding: '16px', paddingBottom: '95px', maxWidth: '440px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '18px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ padding: '16px 16px 100px 16px', maxWidth: '640px', margin: '0 auto' }}>
       
-      {/* 1. Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={onBack} style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
-          </button>
-          <h1 className="font-headline" style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff' }}>Exercise Breakdown</h1>
-        </div>
-        <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#bef264', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>bookmark</span>
+      {/* Top Header Navigation */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+        <button
+          onClick={onBack}
+          style={{
+            backgroundColor: '#151b2d',
+            border: '1px solid #2e3447',
+            color: '#fff',
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+            cursor: 'pointer'
+          }}
+        >
+          ←
         </button>
+        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#8f9bb3', textTransform: 'uppercase' }}>
+          Exercise Breakdown
+        </span>
       </div>
 
-      {/* 2. Media Showcase Hero Card */}
-      <div style={{
-        position: 'relative',
-        borderRadius: '24px',
-        overflow: 'hidden',
-        border: '1px solid #2e3447',
-        minHeight: '220px',
-        backgroundImage: `linear-gradient(to top, rgba(12, 19, 36, 0.95), rgba(12, 19, 36, 0.2)), url("${exercise.imageUrl}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <span style={{ backgroundColor: '#bef264', color: '#0c1324', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', padding: '4px 10px', borderRadius: '8px' }}>
-            {exercise.movementPattern}
-          </span>
-          <span style={{ backgroundColor: '#151b2d', color: '#3cddc7', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', padding: '4px 10px', borderRadius: '8px', border: '1px solid #2e3447' }}>
-            {exercise.difficulty}
-          </span>
-        </div>
-
-        <div>
-          <h2 className="font-headline" style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff' }}>{exercise.name}</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '12px', color: '#dce1fb' }}>
-            <span style={{ color: '#bef264', fontWeight: 'bold' }}>{exercise.primaryMuscle}</span>
-            <span>•</span>
-            <span style={{ color: '#8d9882' }}>{exercise.equipment}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Sub-Navigation Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '4px' }}>
-        {[
-          { id: 'GUIDE', label: 'Form Guide' },
-          { id: 'HISTORY', label: 'My PRs' },
-          { id: 'ALTERNATIVES', label: 'Alternatives' }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            style={{
-              padding: '10px',
-              borderRadius: '12px',
-              backgroundColor: activeTab === tab.id ? '#bef264' : 'transparent',
-              color: activeTab === tab.id ? '#0c1324' : '#8d9882',
-              fontWeight: 'bold',
-              fontSize: '12px',
-              border: 'none',
-              cursor: 'pointer',
-              textAlign: 'center'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* TAB 1: FORM GUIDE */}
-      {activeTab === 'GUIDE' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* How to Perform */}
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <h3 className="font-headline" style={{ fontSize: '15px', fontWeight: 'bold', color: '#bef264' }}>How to Perform</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {exercise.executionSteps.map((step, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '10px', fontSize: '13px', color: '#ffffff' }}>
-                  <span style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#191f31', color: '#bef264', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold', flexShrink: 0 }}>
-                    {idx + 1}
-                  </span>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Coaching Cues */}
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <h3 className="font-headline" style={{ fontSize: '15px', fontWeight: 'bold', color: '#3cddc7' }}>💡 Coaching Cues</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {exercise.coachingCues.map((cue, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: '#dce1fb' }}>
-                  <span style={{ color: '#3cddc7', fontWeight: 'bold' }}>•</span>
-                  <span>{cue}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Common Mistakes */}
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #ff5c5c', borderRadius: '20px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <h3 className="font-headline" style={{ fontSize: '15px', fontWeight: 'bold', color: '#ff5c5c' }}>⚠️ Common Mistakes</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {exercise.commonMistakes.map((mistake, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: '#ffb4ab' }}>
-                  <span style={{ color: '#ff5c5c', fontWeight: 'bold' }}>✕</span>
-                  <span>{mistake}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: MY PRS & HISTORY */}
-      {activeTab === 'HISTORY' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <div style={{ fontSize: '11px', color: '#8d9882', textTransform: 'uppercase', fontWeight: 'bold' }}>Estimated 1RM</div>
-              <div className="font-headline" style={{ fontSize: '24px', fontWeight: '900', color: '#bef264', marginTop: '4px' }}>{exercise.personalRecords.estimated1RM}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '11px', color: '#8d9882', textTransform: 'uppercase', fontWeight: 'bold' }}>Best Set (5RM)</div>
-              <div className="font-headline" style={{ fontSize: '18px', fontWeight: '800', color: '#ffffff', marginTop: '4px' }}>{exercise.personalRecords.topSet}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '11px', color: '#8d9882', textTransform: 'uppercase', fontWeight: 'bold' }}>Lifetime Volume</div>
-              <div className="font-headline" style={{ fontSize: '18px', fontWeight: '800', color: '#3cddc7', marginTop: '4px' }}>{exercise.personalRecords.totalVolume}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '11px', color: '#8d9882', textTransform: 'uppercase', fontWeight: 'bold' }}>Last Trained</div>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff', marginTop: '4px' }}>{exercise.personalRecords.lastTrained}</div>
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span className="material-symbols-outlined" style={{ color: '#bef264', fontSize: '28px' }}>trending_up</span>
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffffff' }}>Progressive Overload Target</div>
-              <div style={{ fontSize: '12px', color: '#8d9882', marginTop: '2px' }}>Next session: 102.5 kg × 4–6 reps</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: SMART ALTERNATIVES */}
-      {activeTab === 'ALTERNATIVES' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ fontSize: '13px', color: '#8d9882' }}>
-            Need to swap? Choose an equipment-matched movement pattern alternative:
-          </div>
-
-          {exercise.alternatives.map((alt) => (
-            <div
-              key={alt.id}
+      {/* Hero Media Banner */}
+      <div
+        style={{
+          width: '100%',
+          height: '220px',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          position: 'relative',
+          marginBottom: '20px',
+          backgroundColor: '#151b2d',
+          border: '1px solid #2e3447'
+        }}
+      >
+        <img
+          src={exercise.media?.thumbnail || exercise.imageUrl || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80'}
+          alt={exercise.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'linear-gradient(to top, #0c1324, transparent)',
+            padding: '20px 16px 12px 16px'
+          }}
+        >
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span
               style={{
-                backgroundColor: '#151b2d',
-                border: '1px solid #2e3447',
-                borderRadius: '16px',
-                padding: '14px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                backgroundColor: '#bef264',
+                color: '#0c1324',
+                fontSize: '10px',
+                fontWeight: '900',
+                padding: '3px 8px',
+                borderRadius: '6px',
+                textTransform: 'uppercase'
               }}
             >
-              <div>
-                <div style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '14px' }}>{alt.name}</div>
-                <div style={{ fontSize: '11px', color: '#8d9882', marginTop: '2px' }}>{alt.equipment} • <span style={{ color: '#bef264' }}>{alt.match}</span></div>
-              </div>
-              <button
-                onClick={() => {
-                  if (onSelectAlternative) onSelectAlternative(alt.name);
-                  onBack();
-                }}
-                style={{
-                  backgroundColor: '#191f31',
-                  border: '1px solid #bef264',
-                  color: '#bef264',
-                  padding: '6px 14px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                Swap In
-              </button>
+              {exercise.difficulty}
+            </span>
+            <span style={{ backgroundColor: '#1e2638', color: '#6ee7b7', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '6px' }}>
+              {exercise.movementPattern?.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Exercise Title & Description */}
+      <div style={{ marginBottom: '20px' }}>
+        <h1 className="font-headline" style={{ fontSize: '26px', fontWeight: 'bold', color: '#fff', margin: '0 0 8px 0' }}>
+          {exercise.name}
+        </h1>
+        <p style={{ color: '#8f9bb3', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>
+          {exercise.description || 'Foundational athletic movement for strength and hypertrophy.'}
+        </p>
+      </div>
+
+      {/* Muscle & Equipment Tags */}
+      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '12px' }}>
+          <div>
+            <span style={{ color: '#8f9bb3', display: 'block', fontSize: '11px', fontWeight: 'bold' }}>PRIMARY MUSCLE</span>
+            <strong style={{ color: '#bef264' }}>{primaryMuscles}</strong>
+          </div>
+          <div>
+            <span style={{ color: '#8f9bb3', display: 'block', fontSize: '11px', fontWeight: 'bold' }}>EQUIPMENT</span>
+            <strong style={{ color: '#dce1fb' }}>{equipmentList}</strong>
+          </div>
+          {secondaryMuscles && (
+            <div style={{ gridColumn: 'span 2' }}>
+              <span style={{ color: '#8f9bb3', display: 'block', fontSize: '11px', fontWeight: 'bold' }}>SECONDARY MUSCLES</span>
+              <span style={{ color: '#c3c9b2' }}>{secondaryMuscles}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Programming Defaults Shelf */}
+      <div style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          Recommended Programming Defaults
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block', fontWeight: 'bold' }}>SETS & REPS</span>
+            <strong style={{ fontSize: '14px', color: '#bef264' }}>
+              {exercise.programming?.recommendedSets || '3-4 sets'} • {exercise.programming?.recommendedRepRange ? `${exercise.programming.recommendedRepRange.min}-${exercise.programming.recommendedRepRange.max}` : '8-12'}
+            </strong>
+          </div>
+          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block', fontWeight: 'bold' }}>REST INTERVAL</span>
+            <strong style={{ fontSize: '14px', color: '#6ee7b7' }}>
+              {exercise.programming?.recommendedRestSeconds || exercise.restSeconds || 90}s
+            </strong>
+          </div>
+          <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block', fontWeight: 'bold' }}>INTENSITY (RPE/RIR)</span>
+            <strong style={{ fontSize: '14px', color: '#38bdf8' }}>
+              RPE {exercise.programming?.recommendedRPE || 8} (RIR {exercise.programming?.recommendedRIR || 2})
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {/* Step-by-Step Execution Guide */}
+      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          Step-by-Step Execution
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {(exercise.instructions || exercise.executionSteps || []).map((step: string, idx: number) => (
+            <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ backgroundColor: '#1e2638', color: '#bef264', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold', flexShrink: 0 }}>
+                {idx + 1}
+              </span>
+              <p style={{ color: '#dce1fb', fontSize: '13px', lineHeight: '1.4', margin: 0 }}>{step}</p>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Coaching Cues & Common Mistakes */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+        
+        {/* Coaching Cues */}
+        <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+            <span style={{ color: '#bef264', fontSize: '14px' }}>💡</span>
+            <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: '#bef264', margin: 0 }}>
+              Coaching Cues
+            </h3>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: '16px', color: '#dce1fb', fontSize: '12px', lineHeight: '1.4' }}>
+            {(exercise.coachingCues || []).map((cue: string, i: number) => (
+              <li key={i} style={{ marginBottom: '6px' }}>{cue}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Common Mistakes */}
+        <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+            <span style={{ color: '#ef4444', fontSize: '14px' }}>⚠️</span>
+            <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>
+              Avoid Mistakes
+            </h3>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: '16px', color: '#fca5a5', fontSize: '12px', lineHeight: '1.4' }}>
+            {(exercise.commonMistakes || []).map((mistake: string, i: number) => (
+              <li key={i} style={{ marginBottom: '6px' }}>{mistake}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* Personal History Shelf */}
+      {exercise.personalBest && (
+        <div style={{ backgroundColor: '#151b2d', border: '1px solid #bef26433', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#bef264', textTransform: 'uppercase' }}>
+              🏆 Your Exercise Record
+            </span>
+            <span style={{ fontSize: '11px', color: '#8f9bb3' }}>PR Tracking</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', textAlign: 'center' }}>
+            <div style={{ backgroundColor: '#0c1324', padding: '10px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block' }}>BEST WEIGHT</span>
+              <strong style={{ fontSize: '15px', color: '#fff' }}>{exercise.personalBest.weightKg} kg × {exercise.personalBest.reps}</strong>
+            </div>
+            <div style={{ backgroundColor: '#0c1324', padding: '10px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block' }}>EST. 1RM</span>
+              <strong style={{ fontSize: '15px', color: '#bef264' }}>{exercise.personalBest.estimated1RM} kg</strong>
+            </div>
+            <div style={{ backgroundColor: '#0c1324', padding: '10px', borderRadius: '8px' }}>
+              <span style={{ fontSize: '10px', color: '#8f9bb3', display: 'block' }}>TOTAL VOLUME</span>
+              <strong style={{ fontSize: '15px', color: '#38bdf8' }}>{exercise.personalBest.totalVolumeKg?.toLocaleString()} kg</strong>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Action Footer */}
-      <button
-        onClick={onBack}
-        className="font-headline"
-        style={{
-          width: '100%',
-          padding: '16px',
-          backgroundColor: '#bef264',
-          color: '#0c1324',
-          border: 'none',
-          borderRadius: '18px',
-          fontSize: '15px',
-          fontWeight: '900',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(190, 242, 100, 0.4)'
-        }}
-      >
-        <span>Add Exercise to Routine</span>
-        <span className="material-symbols-outlined" style={{ fontSize: '20px', fontWeight: 'bold' }}>add</span>
-      </button>
+      {/* Intelligent Alternatives Swapper */}
+      {alternatives.length > 0 && (
+        <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff', margin: '0 0 10px 0', textTransform: 'uppercase' }}>
+            🔁 Equipment & Movement Alternatives
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {alternatives.map((alt: any, idx: number) => (
+              <div
+                key={idx}
+                style={{
+                  backgroundColor: '#0c1324',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <strong style={{ color: '#fff', fontSize: '13px', display: 'block' }}>{alt.name}</strong>
+                  <span style={{ color: '#8f9bb3', fontSize: '11px' }}>{alt.equipment}</span>
+                </div>
+                <span style={{ backgroundColor: '#10b98122', color: '#10b981', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '6px' }}>
+                  {alt.similarityScore || alt.similarity || '90%'} match
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

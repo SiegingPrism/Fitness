@@ -785,3 +785,1590 @@ Mobility       15–20
 That gives us roughly 250–300 well-structured exercises, rather than hundreds of poorly defined duplicates.
 Then we'll build the exercise alternatives, search/filtering, exercise detail pages, workout templates, supersets, dropsets, RPE/RIR, rest timers, progression logic, and better workout completion experience around that database.
 So yes: stop expanding infrastructure for now. We should enter a product-building cycle. The next concrete step is Phase 6A: redesign the Exercise schema + build the master exercise catalog, then populate it systematically.
+
+# Phase 6A — Exercise & Workout Library
+
+We start with the **foundation**, not the UI.
+
+The target is:
+
+```text
+Exercise Database
+        │
+        ├── Exercise information
+        ├── Muscle mapping
+        ├── Movement patterns
+        ├── Equipment
+        ├── Difficulty
+        ├── Instructions
+        ├── Coaching cues
+        ├── Media
+        ├── Alternatives
+        └── User history
+                │
+                ▼
+          Workout Builder
+                │
+                ▼
+          Workout Engine
+                │
+                ▼
+        Progress Analytics
+                │
+                ▼
+             AI Coach
+```
+
+If we get this layer right, the rest of Phase 6 becomes much easier.
+
+---
+
+# 6A.1 — First: Audit the Existing Exercise Model
+
+**Do not create a second exercise system.**
+
+Since your first phases are already completed, first inspect the existing implementation and determine:
+
+```text
+1. Current Exercise model
+2. Current Workout model
+3. Current Set/Exercise relationship
+4. Current MongoDB collections
+5. Existing exercise data
+6. Existing workout builder
+7. Existing exercise UI
+8. Existing API endpoints
+9. Existing image/video handling
+10. Existing exercise search/filtering
+```
+
+The goal is:
+
+```text
+Existing system
+      ↓
+Extend it
+      ↓
+Don't duplicate it
+```
+
+---
+
+# 6A.2 — New Master Exercise Schema
+
+I recommend this structure.
+
+```ts
+Exercise {
+  _id
+
+  name
+  slug
+
+  description
+
+  category
+  movementPattern
+  difficulty
+
+  primaryMuscles[]
+  secondaryMuscles[]
+
+  equipment[]
+  requiredEquipment[]
+
+  bodyParts[]
+  joints[]
+
+  instructions[]
+  setupInstructions[]
+  breathingInstructions[]
+
+  coachingCues[]
+  commonMistakes[]
+
+  progressionMethods[]
+  regressionMethods[]
+
+  alternatives[]
+
+  media {
+    thumbnail
+    images[]
+    videos[]
+  }
+
+  programming {
+    recommendedSets
+    recommendedRepRange
+    recommendedRestSeconds
+    recommendedRPE
+    recommendedRIR
+  }
+
+  tags[]
+
+  status
+
+  createdAt
+  updatedAt
+}
+```
+
+---
+
+# 6A.3 — Exercise ID
+
+Use MongoDB's normal `_id`.
+
+Also create:
+
+```text
+slug
+```
+
+Example:
+
+```text
+_id:
+665...
+
+slug:
+barbell-bench-press
+```
+
+The slug is useful for URLs and predictable frontend navigation.
+
+---
+
+# 6A.4 — Exercise Status
+
+Use:
+
+```text
+DRAFT
+ACTIVE
+ARCHIVED
+```
+
+Why?
+
+Because we don't want deleting an exercise to destroy historical workout records.
+
+Example:
+
+```text
+Old Exercise
+     ↓
+ARCHIVED
+```
+
+Historical workouts still display:
+
+```text
+Barbell Bench Press
+```
+
+even if that exercise is no longer available for new workouts.
+
+---
+
+# 6A.5 — Categories
+
+Use controlled values.
+
+```text
+STRENGTH
+HYPERTROPHY
+CONDITIONING
+MOBILITY
+REHABILITATION
+SKILL
+```
+
+An exercise can potentially belong to multiple categories, so don't necessarily make this a single enum.
+
+---
+
+# 6A.6 — Movement Patterns
+
+Create:
+
+```text
+HORIZONTAL_PUSH
+VERTICAL_PUSH
+
+HORIZONTAL_PULL
+VERTICAL_PULL
+
+SQUAT
+HINGE
+LUNGE
+
+CARRY
+
+ROTATION
+ANTI_ROTATION
+
+FLEXION
+EXTENSION
+
+ISOLATION
+```
+
+This is far more useful than muscle categories alone.
+
+For example:
+
+```text
+Bench Press
+```
+
+can be:
+
+```text
+Primary pattern:
+HORIZONTAL_PUSH
+
+Primary muscle:
+CHEST
+```
+
+This becomes extremely useful for substitutions.
+
+---
+
+# 6A.7 — Muscle Groups
+
+Use standardized IDs rather than free text.
+
+```text
+CHEST
+LATS
+UPPER_BACK
+LOWER_BACK
+
+FRONT_DELTS
+SIDE_DELTS
+REAR_DELTS
+
+BICEPS
+TRICEPS
+FOREARMS
+
+QUADS
+HAMSTRINGS
+GLUTES
+CALVES
+
+ABS
+OBLIQUES
+HIP_FLEXORS
+```
+
+This prevents:
+
+```text
+"Chest"
+"chest"
+"pec"
+"Pecs"
+```
+
+from becoming four different database values.
+
+---
+
+# 6A.8 — Equipment
+
+Standardize this too.
+
+```text
+BARBELL
+DUMBBELL
+KETTLEBELL
+EZ_BAR
+
+CABLE
+RESISTANCE_BAND
+
+SMITH_MACHINE
+LEG_PRESS
+HACK_SQUAT
+CHEST_PRESS_MACHINE
+
+PULL_UP_BAR
+DIP_STATION
+
+BENCH
+BOX
+
+BODYWEIGHT
+```
+
+Add equipment only when the actual exercise library requires it.
+
+---
+
+# 6A.9 — Exercise Example
+
+A proper database entry would conceptually look like:
+
+```json
+{
+  "name": "Barbell Bench Press",
+  "slug": "barbell-bench-press",
+
+  "category": [
+    "STRENGTH",
+    "HYPERTROPHY"
+  ],
+
+  "movementPattern": [
+    "HORIZONTAL_PUSH"
+  ],
+
+  "difficulty": "INTERMEDIATE",
+
+  "primaryMuscles": [
+    "CHEST"
+  ],
+
+  "secondaryMuscles": [
+    "TRICEPS",
+    "FRONT_DELTS"
+  ],
+
+  "equipment": [
+    "BARBELL",
+    "BENCH"
+  ],
+
+  "tags": [
+    "compound",
+    "push",
+    "upper-body"
+  ]
+}
+```
+
+---
+
+# 6A.10 — Instructions
+
+Don't store instructions as one giant paragraph.
+
+Use ordered steps:
+
+```json
+{
+  "instructions": [
+    "Lie on the bench with your feet firmly planted.",
+    "Grip the bar slightly wider than shoulder width.",
+    "Unrack the bar and position it over your chest.",
+    "Lower the bar under control.",
+    "Press the bar back to the starting position."
+  ]
+}
+```
+
+This makes the mobile UI much better.
+
+---
+
+# 6A.11 — Coaching Cues
+
+Separate cues from instructions.
+
+Example:
+
+```text
+Coaching cues
+
+• Keep your upper back stable.
+• Control the lowering phase.
+• Keep your wrists stacked.
+• Drive through the floor.
+```
+
+The coach can eventually choose which cues appear in a program.
+
+---
+
+# 6A.12 — Common Mistakes
+
+Store these separately:
+
+```text
+Common mistakes
+
+• Excessive elbow flare
+• Losing upper-back tension
+• Bouncing the bar
+• Incorrect grip width
+```
+
+This becomes useful for:
+
+```text
+Exercise Detail
+AI Coach
+Coach Education
+```
+
+---
+
+# 6A.13 — Programming Defaults
+
+Each exercise can have defaults:
+
+```text
+recommendedSets
+recommendedRepRange
+recommendedRestSeconds
+recommendedRPE
+recommendedRIR
+```
+
+Example:
+
+```text
+Bench Press
+
+Sets:
+3–5
+
+Reps:
+5–10
+
+Rest:
+120–180 sec
+
+RPE:
+7–9
+```
+
+These are **defaults**, not hard restrictions.
+
+A coach must be able to override them.
+
+---
+
+# 6A.14 — Workout-Level Override
+
+Exercise defaults:
+
+```text
+Bench Press
+3–5 sets
+5–10 reps
+```
+
+Coach program:
+
+```text
+Bench Press
+5 × 5
+```
+
+The workout assignment wins.
+
+Architecture:
+
+```text
+Exercise Defaults
+       ↓
+Workout Template
+       ↓
+Athlete Assignment
+       ↓
+Actual Session
+```
+
+---
+
+# 6A.15 — Actual Session Data
+
+Don't modify the exercise definition when the athlete performs it.
+
+For example:
+
+```text
+Exercise
+Bench Press
+```
+
+is the definition.
+
+Actual workout:
+
+```text
+Session
+Bench Press
+
+Set 1
+80 × 8
+
+Set 2
+80 × 8
+
+Set 3
+82.5 × 6
+```
+
+These must remain separate.
+
+---
+
+# 6A.16 — Exercise Alternatives
+
+Don't simply store:
+
+```text
+alternatives: ["Dumbbell Bench Press"]
+```
+
+We need a relationship.
+
+Conceptually:
+
+```text
+ExerciseAlternative
+
+originalExerciseId
+alternativeExerciseId
+
+similarityScore
+movementMatch
+muscleMatch
+equipmentRequirements
+difficultyDifference
+```
+
+This lets us eventually rank alternatives.
+
+---
+
+# 6A.17 — Alternative Example
+
+```text
+Barbell Bench Press
+        │
+        ├── Dumbbell Bench Press
+        ├── Smith Machine Bench Press
+        ├── Machine Chest Press
+        └── Push-Up
+```
+
+But these aren't equally equivalent.
+
+So:
+
+```text
+Dumbbell Bench Press
+Similarity: HIGH
+
+Smith Machine Bench Press
+Similarity: HIGH
+
+Machine Chest Press
+Similarity: MEDIUM
+
+Push-Up
+Similarity: MEDIUM
+```
+
+---
+
+# 6A.18 — Equipment-Aware Substitution
+
+User has:
+
+```text
+Dumbbells
+Bench
+Pull-up bar
+Bands
+```
+
+and doesn't have:
+
+```text
+Barbell
+Cable machine
+Machines
+```
+
+Then:
+
+```text
+Barbell Bench Press
+        ↓
+Unavailable
+        ↓
+Alternative engine
+        ↓
+Filter equipment
+        ↓
+Dumbbell Bench Press
+```
+
+This becomes one of the app's strongest practical features.
+
+---
+
+# 6A.19 — User Exercise Preferences
+
+Later add:
+
+```text
+ExercisePreference
+│
+├── userId
+├── exerciseId
+├── preference
+└── reason
+```
+
+Examples:
+
+```text
+LIKED
+DISLIKED
+FAVORITE
+AVOID
+```
+
+Then:
+
+```text
+User dislikes:
+Barbell Back Squat
+```
+
+Future workout generation can avoid it.
+
+---
+
+# 6A.20 — Exercise Search
+
+Backend:
+
+```http
+GET /api/v1/exercises
+```
+
+Parameters:
+
+```text
+search
+muscle
+equipment
+movement
+difficulty
+category
+page
+limit
+```
+
+Example:
+
+```http
+/exercises?
+muscle=CHEST
+&equipment=DUMBBELL
+&difficulty=BEGINNER
+```
+
+---
+
+# 6A.21 — Search Ranking
+
+Search should prioritize:
+
+```text
+Exact name
+ ↓
+Prefix
+ ↓
+Alias
+ ↓
+Muscle
+ ↓
+Movement
+ ↓
+Tags
+```
+
+Search:
+
+```text
+"incline db"
+```
+
+should find:
+
+```text
+Incline Dumbbell Bench Press
+```
+
+even if the exact phrase isn't stored.
+
+---
+
+# 6A.22 — Aliases
+
+Add:
+
+```text
+aliases[]
+```
+
+Example:
+
+```json
+{
+  "name": "Romanian Deadlift",
+  "aliases": [
+    "RDL",
+    "Romanian Deadlift"
+  ]
+}
+```
+
+This dramatically improves search.
+
+---
+
+# 6A.23 — Exercise Discovery UI
+
+Main screen:
+
+```text
+EXERCISES
+
+[ 🔍 Search exercises ]
+
+Muscles
+[ Chest ] [ Back ] [ Legs ]
+
+Equipment
+[ Dumbbell ] [ Barbell ] [ Cable ]
+
+Movement
+[ Push ] [ Pull ] [ Squat ] [ Hinge ]
+```
+
+Then:
+
+```text
+Popular
+────────────
+
+Bench Press
+Squat
+Deadlift
+Lat Pulldown
+Shoulder Press
+```
+
+---
+
+# 6A.24 — Exercise Detail UI
+
+Structure:
+
+```text
+┌────────────────────────────┐
+│                            │
+│       EXERCISE VIDEO       │
+│                            │
+└────────────────────────────┘
+
+Barbell Bench Press
+
+Chest • Horizontal Push
+
+★★★★★ / Difficulty
+
+PRIMARY
+Chest
+
+SECONDARY
+Triceps
+Front Delts
+
+EQUIPMENT
+Barbell
+Bench
+
+HOW TO
+1. ...
+2. ...
+3. ...
+
+COACHING CUES
+• ...
+• ...
+
+COMMON MISTAKES
+• ...
+• ...
+
+YOUR HISTORY
+Best: 100kg × 5
+
+[ ADD TO WORKOUT ]
+```
+
+---
+
+# 6A.25 — "Your History"
+
+This is where generic exercise apps become much less interesting.
+
+Show:
+
+```text
+YOUR HISTORY
+
+Last performed
+Aug 27
+
+Last weight
+80 kg
+
+Last reps
+8
+
+Best weight
+100 kg
+
+Best reps
+12
+
+Estimated 1RM
+116 kg
+
+Total volume
+42,380 kg
+```
+
+---
+
+# 6A.26 — Exercise Progress Chart
+
+On the same page:
+
+```text
+Bench Press
+
+Estimated 1RM
+
+120 ┤          ╭──
+110 ┤       ╭──╯
+100 ┤───────╯
+ 90 ┤
+    └──────────────
+     Jun Jul Aug
+```
+
+The user immediately sees whether they're improving.
+
+---
+
+# 6A.27 — Workout Library Structure
+
+Now build the second layer:
+
+```text
+Workout
+│
+├── metadata
+├── goal
+├── difficulty
+├── duration
+├── equipment
+├── exercises[]
+└── tags[]
+```
+
+Example:
+
+```text
+Push Day
+Goal: Hypertrophy
+Difficulty: Intermediate
+Duration: 60 min
+```
+
+---
+
+# 6A.28 — Workout Categories
+
+```text
+BY SPLIT
+
+Push
+Pull
+Legs
+Upper
+Lower
+Full Body
+PPL
+
+BY GOAL
+
+Strength
+Hypertrophy
+Fat Loss
+General Fitness
+Athletic Performance
+
+BY EXPERIENCE
+
+Beginner
+Intermediate
+Advanced
+
+BY DURATION
+
+20 min
+30 min
+45 min
+60 min
+90 min
+```
+
+---
+
+# 6A.29 — Workout Template
+
+Example:
+
+```text
+PUSH A
+
+Warm-up
+5–10 min
+
+1. Bench Press
+4 × 6–8
+
+2. Incline Dumbbell Press
+3 × 8–12
+
+3. Cable Fly
+3 × 12–15
+
+4. Lateral Raise
+4 × 12–20
+
+5. Triceps Pushdown
+3 × 10–15
+```
+
+---
+
+# 6A.30 — Advanced Set Types
+
+The schema needs to support:
+
+```text
+NORMAL
+WARMUP
+BACKOFF
+DROPSET
+AMRAP
+REST_PAUSE
+FAILURE
+```
+
+Later:
+
+```text
+SUPERSET
+GIANT_SET
+CIRCUIT
+```
+
+---
+
+# 6A.31 — Superset Structure
+
+Don't represent this merely as two exercises with a name.
+
+Use a group:
+
+```text
+Group A
+
+Exercise 1
+Bench Press
+3 × 8
+
+Exercise 2
+Cable Row
+3 × 10
+```
+
+Then the workout engine knows:
+
+```text
+A1
+ ↓
+A2
+ ↓
+Rest
+ ↓
+A1
+ ↓
+A2
+```
+
+---
+
+# 6A.32 — Workout Exercise Configuration
+
+Something like:
+
+```ts
+WorkoutExercise {
+  exerciseId
+
+  order
+  groupId
+  groupType
+
+  sets
+
+  repRange {
+    min
+    max
+  }
+
+  targetWeight
+  targetRPE
+  targetRIR
+
+  restSeconds
+
+  tempo
+
+  notes
+
+  setType
+}
+```
+
+This is enough to support much more sophisticated programming.
+
+---
+
+# 6A.33 — Tempo
+
+Eventually support:
+
+```text
+3-1-1-0
+```
+
+Meaning:
+
+```text
+Eccentric
+Pause
+Concentric
+Top
+```
+
+Don't force tempo on every exercise.
+
+---
+
+# 6A.34 — Rest
+
+Rest should belong to the programmed exercise/set configuration.
+
+Example:
+
+```text
+Compound:
+180 sec
+
+Isolation:
+60 sec
+```
+
+The user can optionally override it during the session.
+
+---
+
+# 6A.35 — Exercise Media
+
+Don't put large media directly into MongoDB.
+
+Use:
+
+```text
+MongoDB
+ ↓
+media metadata
+ ↓
+Object Storage
+```
+
+Example:
+
+```json
+{
+  "thumbnail": "...",
+  "videos": [
+    {
+      "url": "...",
+      "duration": 28
+    }
+  ]
+}
+```
+
+---
+
+# 6A.36 — Video Strategy
+
+For each exercise:
+
+```text
+Thumbnail
+ ↓
+Preview
+ ↓
+Full demonstration
+```
+
+Keep videos short and focused.
+
+The objective isn't entertainment.
+
+It's:
+
+> **Show the user how to perform the movement correctly.**
+
+---
+
+# 6A.37 — Admin Exercise Management
+
+The gym/admin side needs:
+
+```text
+Exercise Management
+
+[ + Add Exercise ]
+
+Search...
+
+Barbell Bench Press
+Active
+
+Squat
+Active
+
+Old Exercise
+Archived
+```
+
+Admin actions:
+
+```text
+Edit
+Archive
+Duplicate
+Add media
+Manage alternatives
+```
+
+---
+
+# 6A.38 — Bulk Import
+
+Because we're targeting hundreds of exercises, manually creating every record through the UI would be painful.
+
+Build an import pipeline:
+
+```text
+CSV / JSON
+ ↓
+Validate
+ ↓
+Preview
+ ↓
+Import
+ ↓
+Report errors
+```
+
+Example:
+
+```text
+300 exercises
+298 imported
+2 failed
+```
+
+This will save enormous time.
+
+---
+
+# 6A.39 — Data Validation
+
+Before import:
+
+```text
+Name exists
+Slug unique
+Muscle IDs valid
+Equipment IDs valid
+Movement IDs valid
+Difficulty valid
+Instructions present
+```
+
+Don't allow garbage data into the master library.
+
+---
+
+# 6A.40 — Exercise Quality Rules
+
+Every production exercise should ideally have:
+
+```text
+✓ Name
+✓ Description
+✓ Primary muscle
+✓ Movement pattern
+✓ Equipment
+✓ Difficulty
+✓ Instructions
+✓ Coaching cues
+✓ Common mistakes
+✓ At least one media asset
+✓ At least one alternative where appropriate
+```
+
+Not every exercise requires every field, but this should be our quality standard.
+
+---
+
+# 6A.41 — Initial Exercise Count
+
+Don't try to create 300 exercises before testing the architecture.
+
+Start with:
+
+```text
+20–30 exercises
+```
+
+covering:
+
+```text
+Chest
+Back
+Shoulders
+Arms
+Legs
+Core
+Full body
+```
+
+Then test:
+
+```text
+Search
+Filtering
+Workout builder
+Alternatives
+History
+Progress
+```
+
+Once the model works:
+
+```text
+30
+ ↓
+100
+ ↓
+200
+ ↓
+300+
+```
+
+---
+
+# 6A.42 — Initial Seed Set
+
+I'd start with the fundamental movements:
+
+### Push
+
+```text
+Barbell Bench Press
+Dumbbell Bench Press
+Incline Barbell Bench Press
+Incline Dumbbell Bench Press
+Overhead Press
+Dumbbell Shoulder Press
+Push-Up
+Dip
+Cable Fly
+Lateral Raise
+```
+
+### Pull
+
+```text
+Deadlift
+Romanian Deadlift
+Barbell Row
+Dumbbell Row
+Lat Pulldown
+Pull-Up
+Chin-Up
+Seated Cable Row
+Face Pull
+Rear Delt Fly
+```
+
+### Legs
+
+```text
+Back Squat
+Front Squat
+Goblet Squat
+Leg Press
+Hack Squat
+Bulgarian Split Squat
+Walking Lunge
+Leg Extension
+Leg Curl
+Calf Raise
+```
+
+### Arms
+
+```text
+Barbell Curl
+Dumbbell Curl
+Hammer Curl
+Incline Curl
+Cable Curl
+
+Triceps Pushdown
+Overhead Triceps Extension
+Skull Crusher
+Close-Grip Bench Press
+```
+
+### Core
+
+```text
+Plank
+Side Plank
+Hanging Knee Raise
+Hanging Leg Raise
+Cable Crunch
+Ab Wheel
+Dead Bug
+Bird Dog
+```
+
+This is only the **initial seed**, not the final library.
+
+---
+
+# 6A.43 — Important: Don't Randomly Generate Fitness Data
+
+For the exercise catalog, accuracy matters.
+
+We should use a controlled data source and/or carefully reviewed exercise definitions rather than generating hundreds of entries blindly.
+
+Every exercise should be reviewed for:
+
+```text
+Name
+Technique
+Muscles
+Equipment
+Difficulty
+Alternatives
+```
+
+---
+
+# 6A.44 — The Actual Development Sequence
+
+Here's exactly how I recommend we proceed:
+
+```text
+STEP 1
+Audit current exercise schema
+        ↓
+STEP 2
+Extend MongoDB model
+        ↓
+STEP 3
+Create standardized enums/reference data
+        ↓
+STEP 4
+Create exercise CRUD API
+        ↓
+STEP 5
+Create search/filter API
+        ↓
+STEP 6
+Create alternative engine
+        ↓
+STEP 7
+Update exercise detail UI
+        ↓
+STEP 8
+Update workout builder
+        ↓
+STEP 9
+Add exercise history
+        ↓
+STEP 10
+Add initial 30 exercises
+        ↓
+STEP 11
+Test everything
+        ↓
+STEP 12
+Expand to 100+
+```
+
+---
+
+# 6A.45 — First Coding Task
+
+**Don't start entering 300 exercises yet.**
+
+First, open your existing project and locate:
+
+```text
+Exercise model/schema
+Workout model/schema
+WorkoutSession model/schema
+Set/SetLog model/schema
+Exercise API/controller
+Workout API/controller
+Exercise screen
+Workout builder
+```
+
+Then we modify the existing architecture.
+
+If you're using an AI coding agent such as Cursor/Claude Code/Antigravity, give it this instruction first:
+
+You are working on an existing production gym/fitness application.
+
+We are beginning Phase 6A: Exercise & Workout Library Expansion.
+
+IMPORTANT:
+Do NOT rewrite the application.
+Do NOT create a second exercise/workout system.
+Do NOT delete existing functionality.
+First inspect the existing codebase and identify the current implementation.
+
+Audit and report:
+
+1. Current Exercise model/schema
+2. Current Workout model/schema
+3. WorkoutSession model/schema
+4. Set/SetLog model/schema
+5. Exercise-related API routes/controllers/services
+6. Workout-related API routes/controllers/services
+7. Existing exercise database/seed data
+8. Existing exercise search/filtering
+9. Existing workout builder
+10. Existing exercise detail screen
+11. Existing workout execution screen
+12. Existing media/image/video architecture
+13. Existing MongoDB indexes related to exercises/workouts
+
+Then compare the current implementation against the following Phase 6A requirements:
+
+EXERCISE:
+
+* name
+* slug
+* description
+* category
+* movement pattern
+* difficulty
+* primary muscles
+* secondary muscles
+* equipment
+* required equipment
+* body parts
+* joints
+* ordered instructions
+* setup instructions
+* breathing instructions
+* coaching cues
+* common mistakes
+* progression methods
+* regression methods
+* alternatives
+* media
+* programming defaults
+* tags
+* aliases
+* status: DRAFT / ACTIVE / ARCHIVED
+* createdAt
+* updatedAt
+
+WORKOUT:
+
+* metadata
+* goal
+* difficulty
+* duration
+* equipment
+* tags
+* ordered exercises
+* sets
+* rep ranges
+* target weight
+* target RPE/RIR
+* rest
+* tempo
+* notes
+* set types
+* supersets/grouping
+
+The architecture must preserve the separation between:
+
+1. Exercise definition
+2. Workout template/programming
+3. Actual workout session
+4. Actual performed sets
+
+Do not modify code yet.
+
+First produce:
+
+* Current architecture
+* What already exists
+* What is missing
+* What should be extended
+* What should remain unchanged
+* Proposed migration plan
+* Proposed API changes
+* Proposed database/index changes
+* Risks or compatibility concerns
+
+Wait for implementation approval after the audit.
+
+Once the audit is done, **we implement the schema/API changes before adding the exercise catalog**. That prevents us from filling the database with data that we'll later have to migrate.
