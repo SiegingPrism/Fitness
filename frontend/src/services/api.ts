@@ -218,9 +218,14 @@ export const logWorkout = async (workoutData: any) => {
   }
 };
 
-export const fetchAnalyticsProgress = async () => {
+export const fetchAnalyticsProgress = async (exercise?: string, timeframe?: string) => {
   try {
-    const res = await fetch(`${API_BASE}/analytics/progress`);
+    let url = `${API_BASE}/analytics/progress`;
+    const params = new URLSearchParams();
+    if (exercise) params.append('exercise', exercise);
+    if (timeframe) params.append('timeframe', timeframe);
+    if (params.toString()) url += `?${params.toString()}`;
+    const res = await fetch(url);
     return await res.json();
   } catch (err) {
     return { success: false, data: null };
