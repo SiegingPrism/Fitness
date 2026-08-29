@@ -31,6 +31,7 @@ export const RootNavigator: React.FC = () => {
   const { user, isAuthenticated, setRole, logout } = useAuthStore();
   const { currentScreen, setCurrentScreen, toasts, dismissToast } = useAppStore();
   const [selectedExerciseId, setSelectedExerciseId] = useState('ex_1');
+  const [activeWorkoutExercise, setActiveWorkoutExercise] = useState<any>(null);
 
   const role = user?.role || 'ATHLETE';
 
@@ -47,7 +48,7 @@ export const RootNavigator: React.FC = () => {
   const isTabbedScreen = ['dashboard', 'active_workout', 'progress', 'workout_library', 'exercise_detail', 'ai_trainer', 'coach_dashboard', 'coach_athlete_detail', 'coach_program_builder', 'messaging', 'profile', 'log_meal', 'water_tracker', 'join_challenge', 'subscription'].includes(currentScreen);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0c1324', color: '#dce1fb', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0b121f', color: '#cbd5e1', position: 'relative' }}>
       
       {/* Toast Alert Banner Overlay */}
       {toasts.length > 0 && (
@@ -58,14 +59,15 @@ export const RootNavigator: React.FC = () => {
               onClick={() => dismissToast(toast.id)}
               style={{
                 backgroundColor: '#151b2d',
-                border: '1px solid #bef264',
-                color: '#bef264',
-                padding: '10px 20px',
-                borderRadius: '24px',
+                border: `1px solid ${toast.type === 'error' ? '#ff5c5c' : '#bef264'}`,
+                color: toast.type === 'error' ? '#ff5c5c' : '#bef264',
+                padding: '10px 18px',
+                borderRadius: '12px',
                 fontSize: '13px',
                 fontWeight: 'bold',
-                boxShadow: '0 8px 24px rgba(190, 242, 100, 0.3)',
-                cursor: 'pointer'
+                boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                cursor: 'pointer',
+                textAlign: 'center'
               }}
             >
               {toast.message}
@@ -93,8 +95,10 @@ export const RootNavigator: React.FC = () => {
       {/* Athlete Screen Stack */}
       {currentScreen === 'dashboard' && (
         <AthleteDashboardView
-          onStartWorkout={() => setCurrentScreen('active_workout')}
-          onNavigateAI={() => setCurrentScreen('ai_trainer')}
+          onStartWorkout={() => {
+            setActiveWorkoutExercise(null);
+            setCurrentScreen('active_workout');
+          }}
           onNavigateLogMeal={() => setCurrentScreen('log_meal')}
           onNavigateJoinChallenge={() => setCurrentScreen('join_challenge')}
           onNavigateWaterTracker={() => setCurrentScreen('water_tracker')}
@@ -115,8 +119,12 @@ export const RootNavigator: React.FC = () => {
 
       {currentScreen === 'active_workout' && (
         <ActiveWorkoutView
+          initialExercise={activeWorkoutExercise}
           onCompleteWorkout={() => setCurrentScreen('workout_summary')}
-          onCancel={() => setCurrentScreen('dashboard')}
+          onCancel={() => {
+            setActiveWorkoutExercise(null);
+            setCurrentScreen('dashboard');
+          }}
         />
       )}
       {currentScreen === 'workout_summary' && (
@@ -129,6 +137,10 @@ export const RootNavigator: React.FC = () => {
             setSelectedExerciseId(id);
             setCurrentScreen('exercise_detail');
           }}
+          onStartExerciseWorkout={(exercise) => {
+            setActiveWorkoutExercise(exercise);
+            setCurrentScreen('active_workout');
+          }}
         />
       )}
       {currentScreen === 'exercise_detail' && (
@@ -136,6 +148,10 @@ export const RootNavigator: React.FC = () => {
           exerciseId={selectedExerciseId}
           onBack={() => setCurrentScreen('workout_library')}
           onSelectAlternative={(altId) => setSelectedExerciseId(altId)}
+          onStartWorkoutWithExercise={(exercise) => {
+            setActiveWorkoutExercise(exercise);
+            setCurrentScreen('active_workout');
+          }}
         />
       )}
       {currentScreen === 'ai_trainer' && <AITrainerView />}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 interface Props {
   onStartWorkout: () => void;
-  onNavigateAI?: () => void;
   onNavigateLogMeal?: () => void;
   onNavigateJoinChallenge?: () => void;
   onNavigateWaterTracker?: () => void;
@@ -10,7 +9,6 @@ interface Props {
 
 export const AthleteDashboardView: React.FC<Props> = ({
   onStartWorkout,
-  onNavigateAI,
   onNavigateLogMeal,
   onNavigateJoinChallenge,
   onNavigateWaterTracker
@@ -18,7 +16,7 @@ export const AthleteDashboardView: React.FC<Props> = ({
   const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   return (
-    <div style={{ padding: '16px', paddingBottom: '95px', maxWidth: '440px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ padding: '16px', paddingBottom: '95px', maxWidth: '440px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '22px', fontFamily: 'Inter, sans-serif' }}>
       
       {/* 1. Top Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -27,147 +25,171 @@ export const AthleteDashboardView: React.FC<Props> = ({
             <img
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
               alt="Alex"
-              style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #bef264' }}
+              style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #22d3ee', boxShadow: '0 0 12px rgba(34, 211, 238, 0.4)' }}
             />
-            <span style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', backgroundColor: '#35d07f', borderRadius: '50%', border: '2px solid #0c1324' }}></span>
+            <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '11px', height: '11px', backgroundColor: '#34d399', borderRadius: '50%', border: '2px solid #0c1324' }}></span>
           </div>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#8d9882', letterSpacing: '0.5px' }}>READY TO TRAIN?</div>
-            <div className="font-headline" style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>Welcome, Alex</div>
+            <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.6px' }}>READY TO TRAIN?</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '1px' }}>
+              <span className="font-headline" style={{ fontSize: '18px', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.3px' }}>Welcome, Alex</span>
+              <span style={{ backgroundColor: '#0284c7', color: '#ffffff', fontSize: '10px', fontWeight: '900', padding: '2px 7px', borderRadius: '6px', letterSpacing: '0.4px' }}>
+                PRO
+              </span>
+            </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>search</span>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#131d2e', border: '1px solid #24324a', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </button>
-          <button onClick={() => setShowNotificationModal(!showNotificationModal)} style={{ position: 'relative', width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
-            <span style={{ position: 'absolute', top: '8px', right: '8px', width: '7px', height: '7px', backgroundColor: '#ff5c5c', borderRadius: '50%' }}></span>
+          <button onClick={() => setShowNotificationModal(!showNotificationModal)} style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#131d2e', border: '1px solid #24324a', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span style={{ position: 'absolute', top: '9px', right: '9px', width: '7px', height: '7px', backgroundColor: '#38bdf8', borderRadius: '50%' }}></span>
           </button>
         </div>
       </div>
 
       {/* Notifications Dropdown Modal */}
       {showNotificationModal && (
-        <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ backgroundColor: '#131d2e', border: '1px solid #24324a', borderRadius: '16px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 'bold', color: '#ffffff' }}>
             <span>NOTIFICATIONS</span>
-            <span style={{ color: '#bef264', cursor: 'pointer' }} onClick={() => setShowNotificationModal(false)}>Close</span>
+            <span style={{ color: '#22d3ee', cursor: 'pointer' }} onClick={() => setShowNotificationModal(false)}>Close</span>
           </div>
-          <div style={{ fontSize: '12px', color: '#c3c9b2' }}>🏋️ Coach Dan Miller assigned your <strong>Push/Pull/Legs</strong> routine.</div>
-          <div style={{ fontSize: '12px', color: '#c3c9b2' }}>🔥 You reached a <strong>15-Day Streak</strong> achievement!</div>
+          <div style={{ fontSize: '12px', color: '#cbd5e1' }}>Coach Dan Miller assigned your <strong>Push/Pull/Legs</strong> routine.</div>
+          <div style={{ fontSize: '12px', color: '#cbd5e1' }}>You reached a <strong>15-Day Streak</strong> achievement!</div>
         </div>
       )}
 
       {/* 2. Daily Pulse Card */}
-      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '22px', padding: '22px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="font-headline" style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>Daily Pulse</span>
-          <span style={{ fontSize: '12px', fontWeight: '700', color: '#8d9882', textTransform: 'uppercase', letterSpacing: '0.5px' }}>85% OF GOAL</span>
+          <span className="font-headline" style={{ fontSize: '17px', fontWeight: '800', color: '#ffffff' }}>Daily Pulse</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px' }}>85% OF GOAL</span>
+            <div style={{ width: '65px', height: '2.5px', backgroundColor: '#06b6d4', borderRadius: '2px' }}></div>
+          </div>
         </div>
 
-        {/* 3 Ring Gauges */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', textAlign: 'center' }}>
+        {/* 3 Ring Gauges with Cyan Glowing Aesthetic */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center' }}>
           {/* Ring 1: Calories -> Log Meal */}
-          <div onClick={onNavigateLogMeal} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <div style={{ position: 'relative', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: 'rotate(-90deg)' }}>
-                <circle cx="40" cy="40" r="32" stroke="#191f31" strokeWidth="8" fill="none" />
-                <circle cx="40" cy="40" r="32" stroke="#bef264" strokeWidth="8" strokeDasharray="201" strokeDashoffset="35" strokeLinecap="round" fill="none" />
+          <div onClick={onNavigateLogMeal} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <div style={{ position: 'relative', width: '84px', height: '84px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="84" height="84" viewBox="0 0 84 84" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="42" cy="42" r="34" stroke="#162236" strokeWidth="8" fill="none" />
+                <circle cx="42" cy="42" r="34" stroke="#06b6d4" strokeWidth="8" strokeDasharray="213" strokeDashoffset="45" strokeLinecap="round" fill="none" style={{ filter: 'drop-shadow(0 0 6px rgba(6, 182, 212, 0.6))' }} />
               </svg>
               <div style={{ position: 'absolute', textAlign: 'center' }}>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>1.2k</div>
-                <div style={{ fontSize: '9px', fontWeight: '700', color: '#8d9882', textTransform: 'uppercase' }}>KCAL</div>
+                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>1,200</div>
+                <div style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>KCAL</div>
               </div>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff' }}>Calories ↗</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#94a3b8' }}>Calories</span>
           </div>
 
           {/* Ring 2: Active -> Start Workout */}
-          <div onClick={onStartWorkout} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <div style={{ position: 'relative', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: 'rotate(-90deg)' }}>
-                <circle cx="40" cy="40" r="32" stroke="#191f31" strokeWidth="8" fill="none" />
-                <circle cx="40" cy="40" r="32" stroke="#3cddc7" strokeWidth="8" strokeDasharray="201" strokeDashoffset="45" strokeLinecap="round" fill="none" />
+          <div onClick={onStartWorkout} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <div style={{ position: 'relative', width: '84px', height: '84px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="84" height="84" viewBox="0 0 84 84" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="42" cy="42" r="34" stroke="#162236" strokeWidth="8" fill="none" />
+                <circle cx="42" cy="42" r="34" stroke="#00f2fe" strokeWidth="8" strokeDasharray="213" strokeDashoffset="55" strokeLinecap="round" fill="none" style={{ filter: 'drop-shadow(0 0 6px rgba(0, 242, 254, 0.6))' }} />
               </svg>
               <div style={{ position: 'absolute', textAlign: 'center' }}>
-                <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>42</div>
-                <div style={{ fontSize: '9px', fontWeight: '700', color: '#8d9882', textTransform: 'uppercase' }}>MINS</div>
+                <div style={{ fontSize: '15px', fontWeight: '800', color: '#ffffff' }}>42</div>
+                <div style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>MINS</div>
               </div>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Active ↗</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#94a3b8' }}>Minutes Active</span>
           </div>
 
-          {/* Ring 3: Water / Heart -> Water Tracker */}
-          <div onClick={onNavigateWaterTracker} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <div style={{ position: 'relative', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: 'rotate(-90deg)' }}>
-                <circle cx="40" cy="40" r="32" stroke="#191f31" strokeWidth="8" fill="none" />
-                <circle cx="40" cy="40" r="32" stroke="#3cddc7" strokeWidth="8" strokeDasharray="201" strokeDashoffset="65" strokeLinecap="round" fill="none" />
+          {/* Ring 3: Hydration -> Water Tracker */}
+          <div onClick={onNavigateWaterTracker} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <div style={{ position: 'relative', width: '84px', height: '84px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="84" height="84" viewBox="0 0 84 84" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="42" cy="42" r="34" stroke="#162236" strokeWidth="8" fill="none" />
+                <circle cx="42" cy="42" r="34" stroke="#22d3ee" strokeWidth="8" strokeDasharray="213" strokeDashoffset="75" strokeLinecap="round" fill="none" style={{ filter: 'drop-shadow(0 0 6px rgba(34, 211, 238, 0.6))' }} />
               </svg>
               <div style={{ position: 'absolute', textAlign: 'center' }}>
                 <div style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>1.75L</div>
-                <div style={{ fontSize: '9px', fontWeight: '700', color: '#8d9882', textTransform: 'uppercase' }}>WATER</div>
+                <div style={{ fontSize: '9px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>WATER</div>
               </div>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff' }}>Hydration ↗</span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#94a3b8' }}>Hydration</span>
           </div>
         </div>
       </div>
 
       {/* 3. Quick Actions */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <h3 className="font-headline" style={{ fontSize: '15px', fontWeight: 'bold', color: '#ffffff' }}>Quick Actions</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <h3 className="font-headline" style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>Quick Actions</h3>
         <div className="no-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
           {/* Action 1: Log Meal */}
           <button
             onClick={onNavigateLogMeal}
-            style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px', minWidth: '130px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', cursor: 'pointer', textAlign: 'left' }}
+            style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '18px', padding: '16px', minWidth: '110px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', textAlign: 'center' }}
           >
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#bef264', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px', fontWeight: 'bold' }}>restaurant</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#0284c7', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"></path>
+                <path d="M15 11v11"></path>
+                <path d="M6 2v20"></path>
+                <path d="M9 2v4a3 3 0 0 1-3 3"></path>
+              </svg>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff' }}>Log Meal</span>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Log Meal</span>
           </button>
 
-          {/* Action 2: Join Challenge */}
+          {/* Action 2: Join Challenge (Highlighted with Cyan Glow) */}
           <button
             onClick={onNavigateJoinChallenge}
-            style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px', minWidth: '140px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', cursor: 'pointer', textAlign: 'left' }}
+            style={{ backgroundColor: '#111b2b', border: '1.5px solid #06b6d4', borderRadius: '18px', padding: '16px', minWidth: '120px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', textAlign: 'center', boxShadow: '0 0 14px rgba(6, 182, 212, 0.2)' }}
           >
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#3cddc7', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px', fontWeight: 'bold' }}>emoji_events</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#06b6d4', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-2.34"></path>
+                <path d="M14 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+              </svg>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff' }}>Join Challenge</span>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Join Challenge</span>
           </button>
 
-          {/* Action 3: Water Tracker */}
+          {/* Action 3: Log Water */}
           <button
             onClick={onNavigateWaterTracker}
-            style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '16px', padding: '16px', minWidth: '130px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', cursor: 'pointer', textAlign: 'left' }}
+            style={{ backgroundColor: '#111b2b', border: '1px solid #1e2d44', borderRadius: '18px', padding: '16px', minWidth: '110px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', textAlign: 'center' }}
           >
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#23293c', color: '#3cddc7', border: '1px solid #2e3447', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>water_drop</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#162236', color: '#22d3ee', border: '1px solid #24324a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+              </svg>
             </div>
-            <div>
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff', display: 'block' }}>Water Tracker</span>
-              <span style={{ fontSize: '10px', color: '#3cddc7', fontWeight: 'bold' }}>1.75L</span>
-            </div>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>Log Water</span>
           </button>
 
-          {/* Action 4: AI Coach */}
+          {/* Action 4: New Workout */}
           <button
-            onClick={onNavigateAI}
-            style={{ backgroundColor: '#151b2d', border: '1px solid #bef264', borderRadius: '16px', padding: '16px', minWidth: '130px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', cursor: 'pointer', textAlign: 'left' }}
+            onClick={onStartWorkout}
+            style={{ backgroundColor: '#111b2b', border: '1px solid #bef264', borderRadius: '18px', padding: '16px', minWidth: '120px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', textAlign: 'center' }}
           >
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#bef264', color: '#0c1324', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '20px', fontWeight: 'bold' }}>smart_toy</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#162236', color: '#bef264', border: '1px solid #bef264', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"></path>
+              </svg>
             </div>
-            <div>
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff', display: 'block' }}>AI Trainer</span>
-              <span style={{ fontSize: '10px', color: '#bef264', fontWeight: 'bold' }}>PRO Online</span>
-            </div>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>New Workout</span>
           </button>
         </div>
       </div>
@@ -175,36 +197,43 @@ export const AthleteDashboardView: React.FC<Props> = ({
       {/* 4. Next Workout Hero Card */}
       <div style={{
         position: 'relative',
-        borderRadius: '20px',
+        borderRadius: '22px',
         overflow: 'hidden',
-        border: '1px solid #2e3447',
-        minHeight: '190px',
-        backgroundImage: 'linear-gradient(to top, rgba(12, 19, 36, 0.95), rgba(12, 19, 36, 0.3)), url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80")',
+        border: '1px solid #1e2d44',
+        minHeight: '200px',
+        backgroundImage: 'linear-gradient(to top, rgba(11, 18, 31, 0.96) 20%, rgba(11, 18, 31, 0.4)), url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        padding: '20px',
+        padding: '22px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{ backgroundColor: '#bef264', color: '#0c1324', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', padding: '4px 10px', borderRadius: '8px', letterSpacing: '0.5px' }}>
+          <span style={{ backgroundColor: '#bef264', color: '#0c1324', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', padding: '4px 10px', borderRadius: '8px', letterSpacing: '0.6px' }}>
             NEXT WORKOUT
           </span>
         </div>
 
         <div>
-          <h2 className="font-headline" style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff' }}>Leg Day Destruction</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px', fontSize: '13px', color: '#dce1fb' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#8d9882' }}>schedule</span> 45 mins
+          <h2 className="font-headline" style={{ fontSize: '22px', fontWeight: '800', color: '#ffffff', margin: '8px 0 4px' }}>Leg Day Destruction</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px', fontSize: '13px', color: '#cbd5e1' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              45 mins
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#8d9882' }}>local_fire_department</span> 520 kcal
+            <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+              </svg>
+              520 kcal
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px' }}>
             <span style={{ fontSize: '13px', fontWeight: '700', color: '#bef264' }}>Starts in 15 mins</span>
             <button
               onClick={onStartWorkout}
@@ -213,7 +242,7 @@ export const AthleteDashboardView: React.FC<Props> = ({
                 backgroundColor: '#bef264',
                 color: '#0c1324',
                 border: 'none',
-                padding: '10px 22px',
+                padding: '10px 24px',
                 borderRadius: '24px',
                 fontSize: '13px',
                 fontWeight: '900',
@@ -225,46 +254,11 @@ export const AthleteDashboardView: React.FC<Props> = ({
               }}
             >
               <span>START</span>
-              <span className="material-symbols-outlined" style={{ fontSize: '18px', fontWeight: 'bold' }}>play_arrow</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* 5. Weekly Activity Chart Card */}
-      <div style={{ backgroundColor: '#151b2d', border: '1px solid #2e3447', borderRadius: '20px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h3 className="font-headline" style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>Weekly Activity</h3>
-            <div style={{ fontSize: '12px', color: '#8d9882', marginTop: '2px' }}>Consistency is key</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div className="font-headline" style={{ fontSize: '18px', fontWeight: 'bold', color: '#3cddc7' }}>5/7</div>
-            <div style={{ fontSize: '10px', color: '#8d9882', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.5px' }}>DAYS ACTIVE</div>
-          </div>
-        </div>
-
-        {/* Vertical Bar Chart Grid */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '95px', paddingTop: '10px' }}>
-          {[
-            { day: 'M', height: '30%', active: false },
-            { day: 'T', height: '90%', active: true, color: '#3cddc7' },
-            { day: 'W', height: '25%', active: false },
-            { day: 'T', height: '85%', active: true, color: '#bef264' },
-            { day: 'F', height: '75%', active: true, color: '#bef264' },
-            { day: 'S', height: '60%', active: true, color: '#bef264' },
-            { day: 'S', height: '35%', active: false }
-          ].map((bar, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flex: 1 }}>
-              <div style={{
-                width: '18px',
-                height: bar.height,
-                backgroundColor: bar.active ? bar.color : '#23293c',
-                borderRadius: '6px'
-              }}></div>
-              <span style={{ fontSize: '12px', fontWeight: '600', color: '#8d9882' }}>{bar.day}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>

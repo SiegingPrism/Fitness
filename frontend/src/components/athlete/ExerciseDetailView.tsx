@@ -6,13 +6,15 @@ interface Props {
   onBack: () => void;
   onSelectAlternative?: (altSlug: string) => void;
   onAddToWorkout?: (exercise: any) => void;
+  onStartWorkoutWithExercise?: (exercise: any) => void;
 }
 
 export const ExerciseDetailView: React.FC<Props> = ({
   exerciseId,
   onBack,
   onSelectAlternative,
-  onAddToWorkout
+  onAddToWorkout,
+  onStartWorkoutWithExercise
 }) => {
   const [exercise, setExercise] = useState<any>(null);
   const [alternatives, setAlternatives] = useState<any[]>([]);
@@ -52,7 +54,7 @@ export const ExerciseDetailView: React.FC<Props> = ({
   };
 
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', paddingBottom: '90px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ maxWidth: '480px', margin: '0 auto', paddingBottom: '160px', fontFamily: 'Inter, sans-serif' }}>
       {/* Top Bar with Back Button */}
       <div style={{ padding: '16px 20px 8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
@@ -134,8 +136,8 @@ export const ExerciseDetailView: React.FC<Props> = ({
         }}>
           {[
             { id: 'overview', label: 'Overview' },
-            { id: 'history', label: '📈 History' },
-            { id: 'alternatives', label: '🔁 Alternatives' }
+            { id: 'history', label: 'History' },
+            { id: 'alternatives', label: 'Alternatives' }
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -441,41 +443,76 @@ export const ExerciseDetailView: React.FC<Props> = ({
         </div>
       )}
 
-      {/* Floating Bottom Add to Workout Action */}
-      {onAddToWorkout && (
-        <div style={{
-          position: 'fixed',
-          bottom: '16px',
-          left: '20px',
-          right: '20px',
-          maxWidth: '440px',
-          margin: '0 auto',
-          zIndex: 100
-        }}>
+      {/* Floating Bottom Action Bar: Train Now / Start This Exercise */}
+      <div style={{
+        position: 'fixed',
+        bottom: '76px',
+        left: '16px',
+        right: '16px',
+        maxWidth: '440px',
+        margin: '0 auto',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <button
+          type="button"
+          onClick={() => {
+            if (onStartWorkoutWithExercise) {
+              onStartWorkoutWithExercise(exercise);
+            } else if (onAddToWorkout) {
+              onAddToWorkout(exercise);
+            }
+          }}
+          style={{
+            width: '100%',
+            backgroundColor: '#bef264',
+            color: '#0c1324',
+            border: 'none',
+            borderRadius: '16px',
+            padding: '14px 20px',
+            fontSize: '14px',
+            fontWeight: '900',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(190, 242, 100, 0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            letterSpacing: '0.4px'
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>START THIS EXERCISE (TRAIN NOW)</span>
+        </button>
+
+        {onAddToWorkout && (
           <button
             type="button"
             onClick={() => onAddToWorkout(exercise)}
             style={{
               width: '100%',
-              backgroundColor: '#bef264',
-              color: '#0d150b',
-              border: 'none',
-              borderRadius: '14px',
-              padding: '14px',
-              fontSize: '14px',
-              fontWeight: '800',
+              backgroundColor: '#162236',
+              color: '#38bdf8',
+              border: '1px solid #24324a',
+              borderRadius: '12px',
+              padding: '10px',
+              fontSize: '12px',
+              fontWeight: '700',
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(190, 242, 100, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '6px'
             }}
           >
-            <span>+ ADD TO WORKOUT</span>
+            <span>+ Add to Routine</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

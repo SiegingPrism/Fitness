@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   fetchExercises,
-  toggleFavoriteExerciseApi,
   type ExerciseFilter
 } from '../../services/api';
 
 interface Props {
   onSelectExercise: (exerciseId: string) => void;
+  onStartExerciseWorkout?: (exercise: any) => void;
   mode?: 'BROWSE' | 'PICKER' | 'REPLACE';
   replacingExerciseName?: string;
   onAddExerciseToWorkout?: (exercise: any, config: { sets: number; reps: number; rest: number; rpe: number }) => void;
@@ -33,6 +33,7 @@ const CLASSIFICATION_TABS = [
 
 export const WorkoutLibraryView: React.FC<Props> = ({
   onSelectExercise,
+  onStartExerciseWorkout,
   mode = 'BROWSE',
   replacingExerciseName,
   onAddExerciseToWorkout,
@@ -57,9 +58,6 @@ export const WorkoutLibraryView: React.FC<Props> = ({
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
   const [selectedMovements, setSelectedMovements] = useState<string[]>([]);
-
-  // Favorites Set (for instant heart toggling)
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set(['ex_1', 'ex_11', 'ex_21']));
 
   // Quick Add Modal state (for Workout Builder Mode)
   const [configExercise, setConfigExercise] = useState<any | null>(null);
@@ -115,18 +113,6 @@ export const WorkoutLibraryView: React.FC<Props> = ({
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  const handleToggleFavorite = async (e: React.MouseEvent, exerciseId: string) => {
-    e.stopPropagation();
-    const nextFavorites = new Set(favoriteIds);
-    if (nextFavorites.has(exerciseId)) {
-      nextFavorites.delete(exerciseId);
-    } else {
-      nextFavorites.add(exerciseId);
-    }
-    setFavoriteIds(nextFavorites);
-    await toggleFavoriteExerciseApi(exerciseId);
-  };
 
   const handleOpenConfig = (e: React.MouseEvent, exercise: any) => {
     e.stopPropagation();
@@ -469,7 +455,6 @@ export const WorkoutLibraryView: React.FC<Props> = ({
       {!loading && !error && exercises.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {exercises.map((exercise) => {
-            const isFav = favoriteIds.has(exercise._id) || favoriteIds.has(exercise.slug);
             const thumb = (exercise.media?.thumbnail && exercise.media.thumbnail.startsWith('http'))
               ? exercise.media.thumbnail
               : 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80';
@@ -564,21 +549,38 @@ export const WorkoutLibraryView: React.FC<Props> = ({
                   </div>
                 </div>
 
-                {/* Card Actions: Favorite Heart & Context Button */}
+                {/* Card Action: Start / Do Exercise Button */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
                   <button
                     type="button"
-                    onClick={(e) => handleToggleFavorite(e, exercise._id || exercise.slug)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      padding: '4px'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onStartExerciseWorkout) {
+                        onStartExerciseWorkout(exercise);
+                      } else {
+                        onSelectExercise(exercise.slug || exercise._id);
+                      }
                     }}
-                    aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                    style={{
+                      backgroundColor: '#bef264',
+                      color: '#0c1324',
+                      border: 'none',
+                      borderRadius: '20px',
+                      padding: '7px 14px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      boxShadow: '0 2px 10px rgba(190, 242, 100, 0.3)',
+                      transition: 'all 0.15s ease'
+                    }}
                   >
-                    {isFav ? '❤️' : '🤍'}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>Do It</span>
                   </button>
 
                   {mode === 'PICKER' && (
@@ -586,8 +588,8 @@ export const WorkoutLibraryView: React.FC<Props> = ({
                       type="button"
                       onClick={(e) => handleOpenConfig(e, exercise)}
                       style={{
-                        backgroundColor: '#bef264',
-                        color: '#0d150b',
+                        backgroundColor: '#0284c7',
+                        color: '#ffffff',
                         border: 'none',
                         borderRadius: '8px',
                         padding: '6px 12px',

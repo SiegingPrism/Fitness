@@ -4,28 +4,33 @@ import { logWorkout } from '../../services/api.js';
 interface Props {
   onCompleteWorkout: () => void;
   onCancel: () => void;
+  initialExercise?: any;
 }
 
-export const ActiveWorkoutView: React.FC<Props> = ({ onCompleteWorkout, onCancel }) => {
-  const [sessionSeconds, setSessionSeconds] = useState(2535); // 00:42:15
-  const [restSeconds, setRestSeconds] = useState(72); // 01:12
-  const [isResting, setIsResting] = useState(true);
-  const [exerciseName, setExerciseName] = useState('Incline Bench Press');
+export const ActiveWorkoutView: React.FC<Props> = ({ onCompleteWorkout, onCancel, initialExercise }) => {
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [restSeconds, setRestSeconds] = useState(initialExercise?.programming?.recommendedRestSeconds || 90);
+  const [isResting, setIsResting] = useState(false);
+  const [exerciseName, setExerciseName] = useState(
+    initialExercise?.name || (typeof initialExercise === 'string' ? initialExercise : 'Barbell Bench Press')
+  );
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [sets, setSets] = useState([
-    { id: 1, type: 'Warm-up', weight: 135, reps: 10, rir: 3, rpe: 7, completed: true },
-    { id: 2, type: 'Working Set', weight: 185, reps: 8, rir: 2, rpe: 8, completed: true },
-    { id: 3, type: 'Working Set', weight: 195, reps: 6, rir: 1, rpe: 9, completed: false },
-    { id: 4, type: 'Dropset', weight: 155, reps: 10, rir: 0, rpe: 10, completed: false }
+    { id: 1, type: 'Warm-up', weight: 45, reps: 12, rir: 3, rpe: 6, completed: false },
+    { id: 2, type: 'Working Set', weight: 135, reps: 10, rir: 2, rpe: 8, completed: false },
+    { id: 3, type: 'Working Set', weight: 145, reps: 8, rir: 1, rpe: 8.5, completed: false },
+    { id: 4, type: 'Working Set', weight: 155, reps: 6, rir: 0, rpe: 9, completed: false }
   ]);
 
-  const alternatives = [
-    { name: 'Dumbbell Incline Press', equipment: 'Dumbbells', similarity: '95%' },
-    { name: 'Smith Machine Incline Press', equipment: 'Smith Machine', similarity: '90%' },
-    { name: 'Plate-Loaded Chest Press', equipment: 'Machine', similarity: '85%' }
-  ];
+  const alternatives = initialExercise?.alternatives && initialExercise.alternatives.length > 0
+    ? initialExercise.alternatives
+    : [
+        { name: 'Dumbbell Incline Press', equipment: 'Dumbbells', similarity: '95%' },
+        { name: 'Smith Machine Incline Press', equipment: 'Smith Machine', similarity: '90%' },
+        { name: 'Plate-Loaded Chest Press', equipment: 'Machine', similarity: '85%' }
+      ];
 
   // Stopwatch timer
   useEffect(() => {
@@ -40,7 +45,7 @@ export const ActiveWorkoutView: React.FC<Props> = ({ onCompleteWorkout, onCancel
     let restTimer: any;
     if (isResting && restSeconds > 0) {
       restTimer = setInterval(() => {
-        setRestSeconds((prev) => {
+        setRestSeconds((prev: number) => {
           if (prev <= 1) {
             setIsResting(false);
             return 0;
@@ -134,7 +139,7 @@ export const ActiveWorkoutView: React.FC<Props> = ({ onCompleteWorkout, onCancel
           </div>
           <p style={{ fontSize: '12px', color: '#8d9882' }}>Choose a compatible movement pattern replacement:</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {alternatives.map((alt, idx) => (
+            {alternatives.map((alt: any, idx: number) => (
               <div
                 key={idx}
                 onClick={() => {
@@ -221,7 +226,7 @@ export const ActiveWorkoutView: React.FC<Props> = ({ onCompleteWorkout, onCancel
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => setRestSeconds((prev) => prev + 15)} style={{ backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', padding: '6px 14px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={() => setRestSeconds((prev: number) => prev + 15)} style={{ backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#ffffff', padding: '6px 14px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
             +15s
           </button>
           <button onClick={() => { setRestSeconds(0); setIsResting(false); }} style={{ backgroundColor: '#191f31', border: '1px solid #2e3447', color: '#8d9882', padding: '6px 14px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
