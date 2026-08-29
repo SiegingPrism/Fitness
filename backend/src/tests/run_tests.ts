@@ -179,6 +179,59 @@ async function runTests() {
     assert.strictEqual(json.success, true);
   });
 
+  // Test 11: Phase 6A.4 Full Catalog Scale
+  await test('Verifies full 317 exercise catalog with stable ex_1 to ex_30 IDs', async () => {
+    const res = await fetch(`${baseUrl}/exercises?limit=400`);
+    const json: any = await res.json();
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(json.success, true);
+    assert.ok(json.data.exercises.length >= 300, `Expected >= 300 exercises, got ${json.data.exercises.length}`);
+    
+    // Verify stable IDs ex_1 to ex_30
+    const ids = new Set(json.data.exercises.map((e: any) => e._id));
+    for (let i = 1; i <= 30; i++) {
+      assert.ok(ids.has(`ex_${i}`), `Missing stable ID ex_${i}`);
+    }
+  });
+
+  // Test 12: Batch Import Runner & Duplicate Validation
+  await test('Executes batch import pipeline with duplicate detection and taxonomy validation', async () => {
+    const { importExerciseCatalogInBatches } = await import('../utils/exerciseBatchImporter.js');
+    const result = await importExerciseCatalogInBatches();
+    assert.strictEqual(result.invalidRecords.length, 0, `Found invalid records: ${JSON.stringify(result.invalidRecords)}`);
+    assert.strictEqual(result.duplicatesSkipped, 0, `Found unexpected duplicates: ${result.duplicatesSkipped}`);
+    assert.ok(result.batchesProcessed >= 5, `Expected >= 5 batches, got ${result.batchesProcessed}`);
+    assert.ok(result.totalAttempted >= 300, `Expected >= 300 attempted, got ${result.totalAttempted}`);
+  });
+
+  // Test 13: Multi-Category & Taxonomy Coverage
+  await test('Verifies coverage across all 13 targeted muscle and movement categories', async () => {
+    const res = await fetch(`${baseUrl}/exercises?limit=400`);
+    const json: any = await res.json();
+    const exercises = json.data.exercises;
+
+    const musclesFound = new Set<string>();
+    const patternsFound = new Set<string>();
+
+    for (const ex of exercises) {
+      for (const m of ex.primaryMuscles || []) musclesFound.add(m);
+      if (ex.movementPattern) patternsFound.add(ex.movementPattern);
+    }
+
+    assert.ok(musclesFound.has('CHEST'), 'Missing CHEST');
+    assert.ok(musclesFound.has('LATS'), 'Missing LATS');
+    assert.ok(musclesFound.has('QUADS'), 'Missing QUADS');
+    assert.ok(musclesFound.has('HAMSTRINGS'), 'Missing HAMSTRINGS');
+    assert.ok(musclesFound.has('GLUTES'), 'Missing GLUTES');
+    assert.ok(musclesFound.has('CALVES'), 'Missing CALVES');
+    assert.ok(musclesFound.has('FOREARMS'), 'Missing FOREARMS');
+    assert.ok(patternsFound.has('HORIZONTAL_PUSH'), 'Missing HORIZONTAL_PUSH');
+    assert.ok(patternsFound.has('VERTICAL_PULL'), 'Missing VERTICAL_PULL');
+    assert.ok(patternsFound.has('SQUAT'), 'Missing SQUAT');
+    assert.ok(patternsFound.has('HINGE'), 'Missing HINGE');
+    assert.ok(patternsFound.has('CARRY'), 'Missing CARRY');
+  });
+
   server.close();
   console.log(`\n📊 Test Summary: ${testsPassed}/${testsTotal} passed (${Math.round((testsPassed / testsTotal) * 100)}%)`);
 

@@ -4368,3 +4368,1356 @@ Mobility
 with alternatives, aliases, equipment mappings, movement patterns, instructions, cues, and media metadata.
 
 **After the catalog is stable, we move into Phase 6B — Workout Experience 2.0**, where the actual workout execution becomes significantly more powerful.
+
+# Phase 6A.4 — Full Exercise Catalog Expansion
+
+6A.3 is done, so now we can safely scale the exercise library.
+
+The objective is **not just "add 300 exercises."** We want a structured catalog that can power:
+
+* workout creation
+* exercise search
+* substitutions
+* workout generation
+* progression
+* analytics
+* coach programming
+* AI recommendations
+
+---
+
+## 1. Target Catalog
+
+Aim for roughly **300–350 exercises** initially.
+
+```text
+CHEST             30
+BACK              40
+SHOULDERS         25
+BICEPS            20
+TRICEPS           20
+QUADS             25
+HAMSTRINGS        20
+GLUTES            20
+CALVES            12
+CORE              25
+FULL BODY         20
+CONDITIONING      20
+MOBILITY          20
+────────────────────
+TOTAL            ~300+
+```
+
+These are targets, not rigid numbers. Quality matters more than hitting an exact count.
+
+---
+
+# 2. Don't Create Duplicate Variations
+
+Avoid filling the database with meaningless variations.
+
+For example:
+
+```text
+Dumbbell Curl
+Dumbbell Curl Standing
+Dumbbell Curl Seated
+Dumbbell Curl Alternating
+Dumbbell Curl Right Arm
+Dumbbell Curl Left Arm
+```
+
+Those aren't necessarily six fundamentally different exercises.
+
+Instead, distinguish exercises when the variation materially changes:
+
+* movement
+* equipment
+* setup
+* programming use
+* muscle emphasis
+* difficulty
+
+---
+
+# 3. Catalog Taxonomy
+
+Every exercise should fit into:
+
+```text
+Body Area
+      +
+Movement Pattern
+      +
+Equipment
+      +
+Difficulty
+      +
+Training Category
+```
+
+Example:
+
+```text
+Barbell Romanian Deadlift
+
+Body:
+Hamstrings / Glutes
+
+Pattern:
+HINGE
+
+Equipment:
+Barbell
+
+Difficulty:
+Intermediate
+
+Category:
+Strength / Hypertrophy
+```
+
+---
+
+# 4. Chest Catalog
+
+Build coverage across:
+
+### Barbell
+
+```text
+Barbell Bench Press
+Incline Barbell Bench Press
+Decline Barbell Bench Press
+Close-Grip Bench Press
+Paused Bench Press
+Spoto Press
+```
+
+### Dumbbell
+
+```text
+Dumbbell Bench Press
+Incline Dumbbell Press
+Decline Dumbbell Press
+Dumbbell Floor Press
+Neutral-Grip Dumbbell Press
+Single-Arm Dumbbell Press
+```
+
+### Cable/Machine
+
+```text
+Cable Chest Press
+Cable Fly
+Low-to-High Cable Fly
+High-to-Low Cable Fly
+Machine Chest Press
+Pec Deck
+```
+
+### Bodyweight
+
+```text
+Push-Up
+Incline Push-Up
+Decline Push-Up
+Diamond Push-Up
+Wide Push-Up
+Weighted Push-Up
+Dip
+```
+
+---
+
+# 5. Back Catalog
+
+Cover both vertical and horizontal pulling.
+
+### Vertical
+
+```text
+Pull-Up
+Chin-Up
+Neutral-Grip Pull-Up
+Assisted Pull-Up
+Lat Pulldown
+Close-Grip Lat Pulldown
+Wide-Grip Lat Pulldown
+Single-Arm Lat Pulldown
+```
+
+### Horizontal
+
+```text
+Barbell Row
+Pendlay Row
+Dumbbell Row
+Chest-Supported Row
+Seated Cable Row
+Single-Arm Cable Row
+Machine Row
+T-Bar Row
+```
+
+### Posterior chain
+
+```text
+Deadlift
+Romanian Deadlift
+Rack Pull
+Back Extension
+Good Morning
+```
+
+---
+
+# 6. Shoulder Catalog
+
+```text
+Overhead Press
+Seated Barbell Press
+Dumbbell Shoulder Press
+Arnold Press
+Single-Arm Dumbbell Press
+
+Lateral Raise
+Cable Lateral Raise
+Lean-Away Lateral Raise
+Machine Lateral Raise
+
+Front Raise
+Cable Front Raise
+
+Rear Delt Fly
+Reverse Pec Deck
+Cable Rear Delt Fly
+
+Face Pull
+```
+
+Don't classify every shoulder exercise as simply "Shoulders."
+
+Maintain:
+
+```text
+FRONT_DELTS
+SIDE_DELTS
+REAR_DELTS
+```
+
+---
+
+# 7. Biceps
+
+```text
+Barbell Curl
+EZ-Bar Curl
+Dumbbell Curl
+Alternating Dumbbell Curl
+Hammer Curl
+Cross-Body Hammer Curl
+Incline Dumbbell Curl
+Preacher Curl
+Spider Curl
+Concentration Curl
+Cable Curl
+Bayesian Curl
+Machine Curl
+Reverse Curl
+Zottman Curl
+```
+
+---
+
+# 8. Triceps
+
+```text
+Cable Pushdown
+Rope Pushdown
+Straight-Bar Pushdown
+Single-Arm Pushdown
+Overhead Cable Extension
+Dumbbell Overhead Extension
+EZ-Bar Skull Crusher
+Dumbbell Skull Crusher
+Close-Grip Bench Press
+Bench Dip
+Parallel-Bar Dip
+Cable Kickback
+Dumbbell Kickback
+```
+
+---
+
+# 9. Quads
+
+```text
+Back Squat
+Front Squat
+Goblet Squat
+Hack Squat
+Leg Press
+Safety-Bar Squat
+Smith Machine Squat
+Box Squat
+
+Bulgarian Split Squat
+Walking Lunge
+Reverse Lunge
+Forward Lunge
+Step-Up
+
+Leg Extension
+Sissy Squat
+```
+
+---
+
+# 10. Hamstrings
+
+```text
+Romanian Deadlift
+Stiff-Leg Deadlift
+Good Morning
+Nordic Curl
+Glute-Ham Raise
+
+Lying Leg Curl
+Seated Leg Curl
+Standing Leg Curl
+Single-Leg Curl
+
+Slider Leg Curl
+Stability-Ball Leg Curl
+```
+
+---
+
+# 11. Glutes
+
+```text
+Barbell Hip Thrust
+Dumbbell Hip Thrust
+Glute Bridge
+Single-Leg Glute Bridge
+Cable Pull-Through
+
+Bulgarian Split Squat
+Reverse Lunge
+Walking Lunge
+Step-Up
+
+Cable Kickback
+Hip Abduction
+Machine Hip Abduction
+```
+
+---
+
+# 12. Calves
+
+```text
+Standing Calf Raise
+Seated Calf Raise
+Leg Press Calf Raise
+Single-Leg Calf Raise
+Donkey Calf Raise
+Smith Machine Calf Raise
+```
+
+Include both:
+
+```text
+GASTROCNEMIUS
+SOLEUS
+```
+
+where applicable.
+
+---
+
+# 13. Core
+
+Don't limit this to crunches.
+
+### Anti-extension
+
+```text
+Plank
+Ab Wheel
+Dead Bug
+Body Saw
+```
+
+### Flexion
+
+```text
+Cable Crunch
+Machine Crunch
+Reverse Crunch
+Sit-Up
+```
+
+### Anti-rotation
+
+```text
+Pallof Press
+Single-Arm Carry
+```
+
+### Lateral
+
+```text
+Side Plank
+Suitcase Carry
+```
+
+### Hip flexion
+
+```text
+Hanging Knee Raise
+Hanging Leg Raise
+Captain's Chair Knee Raise
+```
+
+---
+
+# 14. Full Body
+
+```text
+Turkish Get-Up
+Kettlebell Swing
+Clean
+Power Clean
+Clean & Press
+Snatch
+Thruster
+Man Maker
+Farmer Carry
+Suitcase Carry
+Sled Push
+Sled Pull
+```
+
+These need particularly careful movement-pattern classification.
+
+---
+
+# 15. Conditioning
+
+Separate conditioning from strength exercises.
+
+Examples:
+
+```text
+Running
+Treadmill Run
+Incline Walk
+Cycling
+Stationary Bike
+Rowing
+Stair Climber
+Jump Rope
+Burpees
+Mountain Climbers
+Jumping Jacks
+Battle Ropes
+Sled Push
+Sled Drag
+```
+
+For conditioning, the programming model may eventually need:
+
+```text
+duration
+distance
+pace
+interval
+work
+recovery
+```
+
+rather than simply:
+
+```text
+sets × reps
+```
+
+This is an important schema consideration for later.
+
+---
+
+# 16. Mobility
+
+Create a useful mobility library rather than mixing mobility with normal resistance exercises.
+
+Examples:
+
+```text
+Cat-Cow
+Child's Pose
+World's Greatest Stretch
+90/90 Hip Rotation
+Hip Flexor Stretch
+Couch Stretch
+Hamstring Stretch
+Calf Stretch
+Thoracic Rotation
+Open Book
+Wall Slides
+Shoulder Dislocates
+Ankle Dorsiflexion Drill
+```
+
+---
+
+# 17. Difficulty
+
+Don't assign difficulty randomly.
+
+A reasonable starting framework:
+
+### Beginner
+
+```text
+Simple setup
+Stable position
+Low coordination requirement
+Easy to learn
+```
+
+### Intermediate
+
+```text
+More technical
+Higher stability demands
+More coordination
+```
+
+### Advanced
+
+```text
+High technical demand
+High coordination
+Greater skill requirement
+```
+
+Difficulty should describe **execution complexity**, not how much muscle an exercise builds.
+
+---
+
+# 18. Primary vs Secondary Muscles
+
+This distinction needs to be consistent.
+
+Example:
+
+```text
+Bench Press
+
+Primary:
+CHEST
+
+Secondary:
+TRICEPS
+FRONT_DELTS
+```
+
+Don't list 8–10 muscles as primary.
+
+That makes muscle-volume analytics meaningless.
+
+---
+
+# 19. Movement Pattern Accuracy
+
+This is critical for future substitution.
+
+Example:
+
+```text
+Squat
+→ SQUAT
+
+RDL
+→ HINGE
+
+Bench Press
+→ HORIZONTAL_PUSH
+
+Lat Pulldown
+→ VERTICAL_PULL
+
+Barbell Row
+→ HORIZONTAL_PULL
+```
+
+These relationships will later drive automatic workout substitution.
+
+---
+
+# 20. Equipment Requirements
+
+Distinguish:
+
+```text
+equipment
+```
+
+from:
+
+```text
+requiredEquipment
+```
+
+For example:
+
+```text
+Dumbbell Bench Press
+
+equipment:
+DUMBBELL
+BENCH
+
+requiredEquipment:
+DUMBBELL
+BENCH
+```
+
+This matters when determining whether an exercise is actually available.
+
+---
+
+# 21. Aliases
+
+Every exercise that commonly has abbreviations should include them.
+
+Examples:
+
+```text
+Romanian Deadlift
+→ RDL
+
+Overhead Press
+→ OHP
+
+Bulgarian Split Squat
+→ Bulgarian Split Squat
+→ Bulgarian Split
+```
+
+Search should handle these automatically.
+
+---
+
+# 22. Tags
+
+Use tags sparingly.
+
+Useful examples:
+
+```text
+compound
+isolation
+unilateral
+bilateral
+machine
+free-weight
+bodyweight
+upper-body
+lower-body
+posterior-chain
+beginner-friendly
+```
+
+Don't turn tags into another uncontrolled taxonomy.
+
+---
+
+# 23. Programming Defaults
+
+Populate reasonable **starting defaults**, not universal prescriptions.
+
+For example:
+
+```text
+Bench Press
+
+recommendedSets:
+3–5
+
+recommendedRepRange:
+5–10
+
+recommendedRestSeconds:
+120–180
+```
+
+These are suggestions.
+
+The workout/program system remains responsible for actual prescription.
+
+---
+
+# 24. Media
+
+Don't block the entire catalog because every video isn't ready.
+
+Use:
+
+```text
+DRAFT
+```
+
+until required media is available if media is mandatory for production exercises.
+
+Then:
+
+```text
+ACTIVE
+```
+
+only after review.
+
+---
+
+# 25. Catalog Quality Pipeline
+
+Every exercise should pass:
+
+```text
+Raw Data
+   ↓
+Schema Validation
+   ↓
+Taxonomy Validation
+   ↓
+Duplicate Detection
+   ↓
+Content Review
+   ↓
+Media Review
+   ↓
+ACTIVE
+```
+
+---
+
+# 26. Duplicate Detection
+
+Before importing:
+
+```text
+Barbell Bench Press
+barbell bench press
+Bench Press - Barbell
+BB Bench Press
+```
+
+should be flagged as potential duplicates.
+
+Don't blindly create all of them.
+
+Aliases should usually handle naming variations.
+
+---
+
+# 27. Bulk Import Format
+
+Your seed/import JSON should look like:
+
+```json
+{
+  "name": "Romanian Deadlift",
+  "slug": "romanian-deadlift",
+  "description": "...",
+
+  "category": [
+    "STRENGTH",
+    "HYPERTROPHY"
+  ],
+
+  "movementPattern": [
+    "HINGE"
+  ],
+
+  "difficulty": "INTERMEDIATE",
+
+  "primaryMuscles": [
+    "HAMSTRINGS"
+  ],
+
+  "secondaryMuscles": [
+    "GLUTES",
+    "LOWER_BACK"
+  ],
+
+  "equipment": [
+    "BARBELL"
+  ],
+
+  "requiredEquipment": [
+    "BARBELL"
+  ],
+
+  "aliases": [
+    "RDL"
+  ],
+
+  "tags": [
+    "compound",
+    "posterior-chain"
+  ],
+
+  "status": "ACTIVE"
+}
+```
+
+---
+
+# 28. Don't Put Fake Media URLs
+
+If you don't have approved media:
+
+```text
+media:
+null
+```
+
+or keep the exercise in:
+
+```text
+DRAFT
+```
+
+Do not populate the database with invented URLs.
+
+---
+
+# 29. Exercise IDs Must Stay Stable
+
+Once exercises are being used by:
+
+```text
+Workout
+Program
+Workout Session
+Progress
+Analytics
+AI
+```
+
+their IDs become references throughout the system.
+
+Therefore:
+
+**Never regenerate IDs when updating the catalog.**
+
+---
+
+# 30. Versioning
+
+If the definition changes:
+
+```text
+Bench Press
+```
+
+you generally don't need to create:
+
+```text
+Bench Press V2
+```
+
+unless the movement itself is genuinely different.
+
+Metadata can be updated while historical sessions retain their original exercise reference.
+
+---
+
+# 31. Admin Review
+
+Create a workflow:
+
+```text
+DRAFT
+ ↓
+Review
+ ↓
+ACTIVE
+```
+
+And:
+
+```text
+ACTIVE
+ ↓
+Issue found
+ ↓
+ARCHIVED
+```
+
+This lets us expand the library safely.
+
+---
+
+# 32. Import in Batches
+
+Don't import 300 at once.
+
+Use:
+
+```text
+Batch 1
+30
+
+Batch 2
+50
+
+Batch 3
+50
+
+Batch 4
+50
+
+Batch 5
+50
+
+Batch 6
+70
+```
+
+After every batch:
+
+```text
+Validate
+ ↓
+Test search
+ ↓
+Check filters
+ ↓
+Check duplicates
+```
+
+---
+
+# 33. The First Production Catalog
+
+The target should ultimately be:
+
+```text id="k4g0r7"
+~300 exercises
+│
+├── ~200 resistance exercises
+├── ~40 conditioning
+├── ~30 mobility
+└── ~30 functional/full-body
+```
+
+Again, these are approximate targets.
+
+---
+
+# 34. What Happens After Import
+
+Once the catalog is populated:
+
+```text id="1xq3wt"
+Exercise Catalog
+       ↓
+Search
+       ↓
+Filter
+       ↓
+Alternative Engine
+       ↓
+Workout Builder
+       ↓
+Workout Execution
+       ↓
+Progress
+       ↓
+AI
+```
+
+At that point, the exercise system becomes a proper platform capability rather than just a list of exercises.
+
+---
+
+# 35. Implementation Prompt
+
+Use this with your coding agent:
+
+Implement Phase 6A.4: Full Exercise Catalog Expansion.
+
+The Phase 6A.2 and Phase 6A.3 implementations are complete.
+
+IMPORTANT:
+Do not rewrite the existing exercise system.
+Do not create another Exercise collection/model.
+Do not modify unrelated workout, program, progress, authentication, billing, or AI functionality.
+
+GOAL:
+
+Expand the existing exercise catalog from the current seed/test dataset to approximately 300–350 high-quality, structured exercises.
+
+1. CATALOG STRUCTURE
+
+Cover approximately:
+
+* Chest: ~30
+* Back: ~40
+* Shoulders: ~25
+* Biceps: ~20
+* Triceps: ~20
+* Quads: ~25
+* Hamstrings: ~20
+* Glutes: ~20
+* Calves: ~12
+* Core: ~25
+* Full Body: ~20
+* Conditioning: ~20
+* Mobility: ~20
+
+These are approximate targets. Prioritize coverage and quality over exact counts.
+
+2. AVOID DUPLICATES
+
+Do not create meaningless duplicates based only on naming variations.
+
+Examples such as:
+
+* Dumbbell Curl
+* Dumbbell Curl Standing
+* Dumbbell Curl Alternating
+
+must be evaluated for whether they are genuinely distinct exercises.
+
+Use aliases for naming variations where appropriate.
+
+3. EVERY EXERCISE SHOULD SUPPORT THE EXISTING SCHEMA
+
+Populate where appropriate:
+
+* name
+* slug
+* description
+* category[]
+* movementPattern[]
+* difficulty
+* primaryMuscles[]
+* secondaryMuscles[]
+* equipment[]
+* requiredEquipment[]
+* instructions[]
+* setupInstructions[]
+* breathingInstructions[]
+* coachingCues[]
+* commonMistakes[]
+* progressionMethods[]
+* regressionMethods[]
+* alternatives
+* aliases[]
+* tags[]
+* media
+* programming
+* status
+
+4. TAXONOMY
+
+Use only the existing standardized taxonomy.
+
+Do not introduce arbitrary new muscle, equipment, movement, difficulty, category, or status strings.
+
+5. MOVEMENT PATTERNS
+
+Ensure correct classification for:
+
+* horizontal push
+* vertical push
+* horizontal pull
+* vertical pull
+* squat
+* hinge
+* lunge
+* carry
+* rotation
+* anti-rotation
+* flexion
+* extension
+* isolation
+
+6. MUSCLE MAPPING
+
+Maintain a strict distinction between:
+
+* primary muscles
+* secondary muscles
+
+Do not assign large numbers of primary muscles merely to make an exercise appear comprehensive.
+
+7. EQUIPMENT
+
+Use the existing equipment taxonomy.
+
+Distinguish between:
+
+* equipment
+* required equipment
+
+so equipment-aware exercise replacement can work correctly.
+
+8. DIFFICULTY
+
+Use:
+
+* BEGINNER
+* INTERMEDIATE
+* ADVANCED
+
+based on execution complexity, coordination, stability, and technical demands.
+
+Do not interpret difficulty simply as how heavy or effective an exercise is.
+
+9. ALIASES
+
+Add common abbreviations and alternate names where useful.
+
+Examples:
+
+* Romanian Deadlift → RDL
+* Overhead Press → OHP
+
+10. TAGS
+
+Use controlled, meaningful tags such as:
+
+* compound
+* isolation
+* unilateral
+* bilateral
+* machine
+* free-weight
+* bodyweight
+* upper-body
+* lower-body
+* posterior-chain
+
+Do not create uncontrolled tag spam.
+
+11. PROGRAMMING DEFAULTS
+
+Add sensible default ranges where appropriate:
+
+* recommended sets
+* recommended rep range
+* recommended rest
+* recommended RPE/RIR
+
+These are defaults only and must not override coach/program prescriptions.
+
+12. MEDIA
+
+Do not invent or fabricate media URLs.
+
+If approved media is not available:
+
+* leave media appropriately empty, or
+* keep the exercise DRAFT if production validation requires media.
+
+Do not mark exercises ACTIVE solely to increase the catalog count.
+
+13. STATUS
+
+Use:
+
+* DRAFT
+* ACTIVE
+* ARCHIVED
+
+Production exercises must meet the existing ACTIVE validation rules.
+
+14. IMPORT PIPELINE
+
+Do not insert all exercises blindly.
+
+Implement/use a batch import process that:
+
+* validates schema
+* validates taxonomy
+* detects duplicate names/slugs
+* detects potential duplicate exercises
+* reports invalid records
+* supports safe re-running/idempotent imports
+
+15. STABLE IDS
+
+Never regenerate IDs for existing exercises.
+
+Existing exercises already referenced by:
+
+* workouts
+* programs
+* workout sessions
+* progress
+* analytics
+
+must retain their existing IDs.
+
+16. BATCH IMPORT
+
+Import the catalog in multiple batches rather than one uncontrolled migration.
+
+Suggested batches:
+
+* 30
+* 50
+* 50
+* 50
+* 50
+* remaining exercises
+
+After each batch:
+
+* validate
+* check duplicates
+* verify search
+* verify filters
+* verify detail pages
+* verify alternatives
+
+17. QUALITY CHECKS
+
+For every production exercise verify:
+
+* name
+* slug
+* primary muscle
+* movement pattern
+* equipment
+* difficulty
+* instructions
+* taxonomy validity
+
+Where applicable also verify:
+
+* secondary muscles
+* coaching cues
+* common mistakes
+* aliases
+* tags
+* programming defaults
+* media
+
+18. SEARCH COMPATIBILITY
+
+After import verify:
+
+* exercise name search
+* alias search
+* muscle filters
+* equipment filters
+* movement filters
+* difficulty filters
+* category filters
+* combined filters
+
+19. ALTERNATIVE COMPATIBILITY
+
+Ensure exercises have enough accurate metadata for the existing alternative engine to rank compatible substitutes.
+
+Do not manually create hundreds of arbitrary alternative relationships if the existing alternative engine can derive them from structured metadata.
+
+20. TESTS
+
+Add/update tests for:
+
+* import validation
+* duplicate detection
+* idempotent imports
+* taxonomy validation
+* slug uniqueness
+* search
+* filtering
+* pagination
+* exercise retrieval
+* archive behavior
+* existing workout references
+
+21. DO NOT CHANGE
+
+Do not redesign:
+
+* workout execution
+* workout builder
+* progress dashboard
+* AI
+* billing
+* authentication
+* organization management
+
+Those are separate phases.
+
+22. RUN
+
+Run:
+
+* database validation
+* migration/import tests
+* type checking
+* linting
+* unit tests
+* integration tests
+* existing tests
+* mobile build
+
+At the end report:
+
+A. Total exercises before
+B. Total exercises after
+C. Exercises by body area/category
+D. Duplicates detected
+E. Invalid records
+F. Exercises left in DRAFT
+G. Database changes
+H. Files changed
+I. Tests passed
+J. Any taxonomy inconsistencies
+K. Recommended next step
+
+Do not claim an exercise count has been reached unless the imported records actually exist and pass validation.
+
+---
+
+## After 6A.4
+
+Once the catalog is actually populated and validated, **we stop working on the exercise library**.
+
+Then we move to the much more important user-facing upgrade:
+
+# Phase 6B — Workout Experience 2.0
+
+That phase will transform:
+
+```text
+Select Workout
+      ↓
+Warm-up
+      ↓
+Exercise
+      ↓
+Set 1
+      ↓
+Rest Timer
+      ↓
+Set 2
+      ↓
+...
+      ↓
+Workout Complete
+      ↓
+Performance Summary
+```
+
+into a significantly more capable workout engine with **supersets, dropsets, warm-up sets, RPE/RIR, tempo, rest timers, automatic progression suggestions, PR detection, exercise replacement, workout notes, set editing, pause/resume, offline workout logging, and a much better completion experience.**
